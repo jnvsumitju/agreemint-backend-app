@@ -137,7 +137,7 @@ class PdfRendererServiceMultiPageTest {
         PdfRendererService svc = new PdfRendererService(mapper, new LayoutBehaviourResolver(mapper));
         byte[] pdf = svc.render(root, JsonNodeFactory.instance.objectNode());
 
-        try (PdfReader reader = new PdfReader(pdf); PdfDocument doc = new PdfDocument(reader)) {
+        try (PdfReader reader = new PdfReader(new java.io.ByteArrayInputStream(pdf)); PdfDocument doc = new PdfDocument(reader)) {
             assertEquals(2, doc.getNumberOfPages());
         }
     }
