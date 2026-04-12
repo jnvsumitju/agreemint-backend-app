@@ -1,0 +1,1140 @@
+package com.agreemint.pdf;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Renders layout DSL to PDF. Coordinates use top-left origin, Y increasing downward (same as canvas UI).
+ * Converted to iText bottom-left internally.
+ */
+@Service
+public class PdfRendererService {
+
+    private static final Logger log = LoggerFactory.getLogger(PdfRendererService.class);
+
+    private static final Pattern VAR_PATTERN = Pattern.compile("\\{\\{\\s*([a-zA-Z0-9_.]+)\\s*}}");
+
+    /** Built-in merge keys; overlay per PDF page so headers/footers can show page x of y. */
+    private static final String DATA_KEY_TOTAL_PAGES = "totalPages";
+    private static final String DATA_KEY_PAGE_NUMBER = "pageNumber";
+
+    private final ObjectMapper objectMapper;
+    private final LayoutBehaviourResolver behaviourResolver;
+
+    public PdfRendererService(ObjectMapper objectMapper, LayoutBehaviourResolver behaviourResolver) {
+        this.objectMapper = objectMapper;
+        this.behaviourResolver = behaviourResolver;
+    }
+
+    public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
+        PageSpec pageSpec = readPage(layoutJson);
+        List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        PageSize pageSize = pageSpec.pageSize();
+        /*
+         * layout.Document does not create a physical page until content is added. Code paths such as
+         * addText (background fill) use PdfCanvas on page 1 first — ensure the page exists.
+         */
+        pdfDoc.addNewPage(pageSize);
+        Document document = new Document(pdfDoc, pageSize);
+        /*
+         * Canvas stores element x,y from the top-left of the full page (same pt system as PDF page size).
+         * Fixed layout uses absolute page coordinates — do not offset by document margins here.
+         */
+        document.setMargins(0, 0, 0, 0);
+
+        float pageHeight = pageSize.getHeight();
+        int totalPages = Math.max(1, perPageElements.size());
+
+        for (int pageIdx = 0; pageIdx < perPageElements.size(); pageIdx++) {
+            int pageNumber = pageIdx + 1;
+            if (pageIdx > 0) {
+                pdfDoc.addNewPage(pageSize);
+            }
+            JsonNode pageData = dataWithBuiltinPageVars(data, pageNumber, totalPages);
+            List<JsonNode> elements = mergedElementsForPdfPage(perPageElements, pageIdx);
+            for (JsonNode el : elements) {
+                LayoutBehaviourResolver.Resolution resolved = behaviourResolver.resolveElement(el, pageData, null);
+                if (!resolved.visible()) {
+                    continue;
+                }
+                JsonNode drawEl = resolved.element();
+                String type = drawEl.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+                if (("HEADER".equals(type) || "FOOTER".equals(type))
+                        && drawEl.path("bandElements").isArray()
+                        && drawEl.path("bandElements").size() > 0) {
+                    renderBandChildren(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                    continue;
+                }
+                dispatchElementByType(pdfDoc, document, drawEl, type, pageData, pageHeight, pageNumber);
+            }
+        }
+
+        document.close();
+        return baos.toByteArray();
+    }
+
+    /**
+     * Prefer {@code pages[].elements} when {@code pages} is a non-empty array (multi-page editor export);
+     * otherwise use root {@code elements} (legacy single-page).
+     */
+    static List<JsonNode> pageElementArraysFromLayout(JsonNode layoutJson) {
+        JsonNode pages = layoutJson.path("pages");
+        if (pages.isArray() && !pages.isEmpty()) {
+            List<JsonNode> out = new ArrayList<>(pages.size());
+            for (JsonNode p : pages) {
+                JsonNode els = p.path("elements");
+                out.add(els.isArray() ? els : JsonNodeFactory.instance.arrayNode());
+            }
+            return out;
+        }
+        JsonNode elements = layoutJson.path("elements");
+        if (!elements.isArray()) {
+            return List.of(JsonNodeFactory.instance.arrayNode());
+        }
+        return List.of(elements);
+    }
+
+    /**
+     * Multi-page layouts: repeat page 0's HEADER/FOOTER on every physical page (same as editor merge).
+     * Strips HEADER/FOOTER from pages after the first so bands are not duplicated if present in JSON.
+     */
+    static List<JsonNode> mergedElementsForPdfPage(List<JsonNode> perPageElements, int pageIndex) {
+        if (pageIndex < 0 || pageIndex >= perPageElements.size()) {
+            return List.of();
+        }
+        JsonNode pageEls = perPageElements.get(pageIndex);
+        if (perPageElements.size() <= 1 || pageIndex == 0) {
+            return jsonArrayToList(pageEls);
+        }
+        List<JsonNode> bands = headerFooterNodesFromPageElements(perPageElements.get(0));
+        List<JsonNode> body = filterOutHeaderFooter(jsonArrayToList(pageEls));
+        if (bands.isEmpty()) {
+            return body;
+        }
+        List<JsonNode> merged = new ArrayList<>(bands.size() + body.size());
+        merged.addAll(bands);
+        merged.addAll(body);
+        return merged;
+    }
+
+    private static List<JsonNode> jsonArrayToList(JsonNode arr) {
+        if (arr == null || !arr.isArray()) {
+            return List.of();
+        }
+        List<JsonNode> out = new ArrayList<>(arr.size());
+        for (JsonNode n : arr) {
+            out.add(n);
+        }
+        return out;
+    }
+
+    private static List<JsonNode> headerFooterNodesFromPageElements(JsonNode page0elements) {
+        if (page0elements == null || !page0elements.isArray()) {
+            return List.of();
+        }
+        List<JsonNode> bands = new ArrayList<>();
+        for (JsonNode el : page0elements) {
+            String type = el.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+            if ("HEADER".equals(type) || "FOOTER".equals(type)) {
+                bands.add(el);
+            }
+        }
+        return bands.isEmpty() ? List.of() : bands;
+    }
+
+    private static List<JsonNode> filterOutHeaderFooter(List<JsonNode> elements) {
+        if (elements.isEmpty()) {
+            return elements;
+        }
+        List<JsonNode> out = new ArrayList<>(elements.size());
+        for (JsonNode el : elements) {
+            String type = el.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+            if (!"HEADER".equals(type) && !"FOOTER".equals(type)) {
+                out.add(el);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Ensures {@code totalPages} and {@code pageNumber} exist on the data root for each physical page
+     * (matches editor behaviour). Caller JSON may supply these; per-page values win.
+     */
+    private JsonNode dataWithBuiltinPageVars(JsonNode data, int pageNumber1Based, int totalPages) {
+        ObjectNode base;
+        if (data != null && data.isObject()) {
+            base = (ObjectNode) data.deepCopy();
+        } else {
+            base = objectMapper.createObjectNode();
+        }
+        base.put(DATA_KEY_TOTAL_PAGES, Integer.toString(totalPages));
+        base.put(DATA_KEY_PAGE_NUMBER, Integer.toString(pageNumber1Based));
+        return base;
+    }
+
+    /** Draw HEADER/FOOTER composed of {@code bandElements} (band-local coords → page coords). */
+    private void renderBandChildren(
+            PdfDocument pdfDoc,
+            Document document,
+            JsonNode band,
+            JsonNode pageData,
+            float pageHeight,
+            int pageNumber) throws IOException {
+        double bx = band.path("x").asDouble(0);
+        double by = band.path("y").asDouble(0);
+        for (JsonNode raw : band.get("bandElements")) {
+            ObjectNode child = (ObjectNode) raw.deepCopy();
+            child.put("x", child.path("x").asDouble(0) + bx);
+            child.put("y", child.path("y").asDouble(0) + by);
+            LayoutBehaviourResolver.Resolution cr = behaviourResolver.resolveElement(child, pageData, null);
+            if (!cr.visible()) {
+                continue;
+            }
+            JsonNode c = cr.element();
+            String ct = c.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+            dispatchElementByType(pdfDoc, document, c, ct, pageData, pageHeight, pageNumber);
+        }
+    }
+
+    private void dispatchElementByType(
+            PdfDocument pdfDoc,
+            Document document,
+            JsonNode drawEl,
+            String type,
+            JsonNode pageData,
+            float pageHeight,
+            int pageNumber) throws IOException {
+        switch (type) {
+            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" ->
+                    addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+            case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
+            case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
+            case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "TRIANGLE" -> addTriangleShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "DIAMOND" -> addDiamondShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+        }
+    }
+
+    private void addText(PdfDocument pdfDoc, Document document, JsonNode el, JsonNode data, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(200);
+        float h = (float) el.path("height").asDouble(20);
+        float yTop = pageHeight - elY;
+        float bottom = yTop - h;
+
+        JsonNode style = el.path("style");
+        /*
+         * Paragraph backgrounds in iText only cover the laid-out text height, which is usually
+         * smaller than the editor's element height — leaving empty space at the top of the box.
+         * Paint the frame fill on the canvas to match the canvas (full width × height).
+         */
+        Color frameBg = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        if (frameBg != null) {
+            PdfCanvas bgCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            bgCanvas.saveState();
+            bgCanvas.setFillColor(frameBg);
+            bgCanvas.rectangle(x, bottom, w, h);
+            bgCanvas.fill();
+            bgCanvas.restoreState();
+        }
+
+        Paragraph p = buildParagraphFromContent(el.get("content"), data, null, style);
+        p.setPadding(0);
+        p.setMargin(0);
+        p.setHeight(UnitValue.createPointValue(h));
+        p.setVerticalAlignment(VerticalAlignment.TOP);
+        p.setFixedPosition(pageNumber, x, bottom, w);
+        document.add(p);
+    }
+
+    private Paragraph buildParagraphFromContent(JsonNode contentField, JsonNode data, JsonNode rowContext, JsonNode elementStyle) {
+        JsonNode runs = resolveRichRuns(contentField);
+        if (runs != null) {
+            return paragraphFromRuns(runs, data, rowContext, elementStyle);
+        }
+        String raw = contentField == null || contentField.isNull() ? "" : contentField.asText("");
+        Paragraph p = new Paragraph(substitute(raw, data, rowContext));
+        applyTextStyle(p, elementStyle);
+        return p;
+    }
+
+    private JsonNode resolveRichRuns(JsonNode contentField) {
+        if (contentField == null || contentField.isNull()) {
+            return null;
+        }
+        if (contentField.isObject()
+                && contentField.path("rich").asBoolean(false)
+                && contentField.path("runs").isArray()) {
+            return contentField.get("runs");
+        }
+        if (contentField.isTextual()) {
+            String s = contentField.asText();
+            if (s.trim().startsWith("{")) {
+                try {
+                    JsonNode tree = objectMapper.readTree(s);
+                    if (tree.path("rich").asBoolean(false) && tree.path("runs").isArray()) {
+                        return tree.get("runs");
+                    }
+                } catch (Exception ignored) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Paragraph paragraphFromRuns(JsonNode runs, JsonNode data, JsonNode rowContext, JsonNode elementStyle) {
+        Paragraph p = new Paragraph();
+        if (elementStyle != null && !elementStyle.isNull()) {
+            float fs = (float) elementStyle.path("fontSize").asDouble(12);
+            p.setFontSize(fs);
+            Color baseColor = parseCssColorToItext(elementStyle.path("color").asText(""));
+            if (baseColor != null) {
+                p.setFontColor(baseColor);
+            }
+        }
+        for (JsonNode run : runs) {
+            String type = run.path("type").asText("text");
+            if ("var".equals(type)) {
+                String name = run.path("name").asText("");
+                String val = lookup(name, data, rowContext);
+                Text t = new Text(val);
+                applyRunTextStyle(t, run, elementStyle);
+                p.add(t);
+            } else {
+                String text = run.path("text").asText("");
+                String sub = substitute(text, data, rowContext);
+                Text t = new Text(sub);
+                applyRunTextStyle(t, run, elementStyle);
+                p.add(t);
+            }
+        }
+        applyParagraphAlignmentOnly(p, elementStyle);
+        return p;
+    }
+
+    private void applyRunTextStyle(Text t, JsonNode run, JsonNode elementStyle) {
+        JsonNode base = (elementStyle == null || elementStyle.isNull())
+                ? JsonNodeFactory.instance.objectNode()
+                : elementStyle;
+        float baseSize = (float) base.path("fontSize").asDouble(12);
+        float size = run.has("fontSize") && !run.path("fontSize").isNull()
+                ? (float) run.path("fontSize").asDouble(baseSize)
+                : baseSize;
+        t.setFontSize(size);
+        boolean bold = run.has("bold")
+                ? run.path("bold").asBoolean()
+                : base.path("bold").asBoolean(false);
+        boolean italic = run.has("italic")
+                ? run.path("italic").asBoolean()
+                : base.path("italic").asBoolean(false);
+        if (bold) {
+            t.setBold();
+        }
+        if (italic) {
+            t.setItalic();
+        }
+        if (run.path("underline").asBoolean(false)) {
+            t.setUnderline(0.75f, -2f);
+        }
+        if (run.path("strikethrough").asBoolean(false)) {
+            t.setUnderline(0.75f, 3.2f);
+        }
+        boolean superscript = run.path("superscript").asBoolean(false);
+        boolean subscript = run.path("subscript").asBoolean(false);
+        if (superscript && !subscript) {
+            float scriptSize = size * 0.72f;
+            t.setFontSize(scriptSize);
+            t.setTextRise(size * 0.33f);
+        } else         if (subscript && !superscript) {
+            float scriptSize = size * 0.72f;
+            t.setFontSize(scriptSize);
+            t.setTextRise(-size * 0.2f);
+        }
+        String runColor = run.path("color").asText("").trim();
+        if (runColor.isEmpty()) {
+            runColor = base.path("color").asText("").trim();
+        }
+        Color fontColor = parseCssColorToItext(runColor);
+        if (fontColor != null) {
+            t.setFontColor(fontColor);
+        }
+        String hl = run.path("highlightColor").asText("").trim();
+        Color hlColor = parseCssColorToItext(hl);
+        if (hlColor != null) {
+            t.setBackgroundColor(hlColor);
+        }
+    }
+
+    private void applyParagraphAlignmentOnly(Paragraph p, JsonNode style) {
+        if (style == null || style.isNull()) {
+            return;
+        }
+        String align = style.path("align").asText("left").toLowerCase();
+        p.setTextAlignment(switch (align) {
+            case "center" -> TextAlignment.CENTER;
+            case "right" -> TextAlignment.RIGHT;
+            default -> TextAlignment.LEFT;
+        });
+    }
+
+    private void addTable(Document document, JsonNode el, JsonNode data, float pageHeight, int pageNumber) {
+        JsonNode columns = el.path("columns");
+        if (!columns.isArray() || columns.isEmpty()) {
+            return;
+        }
+        String dataKey = el.path("dataKey").asText("items");
+        JsonNode rows = resolveDataPath(data, dataKey);
+        if (rows == null || !rows.isArray()) {
+            rows = data.path(dataKey);
+        }
+        if (!rows.isArray()) {
+            rows = JsonNodeFactory.instance.arrayNode();
+        }
+
+        float[] colWidths = new float[columns.size()];
+        JsonNode cwNode = el.path("columnWidths");
+        float sumW = 0f;
+        for (int i = 0; i < columns.size(); i++) {
+            float w = (cwNode.isArray() && i < cwNode.size())
+                    ? (float) cwNode.get(i).asDouble(1)
+                    : 1f;
+            if (w <= 0f) {
+                w = 1f;
+            }
+            colWidths[i] = w;
+            sumW += w;
+        }
+        if (sumW <= 0f) {
+            sumW = columns.size();
+            for (int i = 0; i < columns.size(); i++) {
+                colWidths[i] = 1f;
+            }
+        }
+        for (int i = 0; i < columns.size(); i++) {
+            colWidths[i] = colWidths[i] / sumW * 100f;
+        }
+        Table table = new Table(UnitValue.createPercentArray(colWidths)).useAllAvailableWidth();
+
+        JsonNode headerStyle = objectMapper.createObjectNode().put("bold", true);
+        int headerColIndex = 0;
+        for (JsonNode col : columns) {
+            Paragraph headerParagraph = buildParagraphFromContent(col.get("header"), data, null, headerStyle);
+            Cell headerCell = new Cell()
+                    .add(headerParagraph)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                    .setPadding(4);
+            Color headerBg = parseCssColorToItext(effectiveTableCellBackground(el, -1, headerColIndex));
+            if (headerBg != null) {
+                headerCell.setBackgroundColor(headerBg);
+            }
+            table.addHeaderCell(headerCell);
+            headerColIndex++;
+        }
+
+        JsonNode behaviour = el.path("behaviour");
+        int dataRowIndex = 0;
+        for (JsonNode row : rows) {
+            if (row != null && row.isObject() && behaviourResolver.tableRowHidden(behaviour, row, data)) {
+                continue;
+            }
+            int bodyColIndex = 0;
+            for (JsonNode col : columns) {
+                String key = col.path("key").asText("");
+                String cellText = cellValue(row, key, data);
+                Paragraph para = new Paragraph(cellText);
+                LayoutBehaviourResolver.CellStyleDelta delta =
+                        behaviourResolver.tableCellStyle(behaviour, row, data, bodyColIndex);
+                if (delta.textColor() != null && !delta.textColor().isBlank()) {
+                    Color tc = parseCssColorToItext(delta.textColor());
+                    if (tc != null) {
+                        para.setFontColor(tc);
+                    }
+                }
+                Cell bodyCell = new Cell()
+                        .add(para)
+                        .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                        .setPadding(4);
+                Color cellBg = parseCssColorToItext(effectiveTableCellBackground(el, dataRowIndex, bodyColIndex));
+                if (delta.backgroundColor() != null && !delta.backgroundColor().isBlank()) {
+                    Color ob = parseCssColorToItext(delta.backgroundColor());
+                    if (ob != null) {
+                        cellBg = ob;
+                    }
+                }
+                if (cellBg != null) {
+                    bodyCell.setBackgroundColor(cellBg);
+                }
+                table.addCell(bodyCell);
+                bodyColIndex++;
+            }
+            dataRowIndex++;
+        }
+
+        table.setMarginTop((float) el.path("marginTop").asDouble(8));
+        table.setMarginBottom((float) el.path("marginBottom").asDouble(8));
+
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(0);
+        if (w <= 0f) {
+            w = document.getPdfDocument().getDefaultPageSize().getWidth() - x;
+        }
+        float h = (float) el.path("height").asDouble(120);
+        float bottom = pageHeight - elY - h;
+        table.setFixedPosition(pageNumber, x, bottom, w);
+        document.add(table);
+    }
+
+    private String cellValue(JsonNode row, String key, JsonNode globalData) {
+        if (row != null && row.has(key)) {
+            JsonNode v = row.get(key);
+            if (v.isTextual()) {
+                return substitute(v.asText(), globalData, row);
+            }
+            return v.asText("");
+        }
+        return "";
+    }
+
+    private String textFromStringObjectMap(JsonNode map, String key) {
+        if (map == null || !map.isObject()) {
+            return null;
+        }
+        JsonNode n = map.get(key);
+        return n != null && n.isTextual() ? n.asText() : null;
+    }
+
+    /** Fill precedence: cell > column > row (matches frontend). Keys: cell="row,col", col="0"…, row="-1","0"… */
+    private String effectiveTableCellBackground(JsonNode el, int row, int col) {
+        JsonNode cellMap = el.path("tableCellBackgrounds");
+        String cellBg = textFromStringObjectMap(cellMap, row + "," + col);
+        if (cellBg != null && !cellBg.isBlank()) {
+            return cellBg;
+        }
+        JsonNode colMap = el.path("tableColumnBackgrounds");
+        String colBg = textFromStringObjectMap(colMap, String.valueOf(col));
+        if (colBg != null && !colBg.isBlank()) {
+            return colBg;
+        }
+        JsonNode rowMap = el.path("tableRowBackgrounds");
+        String rowBg = textFromStringObjectMap(rowMap, String.valueOf(row));
+        if (rowBg != null && !rowBg.isBlank()) {
+            return rowBg;
+        }
+        return null;
+    }
+
+    private static final Pattern CSS_RGB =
+            Pattern.compile(
+                    "rgba?\\(\\s*([0-9]+)\\s*,\\s*([0-9]+)\\s*,\\s*([0-9]+)(?:\\s*,\\s*([0-9.]+))?\\s*\\)",
+                    Pattern.CASE_INSENSITIVE);
+
+    private Color parseCssColorToItext(String css) {
+        if (css == null) {
+            return null;
+        }
+        css = css.trim();
+        if (css.isEmpty() || "transparent".equalsIgnoreCase(css)) {
+            return null;
+        }
+        if (css.charAt(0) == '#') {
+            String h = css.substring(1);
+            try {
+                if (h.length() == 3) {
+                    int r = Integer.parseInt(h.substring(0, 1) + h.substring(0, 1), 16);
+                    int g = Integer.parseInt(h.substring(1, 2) + h.substring(1, 2), 16);
+                    int b = Integer.parseInt(h.substring(2, 3) + h.substring(2, 3), 16);
+                    return new DeviceRgb(r, g, b);
+                }
+                if (h.length() == 6) {
+                    return new DeviceRgb(
+                            Integer.parseInt(h.substring(0, 2), 16),
+                            Integer.parseInt(h.substring(2, 4), 16),
+                            Integer.parseInt(h.substring(4, 6), 16));
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        Matcher m = CSS_RGB.matcher(css);
+        if (m.find()) {
+            try {
+                int r = Math.min(255, Math.max(0, Integer.parseInt(m.group(1))));
+                int g = Math.min(255, Math.max(0, Integer.parseInt(m.group(2))));
+                int b = Math.min(255, Math.max(0, Integer.parseInt(m.group(3))));
+                return new DeviceRgb(r, g, b);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Builds iText {@link ImageData} from a layout {@code src}: {@code data:image/...;base64,...} is decoded
+     * to bytes; otherwise {@code src} is treated as a URL or file path (iText default).
+     */
+    private ImageData imageDataFromSrc(String src) throws MalformedURLException {
+        String trimmed = src.trim();
+        if (trimmed.regionMatches(true, 0, "data:", 0, 5)) {
+            int comma = trimmed.indexOf(',');
+            if (comma <= 5) {
+                log.warn("IMAGE src data URL missing payload after comma");
+                return null;
+            }
+            String header = trimmed.substring(5, comma);
+            if (!header.toLowerCase(Locale.ROOT).contains("base64")) {
+                log.warn("IMAGE data URL is not base64-encoded; only base64 data URLs are supported for PDF");
+                return null;
+            }
+            String b64 = trimmed.substring(comma + 1).replaceAll("\\s+", "");
+            try {
+                byte[] raw = Base64.getMimeDecoder().decode(b64);
+                return ImageDataFactory.create(raw);
+            } catch (IllegalArgumentException e) {
+                log.warn("IMAGE base64 decode failed: {}", e.getMessage());
+                return null;
+            }
+        }
+        return ImageDataFactory.create(trimmed);
+    }
+
+    private static boolean isAllowedImageUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return true;
+        }
+        String t = url.trim().toLowerCase(Locale.ROOT);
+        return t.startsWith("https://") || t.startsWith("http://") || t.startsWith("data:image/");
+    }
+
+    private void addImage(PdfDocument pdfDoc, Document document, JsonNode el, float pageHeight, int pageNumber) {
+        String url = el.path("src").asText("");
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(100);
+        float yTop = pageHeight - elY;
+        float bottom = yTop - h;
+        JsonNode style = el.path("style");
+        Color backdrop = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        if (backdrop != null) {
+            Rectangle rect = new Rectangle(x, bottom, w, h);
+            PdfCanvas bg = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            bg.saveState();
+            bg.setFillColor(backdrop);
+            bg.rectangle(rect);
+            bg.fill();
+            bg.restoreState();
+        }
+        if (url.isBlank()) {
+            return;
+        }
+        if (!isAllowedImageUrl(url)) {
+            Paragraph err = new Paragraph("[image: URL must be http(s) or data:image]");
+            err.setFixedPosition(pageNumber, x, bottom, 260);
+            document.add(err);
+            return;
+        }
+        try {
+            ImageData data = imageDataFromSrc(url);
+            if (data == null) {
+                Paragraph err = new Paragraph("[image: unsupported or invalid src]");
+                err.setFixedPosition(pageNumber, x, bottom, 200);
+                document.add(err);
+                return;
+            }
+            Image img = new Image(data);
+            img.scaleToFit(w, h);
+            img.setFixedPosition(pageNumber, x, bottom);
+            document.add(img);
+        } catch (MalformedURLException e) {
+            log.warn("IMAGE MalformedURLException: {}", e.getMessage());
+            Paragraph err = new Paragraph("[invalid image url]");
+            err.setFixedPosition(pageNumber, x, bottom, 200);
+            document.add(err);
+        } catch (Exception e) {
+            log.warn("IMAGE could not be embedded: {} — {}", e.getClass().getSimpleName(), e.getMessage());
+            Paragraph err = new Paragraph("[image failed]");
+            err.setFixedPosition(pageNumber, x, bottom, 200);
+            document.add(err);
+        }
+    }
+
+    private void addLine(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x1 = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float elH = (float) el.path("height").asDouble(4);
+        float length = (float) el.path("width").asDouble(400);
+        float stroke = (float) el.path("strokeWidth").asDouble(1);
+        float yPdf = pageHeight - elY - elH / 2f;
+        float x2 = x1 + length;
+
+        Color strokeColor = parseCssColorToItext(el.path("style").path("color").asText(""));
+        if (strokeColor == null) {
+            strokeColor = ColorConstants.BLACK;
+        }
+
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        canvas.setStrokeColor(strokeColor);
+        canvas.setLineWidth(Math.max(0.25f, stroke));
+        canvas.moveTo(x1, yPdf);
+        canvas.lineTo(x2, yPdf);
+        canvas.stroke();
+        canvas.restoreState();
+    }
+
+    private void addBox(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(50);
+        float bottom = pageHeight - elY - h;
+        Rectangle rect = new Rectangle(x, bottom, w, h);
+        JsonNode style = el.path("style");
+        Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        Color stroke = parseCssColorToItext(style.path("color").asText(""));
+        if (stroke == null) {
+            stroke = ColorConstants.GRAY;
+        }
+
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.rectangle(rect);
+            canvas.fill();
+        }
+        canvas.setStrokeColor(stroke);
+        canvas.setLineWidth(2);
+        canvas.setLineDash(3f, 2f);
+        canvas.rectangle(rect);
+        canvas.stroke();
+        canvas.restoreState();
+    }
+
+    /** Layout Y measured from top of page → iText PDF Y (bottom-origin). */
+    private float layoutYToPdf(float pageHeight, float yFromTop) {
+        return pageHeight - yFromTop;
+    }
+
+    /** Closed elliptical path (polygon approximation), as one PDF subpath. */
+    private void ellipseRingPath(
+            PdfCanvas canvas, float pageHeight, float x, float elY, float w, float h, int seg) {
+        float cx = x + w / 2f;
+        float cyTop = elY + h / 2f;
+        float rx = Math.max(0.25f, w / 2f);
+        float ry = Math.max(0.25f, h / 2f);
+        for (int i = 0; i <= seg; i++) {
+            double t = i * 2 * Math.PI / seg;
+            float px = cx + rx * (float) Math.cos(t);
+            float pyTop = cyTop + ry * (float) Math.sin(t);
+            float pyPdf = layoutYToPdf(pageHeight, pyTop);
+            if (i == 0) {
+                canvas.moveTo(px, pyPdf);
+            } else {
+                canvas.lineTo(px, pyPdf);
+            }
+        }
+        canvas.closePath();
+    }
+
+    private void addEllipseShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(80);
+        JsonNode style = el.path("style");
+        Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        Color stroke = parseCssColorToItext(style.path("color").asText(""));
+        if (stroke == null) {
+            stroke = ColorConstants.BLACK;
+        }
+        float sw = (float) el.path("strokeWidth").asDouble(2);
+        int seg = 40;
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
+        canvas.setStrokeColor(stroke);
+        canvas.setLineWidth(Math.max(0.25f, sw));
+        if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fillStroke();
+        } else {
+            canvas.stroke();
+        }
+        canvas.restoreState();
+    }
+
+    /** Concentric ellipses: fill (even-odd) and/or stroke outer and inner outlines. */
+    private void addRingShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(120);
+        float h = (float) el.path("height").asDouble(120);
+        double ratioD = el.path("ringInnerRatio").asDouble(0.55);
+        float ratio = (float) Math.max(0.05, Math.min(0.95, ratioD));
+        float iw = w * ratio;
+        float ih = h * ratio;
+        float ox = x + (w - iw) / 2f;
+        float oy = elY + (h - ih) / 2f;
+        JsonNode style = el.path("style");
+        Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        Color stroke = parseCssColorToItext(style.path("color").asText(""));
+        if (stroke == null) {
+            stroke = ColorConstants.BLACK;
+        }
+        float sw = (float) el.path("strokeWidth").asDouble(2);
+        int seg = 36;
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        if (fill != null) {
+            ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
+            ellipseRingPath(canvas, pageHeight, ox, oy, iw, ih, seg);
+            canvas.setFillColor(fill);
+            canvas.eoFill();
+        }
+        if (sw >= 0.25f) {
+            canvas.setStrokeColor(stroke);
+            canvas.setLineWidth(Math.max(0.25f, sw));
+            ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
+            canvas.stroke();
+            ellipseRingPath(canvas, pageHeight, ox, oy, iw, ih, seg);
+            canvas.stroke();
+        }
+        canvas.restoreState();
+    }
+
+    private void addTriangleShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(90);
+        strokeFilledPolygon(
+                pdfDoc,
+                pageHeight,
+                pageNumber,
+                el,
+                new float[] {x + w / 2f, x + w, x},
+                new float[] {elY, elY + h, elY + h});
+    }
+
+    private void addDiamondShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(100);
+        strokeFilledPolygon(
+                pdfDoc,
+                pageHeight,
+                pageNumber,
+                el,
+                new float[] {x + w / 2f, x + w, x + w / 2f, x},
+                new float[] {elY, elY + h / 2f, elY + h, elY + h / 2f});
+    }
+
+    private void addStarShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(100);
+        float cx = x + w / 2f;
+        float cyTop = elY + h / 2f;
+        float ro = Math.min(w, h) / 2f;
+        float ri = ro * 0.38f;
+        float[] xs = new float[10];
+        float[] ys = new float[10];
+        for (int i = 0; i < 10; i++) {
+            double a = (i * Math.PI) / 5.0 - Math.PI / 2.0;
+            float r = (i % 2 == 0) ? ro : ri;
+            xs[i] = cx + r * (float) Math.cos(a);
+            ys[i] = cyTop + r * (float) Math.sin(a);
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
+    }
+
+    private void addArrowShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(140);
+        float h = (float) el.path("height").asDouble(48);
+        float t = Math.min(h * 0.35f, w * 0.18f);
+        float mid = elY + h / 2f;
+        float x0 = x;
+        float xShaft = x + w * 0.68f;
+        float xTip = x + w;
+        strokeFilledPolygon(
+                pdfDoc,
+                pageHeight,
+                pageNumber,
+                el,
+                new float[] {x0, xShaft, xShaft, xTip, xShaft, xShaft, x0, x0},
+                new float[] {
+                    mid - t / 2f,
+                    mid - t / 2f,
+                    elY,
+                    mid,
+                    elY + h,
+                    mid + t / 2f,
+                    mid + t / 2f,
+                    mid - t / 2f
+                });
+    }
+
+    private void strokeFilledPolygon(
+            PdfDocument pdfDoc, float pageHeight, int pageNumber, JsonNode el, float[] xsTop, float[] ysTop) {
+        if (xsTop.length < 3 || xsTop.length != ysTop.length) {
+            return;
+        }
+        JsonNode style = el.path("style");
+        Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        Color stroke = parseCssColorToItext(style.path("color").asText(""));
+        if (stroke == null) {
+            stroke = ColorConstants.BLACK;
+        }
+        float sw = (float) el.path("strokeWidth").asDouble(2);
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        float py0 = layoutYToPdf(pageHeight, ysTop[0]);
+        canvas.moveTo(xsTop[0], py0);
+        for (int i = 1; i < xsTop.length; i++) {
+            canvas.lineTo(xsTop[i], layoutYToPdf(pageHeight, ysTop[i]));
+        }
+        canvas.closePath();
+        canvas.setStrokeColor(stroke);
+        canvas.setLineWidth(Math.max(0.25f, sw));
+        if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fillStroke();
+        } else {
+            canvas.stroke();
+        }
+        canvas.restoreState();
+    }
+
+    /** Append one closed ring (layout top-left coords relative to element origin) to the current path. */
+    private void appendLayoutRingToPath(
+            PdfCanvas canvas, float pageHeight, float x0, float elY, JsonNode ring) {
+        if (!ring.isArray() || ring.size() < 2) {
+            return;
+        }
+        boolean first = true;
+        for (JsonNode pt : ring) {
+            if (!pt.isArray() || pt.size() < 2) {
+                continue;
+            }
+            float lx = (float) pt.get(0).asDouble();
+            float ly = (float) pt.get(1).asDouble();
+            float px = x0 + lx;
+            float pyTop = elY + ly;
+            float pyPdf = layoutYToPdf(pageHeight, pyTop);
+            if (first) {
+                canvas.moveTo(px, pyPdf);
+                first = false;
+            } else {
+                canvas.lineTo(px, pyPdf);
+            }
+        }
+        canvas.closePath();
+    }
+
+    /**
+     * MERGED_SHAPE: polygon union or boolean difference (e.g. star ring). Each entry in {@code shapePolys} is one
+     * region with optional holes; even-odd fill matches canvas/SVG.
+     */
+    private void addMergedShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x0 = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        JsonNode polys = el.path("shapePolys");
+        if (!polys.isArray() || polys.isEmpty()) {
+            return;
+        }
+        JsonNode style = el.path("style");
+        Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        Color stroke = parseCssColorToItext(style.path("color").asText(""));
+        if (stroke == null) {
+            stroke = ColorConstants.BLACK;
+        }
+        float sw = (float) el.path("strokeWidth").asDouble(2);
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        if (fill != null) {
+            canvas.setFillColor(fill);
+            for (JsonNode poly : polys) {
+                if (!poly.isArray()) {
+                    continue;
+                }
+                for (JsonNode ring : poly) {
+                    appendLayoutRingToPath(canvas, pageHeight, x0, elY, ring);
+                }
+                canvas.eoFill();
+            }
+        }
+        if (sw >= 0.25f) {
+            canvas.setStrokeColor(stroke);
+            canvas.setLineWidth(Math.max(0.25f, sw));
+            for (JsonNode poly : polys) {
+                if (!poly.isArray()) {
+                    continue;
+                }
+                for (JsonNode ring : poly) {
+                    appendLayoutRingToPath(canvas, pageHeight, x0, elY, ring);
+                    canvas.stroke();
+                }
+            }
+        }
+        canvas.restoreState();
+    }
+
+    private void applyTextStyle(Paragraph p, JsonNode style) {
+        if (style.isMissingNode() || style.isNull()) {
+            return;
+        }
+        float fontSize = (float) style.path("fontSize").asDouble(12);
+        p.setFontSize(fontSize);
+        if (style.path("bold").asBoolean(false)) {
+            p.setBold();
+        }
+        if (style.path("italic").asBoolean(false)) {
+            p.setItalic();
+        }
+        Color fontColor = parseCssColorToItext(style.path("color").asText(""));
+        if (fontColor != null) {
+            p.setFontColor(fontColor);
+        }
+        String align = style.path("align").asText("left").toLowerCase();
+        p.setTextAlignment(switch (align) {
+            case "center" -> TextAlignment.CENTER;
+            case "right" -> TextAlignment.RIGHT;
+            default -> TextAlignment.LEFT;
+        });
+    }
+
+
+    private String substitute(String template, JsonNode globalData, JsonNode rowContext) {
+        if (template == null || template.isEmpty()) {
+            return "";
+        }
+        Matcher m = VAR_PATTERN.matcher(template);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String key = m.group(1);
+            String val = lookup(key, globalData, rowContext);
+            m.appendReplacement(sb, Matcher.quoteReplacement(val));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    private String lookup(String path, JsonNode globalData, JsonNode rowContext) {
+        JsonNode n = resolveDataPath(globalData, path);
+        if ((n == null || n.isMissingNode() || n.isNull()) && rowContext != null) {
+            n = resolveDataPath(rowContext, path);
+        }
+        if (n == null || n.isMissingNode() || n.isNull()) {
+            return "";
+        }
+        if (n.isTextual()) {
+            return n.asText();
+        }
+        if (n.isNumber()) {
+            return n.asText();
+        }
+        if (n.isBoolean()) {
+            return Boolean.toString(n.asBoolean());
+        }
+        return n.toString();
+    }
+
+    private JsonNode resolveDataPath(JsonNode root, String path) {
+        if (root == null || path == null || path.isEmpty()) {
+            return null;
+        }
+        String[] parts = path.split("\\.");
+        JsonNode cur = root;
+        for (String part : parts) {
+            if (cur == null || !cur.has(part)) {
+                return null;
+            }
+            cur = cur.get(part);
+        }
+        return cur;
+    }
+
+    private PageSpec readPage(JsonNode layoutJson) {
+        JsonNode page = layoutJson.path("page");
+        String size = page.path("size").asText("A4").toUpperCase();
+        float uniform = (float) page.path("margin").asDouble(40);
+        JsonNode m = page.path("margins");
+        float top;
+        float right;
+        float bottom;
+        float left;
+        if (m.isObject()) {
+            top = (float) m.path("top").asDouble(uniform);
+            right = (float) m.path("right").asDouble(uniform);
+            bottom = (float) m.path("bottom").asDouble(uniform);
+            left = (float) m.path("left").asDouble(uniform);
+        } else {
+            top = right = bottom = left = uniform;
+        }
+        PageSize ps = switch (size) {
+            case "LETTER" -> PageSize.LETTER;
+            case "A3" -> PageSize.A3;
+            case "A5" -> PageSize.A5;
+            default -> PageSize.A4;
+        };
+        return new PageSpec(ps, top, right, bottom, left);
+    }
+
+    private record PageSpec(PageSize pageSize, float marginTop, float marginRight, float marginBottom, float marginLeft) {
+    }
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agreemint.dev/schemas/layout-behaviour.v1.json",
+  "title": "ElementBehaviour",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "behaviourVersion": { "type": "integer", "minimum": 1 },
+    "visibilityRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["when", "show"],
+        "additionalProperties": false,
+        "properties": {
+          "when": { "$ref": "#/$defs/condition" },
+          "show": { "type": "boolean" }
+        }
+      }
+    },
+    "visibilityDefaultShow": { "type": "boolean" },
+    "colorRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["when"],
+        "additionalProperties": false,
+        "properties": {
+          "when": { "$ref": "#/$defs/condition" },
+          "strokeColor": { "type": "string" },
+          "fillColor": { "type": "string" }
+        }
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "widthExpr": { "type": "string" },
+        "heightExpr": { "type": "string" },
+        "minWidth": { "type": "number" },
+        "maxWidth": { "type": "number" },
+        "minHeight": { "type": "number" },
+        "maxHeight": { "type": "number" }
+      }
+    },
+    "textOverflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["clip", "ellipsis", "shrinkToFit"] },
+        "minFontSize": { "type": "number", "minimum": 1 }
+      }
+    },
+    "imageSrcExpr": { "type": "string" },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rowRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when"],
+            "additionalProperties": false,
+            "properties": {
+              "when": { "$ref": "#/$defs/condition" },
+              "hide": { "type": "boolean" }
+            }
+          }
+        },
+        "cellRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when", "colIndex"],
+            "additionalProperties": false,
+            "properties": {
+              "when": { "$ref": "#/$defs/condition" },
+              "colIndex": { "type": "integer", "minimum": 0 },
+              "textColor": { "type": "string" },
+              "backgroundColor": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "condition": {
+      "type": "object",
+      "required": ["left", "op"],
+      "additionalProperties": false,
+      "properties": {
+        "left": { "type": ["string", "number", "boolean"] },
+        "op": {
+          "type": "string",
+          "enum": ["eq", "neq", "gt", "gte", "lt", "lte", "in", "defined"]
+        },
+        "right": { "type": ["string", "number", "boolean"] }
+      }
+    }
+  }
+}
