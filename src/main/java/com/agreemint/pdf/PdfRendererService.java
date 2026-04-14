@@ -257,6 +257,7 @@ public class PdfRendererService {
             case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
             case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
             case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
+            case "LIST" -> addList(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
             default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
         }
     }
@@ -645,6 +646,150 @@ public class PdfRendererService {
             }
         }
         return ImageDataFactory.create(trimmed);
+    }
+
+    // ── LIST element ──
+
+    private void addList(PdfDocument pdfDoc, Document document, JsonNode el, JsonNode data, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(300);
+        float h = (float) el.path("height").asDouble(120);
+        float yTop = pageHeight - elY;
+        float bottom = yTop - h;
+
+        JsonNode style = el.path("style");
+        String listStyleStr = el.path("listStyle").asText("disc");
+        float itemSpacing = (float) el.path("listItemSpacing").asDouble(4);
+        float indent = (float) el.path("listIndent").asDouble(16);
+        int startNumber = el.path("listStartNumber").asInt(1);
+
+        // Background fill
+        Color frameBg = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        if (frameBg != null) {
+            PdfCanvas bgCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            bgCanvas.saveState();
+            bgCanvas.setFillColor(frameBg);
+            bgCanvas.rectangle(x, bottom, w, h);
+            bgCanvas.fill();
+            bgCanvas.restoreState();
+        }
+
+        // Resolve items
+        java.util.List<String> items = resolveListItems(el, data);
+        if (items.isEmpty()) return;
+
+        float markerWidth = indent;
+        float textWidth = Math.max(1, w - indent);
+
+        Table listTable = new Table(new float[]{ markerWidth, textWidth });
+        listTable.setWidth(UnitValue.createPointValue(w));
+        listTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+
+        for (int i = 0; i < items.size(); i++) {
+            String marker = listMarkerForIndex(listStyleStr, i, startNumber);
+            String itemText = substitute(items.get(i), data, null);
+
+            // Marker cell
+            Paragraph markerP = new Paragraph(marker);
+            markerP.setTextAlignment(TextAlignment.RIGHT);
+            applyTextStyle(markerP, style);
+            Cell markerCell = new Cell().add(markerP)
+                    .setBorder(com.itextpdf.layout.borders.Border.NO_BORDER)
+                    .setPaddingRight(4)
+                    .setPaddingTop(i == 0 ? 0 : itemSpacing)
+                    .setPaddingBottom(0);
+
+            // Text cell
+            Paragraph textP = new Paragraph(itemText);
+            applyTextStyle(textP, style);
+            Cell textCell = new Cell().add(textP)
+                    .setBorder(com.itextpdf.layout.borders.Border.NO_BORDER)
+                    .setPaddingTop(i == 0 ? 0 : itemSpacing)
+                    .setPaddingBottom(0);
+
+            listTable.addCell(markerCell);
+            listTable.addCell(textCell);
+        }
+
+        listTable.setFixedPosition(pageNumber, x, bottom, w);
+        document.add(listTable);
+    }
+
+    private java.util.List<String> resolveListItems(JsonNode el, JsonNode data) {
+        String dataKey = el.path("dataKey").asText("");
+        if (!dataKey.isEmpty()) {
+            JsonNode items = resolveDataPath(data, dataKey);
+            if (items == null || !items.isArray()) items = data.path(dataKey);
+            if (!items.isArray()) return java.util.List.of();
+
+            String template = el.path("content").asText("{{.}}");
+            java.util.List<String> result = new java.util.ArrayList<>();
+            for (JsonNode item : items) {
+                if (item.isTextual()) {
+                    result.add(template.replace("{{.}}", item.asText("")));
+                } else if (item.isObject()) {
+                    String resolved = template;
+                    var fields = item.fields();
+                    while (fields.hasNext()) {
+                        var field = fields.next();
+                        resolved = resolved.replace("{{" + field.getKey() + "}}", field.getValue().asText(""));
+                    }
+                    result.add(resolved);
+                } else {
+                    result.add(item.asText(""));
+                }
+            }
+            return result;
+        }
+        // Static mode
+        JsonNode listItems = el.path("listItems");
+        if (!listItems.isArray()) return java.util.List.of();
+        java.util.List<String> result = new java.util.ArrayList<>();
+        for (JsonNode item : listItems) {
+            result.add(item.asText(""));
+        }
+        return result;
+    }
+
+    private String listMarkerForIndex(String style, int index, int startNumber) {
+        int n = startNumber + index;
+        return switch (style) {
+            case "disc" -> "\u2022";
+            case "circle" -> "\u25CB";
+            case "square" -> "\u25A0";
+            case "dash" -> "\u2013";
+            case "number" -> n + ".";
+            case "alpha" -> listToAlpha(n) + ".";
+            case "roman" -> listToRoman(n) + ".";
+            case "none" -> "";
+            default -> "\u2022";
+        };
+    }
+
+    private String listToAlpha(int n) {
+        StringBuilder sb = new StringBuilder();
+        int num = n;
+        while (num > 0) {
+            num--;
+            sb.insert(0, (char) ('a' + (num % 26)));
+            num /= 26;
+        }
+        return sb.toString();
+    }
+
+    private String listToRoman(int n) {
+        if (n <= 0 || n > 3999) return String.valueOf(n);
+        int[] vals = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+        String[] syms = {"m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < vals.length; i++) {
+            while (n >= vals[i]) {
+                sb.append(syms[i]);
+                n -= vals[i];
+            }
+        }
+        return sb.toString();
     }
 
     private static boolean isAllowedImageUrl(String url) {
