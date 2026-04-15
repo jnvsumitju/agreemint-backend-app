@@ -63,6 +63,11 @@ public class DocumentGenerationService {
 
     @Transactional
     public GenerateResponse generate(GenerateRequest request) {
+        return generate(request, null, null);
+    }
+
+    @Transactional
+    public GenerateResponse generate(GenerateRequest request, UUID userId, UUID orgId) {
         TemplateVersion version = templateVersionService.getVersionEntity(
                 request.templateId(), request.versionId());
         JsonNode data = request.data();
@@ -75,6 +80,13 @@ public class DocumentGenerationService {
         doc.setVersion(version);
         doc.setInputData(data);
         doc.setStatus(DocumentStatus.PENDING);
+        doc.setLifecycleStatus(com.agreemint.domain.LifecycleStatus.DRAFT);
+        if (userId != null) doc.setCreatedBy(userId);
+        if (orgId != null) {
+            doc.setOrgId(orgId);
+        } else if (version.getTemplate().getOrgId() != null) {
+            doc.setOrgId(version.getTemplate().getOrgId());
+        }
         generatedDocumentRepository.save(doc);
         generatedDocumentRepository.flush();
 

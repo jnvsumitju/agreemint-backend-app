@@ -3,9 +3,11 @@ package com.agreemint.api;
 import com.agreemint.api.dto.GenerateRequest;
 import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.PreviewPdfRequest;
+import com.agreemint.security.UserPrincipal;
 import com.agreemint.service.DocumentGenerationService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +25,11 @@ public class GenerateController {
     }
 
     @PostMapping("/generate")
-    public GenerateResponse generate(@Valid @RequestBody GenerateRequest request) {
-        return documentGenerationService.generate(request);
+    public GenerateResponse generate(@AuthenticationPrincipal UserPrincipal principal,
+                                      @Valid @RequestBody GenerateRequest request) {
+        return documentGenerationService.generate(request,
+                principal != null ? principal.userId() : null,
+                principal != null ? principal.orgId() : null);
     }
 
     @PostMapping(

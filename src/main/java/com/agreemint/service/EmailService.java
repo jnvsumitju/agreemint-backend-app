@@ -65,6 +65,61 @@ public class EmailService {
         send(to, "Your Agreemint login code: " + otpCode, html);
     }
 
+    /** Notify an approver they have a pending approval step. */
+    @Async
+    public void sendApprovalRequestEmail(String to, String documentTitle,
+                                          String approverName, String reviewLink) {
+        Context ctx = new Context();
+        ctx.setVariable("documentTitle", documentTitle);
+        ctx.setVariable("approverName", approverName);
+        ctx.setVariable("reviewLink", reviewLink);
+
+        String html = templateEngine.process("email/approval-request", ctx);
+        send(to, "Action required: Review '" + documentTitle + "'", html);
+    }
+
+    /** Notify document creator about approval/rejection decision. */
+    @Async
+    public void sendApprovalDecisionEmail(String to, String documentTitle, String decision,
+                                           String reviewerName, String comment, String documentLink) {
+        Context ctx = new Context();
+        ctx.setVariable("documentTitle", documentTitle);
+        ctx.setVariable("decision", decision);
+        ctx.setVariable("reviewerName", reviewerName);
+        ctx.setVariable("comment", comment);
+        ctx.setVariable("documentLink", documentLink);
+
+        String html = templateEngine.process("email/approval-decision", ctx);
+        send(to, "Document '" + documentTitle + "' was " + decision, html);
+    }
+
+    /** Notify about a lifecycle status change. */
+    @Async
+    public void sendLifecycleChangeEmail(String to, String documentTitle, String newStatus,
+                                          String changedBy, String documentLink) {
+        Context ctx = new Context();
+        ctx.setVariable("documentTitle", documentTitle);
+        ctx.setVariable("newStatus", newStatus);
+        ctx.setVariable("changedBy", changedBy);
+        ctx.setVariable("documentLink", documentLink);
+
+        String html = templateEngine.process("email/lifecycle-change", ctx);
+        send(to, "Document status changed: '" + documentTitle + "' is now " + newStatus, html);
+    }
+
+    /** Warn about an upcoming or past document expiration. */
+    @Async
+    public void sendExpirationWarningEmail(String to, String documentTitle,
+                                            String expiresAt, String documentLink) {
+        Context ctx = new Context();
+        ctx.setVariable("documentTitle", documentTitle);
+        ctx.setVariable("expiresAt", expiresAt);
+        ctx.setVariable("documentLink", documentLink);
+
+        String html = templateEngine.process("email/expiration-warning", ctx);
+        send(to, "Document expiring: '" + documentTitle + "'", html);
+    }
+
     // ── Internal ──
 
     private void send(String to, String subject, String htmlBody) {

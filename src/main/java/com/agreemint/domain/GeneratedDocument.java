@@ -45,8 +45,30 @@ public class GeneratedDocument {
     @Column(nullable = false, length = 32)
     private DocumentStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lifecycle_status", length = 32)
+    private LifecycleStatus lifecycleStatus = LifecycleStatus.DRAFT;
+
+    @Column(length = 512)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "org_id")
+    private UUID orgId;
+
+    @Column(name = "created_by")
+    private UUID createdBy;
+
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt = Instant.now();
 
     public UUID getId() {
         return id;
@@ -102,5 +124,61 @@ public class GeneratedDocument {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LifecycleStatus getLifecycleStatus() {
+        return lifecycleStatus;
+    }
+
+    public void setLifecycleStatus(LifecycleStatus lifecycleStatus) {
+        this.lifecycleStatus = lifecycleStatus;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
+    }
+
+    public UUID getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UUID createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
