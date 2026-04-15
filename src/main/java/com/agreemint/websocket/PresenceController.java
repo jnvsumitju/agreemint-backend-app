@@ -61,7 +61,12 @@ public class PresenceController {
     }
 
     @MessageMapping("/template/{templateId}/viewport")
-    public void viewport(@DestinationVariable UUID templateId, Map<String, Object> payload) {
+    public void viewport(@DestinationVariable UUID templateId, Map<String, Object> payload, Principal principal) {
+        // Overwrite userId to prevent spoofing — use the authenticated principal
+        WebSocketPrincipal wsp = extractPrincipal(principal);
+        if (wsp != null) {
+            payload.put("userId", wsp.getUserId().toString());
+        }
         messagingTemplate.convertAndSend(
                 "/topic/template/" + templateId + "/viewport",
                 payload

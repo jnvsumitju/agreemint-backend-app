@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Authentication", description = "Register, login, password reset, OTP, and email verification")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -65,4 +66,40 @@ public class AuthController {
         AuthService.MeResponse response = authService.getMe(principal.userId());
         return ResponseEntity.ok(response);
     }
+
+    // ── Email Verification ──
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token) {
+        authService.verifyEmail(token);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@RequestBody ResendVerificationRequest req) {
+        authService.resendVerificationEmail(req.email());
+        return ResponseEntity.ok().build();
+    }
+
+    public record ResendVerificationRequest(String email) {}
+
+    // ── OTP Login ──
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<Void> sendOtp(@Valid @RequestBody SendOtpRequest req) {
+        authService.sendOtp(req.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<AuthResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest req) {
+        AuthResponse response = authService.verifyOtp(req.email(), req.code());
+        return ResponseEntity.ok(response);
+    }
+
+    public record SendOtpRequest(@jakarta.validation.constraints.Email @jakarta.validation.constraints.NotBlank String email) {}
+    public record VerifyOtpRequest(
+            @jakarta.validation.constraints.Email @jakarta.validation.constraints.NotBlank String email,
+            @jakarta.validation.constraints.NotBlank String code
+    ) {}
 }

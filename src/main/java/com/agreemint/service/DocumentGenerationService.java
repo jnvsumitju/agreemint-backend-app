@@ -96,10 +96,6 @@ public class DocumentGenerationService {
                     "PDF generation failed: " + e.getMessage());
         }
         generatedDocumentRepository.save(doc);
-
-        if (doc.getStatus() != DocumentStatus.COMPLETED) {
-            throw new com.agreemint.api.BadRequestException("PDF generation failed: " + doc.getId());
-        }
         return new GenerateResponse(doc.getId(), doc.getFileUrl());
     }
 

@@ -27,12 +27,25 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    check-template-location: false
 
 agreemint:
   storage:
     root: ${user.home}/.agreemint/storage
   cors:
     origins: http://localhost:5173,http://127.0.0.1:5173
+  email:
+    from-address: ${EMAIL_FROM:noreply@agreemint.com}
+    from-name: ${EMAIL_FROM_NAME:Agreemint}
+  frontend:
+    base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  otp:
+    length: 6
+    ttl-minutes: 10
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-256-bit-key-in-production-at-least-32-chars}
     access-token-expiry-minutes: 15

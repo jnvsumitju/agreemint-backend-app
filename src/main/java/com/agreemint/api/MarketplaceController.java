@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Marketplace", description = "Browse, publish, and clone templates")
 @RestController
 @RequestMapping("/api/marketplace")
 public class MarketplaceController {

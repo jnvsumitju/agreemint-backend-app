@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.nio.file.Path;
 import java.util.UUID;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Documents", description = "Generated PDF document access")
 @RestController
 @RequestMapping("/api/documents")
 public class DocumentController {

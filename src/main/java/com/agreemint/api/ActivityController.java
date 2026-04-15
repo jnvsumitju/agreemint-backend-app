@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Activity", description = "Activity log and audit trail")
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {

@@ -67,10 +67,6 @@ public class NotificationService {
 
     @Transactional
     public void markAllRead(UUID userId) {
-        List<Notification> unread = notificationRepo.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId);
-        for (Notification n : unread) {
-            n.setRead(true);
-        }
-        notificationRepo.saveAll(unread);
+        notificationRepo.markAllReadByUserId(userId);
     }
 }

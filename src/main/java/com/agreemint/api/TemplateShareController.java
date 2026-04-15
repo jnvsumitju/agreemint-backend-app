@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Template Sharing", description = "Share templates by email or link")
 @RestController
 @RequestMapping("/api/templates/{templateId}/shares")
 public class TemplateShareController {

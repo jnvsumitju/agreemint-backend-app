@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Templates", description = "Template CRUD, versions, drafts, export/import")
 @RestController
 @RequestMapping("/api/templates")
 public class TemplateController {
@@ -117,5 +118,46 @@ public class TemplateController {
         boolean canEdit = role == OrgRole.ADMIN || role == OrgRole.DESIGNER;
         boolean canComment = canEdit || role == OrgRole.REVIEWER;
         return new TemplateAccessResponse(role.name(), canEdit, canComment);
+    }
+
+    /** Export template with its latest version layout as a JSON bundle. */
+    @GetMapping("/{id}/export")
+    public ResponseEntity<java.util.Map<String, Object>> exportTemplate(@PathVariable UUID id) {
+        TemplateResponse template = templateService.getResponse(id);
+        var versions = templateVersionService.listVersions(id);
+        TemplateVersionResponse latest = versions.isEmpty() ? null :
+                versions.stream().max(java.util.Comparator.comparing(TemplateVersionResponse::versionNumber)).orElse(null);
+
+        java.util.Map<String, Object> export = new java.util.LinkedHashMap<>();
+        export.put("name", template.name());
+        export.put("exportedAt", java.time.Instant.now().toString());
+        if (latest != null) {
+            export.put("layout", latest.layout());
+            export.put("variables", latest.variables());
+            export.put("versionNumber", latest.versionNumber());
+        }
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + template.name().replaceAll("[^a-zA-Z0-9._-]", "_") + ".json\"")
+                .body(export);
+    }
+
+    /** Import a previously exported template JSON bundle, creating a new template + draft + committed version. */
+    @PostMapping("/import")
+    public ResponseEntity<TemplateResponse> importTemplate(
+            @RequestBody com.fasterxml.jackson.databind.JsonNode body
+    ) {
+        String name = body.has("name") ? body.get("name").asText() : "Imported Template";
+        CreateTemplateRequest req = new CreateTemplateRequest(name, null);
+        TemplateResponse created = templateService.create(req);
+
+        // If the export contains layout, save as draft then commit to create a version
+        if (body.has("layout")) {
+            com.fasterxml.jackson.databind.JsonNode layout = body.get("layout");
+            com.fasterxml.jackson.databind.JsonNode variables = body.has("variables") ? body.get("variables") : null;
+            templateDraftService.upsertDraft(created.id(), new UpsertDraftRequest(layout, variables));
+            templateDraftService.commitDraft(created.id());
+        }
+
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(created);
     }
 }

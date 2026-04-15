@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -27,8 +28,14 @@ public class TemplateDraft {
     @Column(name = "variables")
     private JsonNode variables;
 
+    @Version
+    private Long version;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     public UUID getTemplateId() {
         return templateId;

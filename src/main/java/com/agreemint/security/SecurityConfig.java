@@ -34,6 +34,8 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/oauth2/**").permitAll()
+                // Swagger UI & OpenAPI spec
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 // Static resources and health
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/error").permitAll()

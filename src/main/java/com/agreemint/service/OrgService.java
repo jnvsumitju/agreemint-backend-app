@@ -23,22 +23,25 @@ public class OrgService {
     private final OrgMembershipRepository membershipRepo;
     private final UserRepository userRepo;
     private final OrgAuthorizationService authz;
+    private final SlugService slugService;
 
     public OrgService(
             OrganizationRepository orgRepo,
             OrgMembershipRepository membershipRepo,
             UserRepository userRepo,
-            OrgAuthorizationService authz
+            OrgAuthorizationService authz,
+            SlugService slugService
     ) {
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
         this.userRepo = userRepo;
         this.authz = authz;
+        this.slugService = slugService;
     }
 
     @Transactional(readOnly = true)
     public List<OrgResponse> listUserOrgs(UUID userId) {
-        return membershipRepo.findByUserId(userId).stream()
+        return membershipRepo.findWithOrgByUserId(userId).stream()
                 .map(m -> OrgResponse.from(m.getOrganization()))
                 .toList();
     }
@@ -48,7 +51,7 @@ public class OrgService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        String slug = generateSlug(name);
+        String slug = slugService.generateUniqueSlug(name);
         Organization org = new Organization();
         org.setName(name.trim());
         org.setSlug(slug);
@@ -136,11 +139,10 @@ public class OrgService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        // Prevent removing the last admin
+        // Prevent removing the last admin (pessimistic lock to avoid race condition)
         if (membership.getRole() == OrgRole.ADMIN) {
-            long adminCount = membershipRepo.findByOrganizationId(orgId).stream()
-                    .filter(m -> m.getRole() == OrgRole.ADMIN).count();
-            if (adminCount <= 1) {
+            List<OrgMembership> admins = membershipRepo.findAdminsForUpdate(orgId);
+            if (admins.size() <= 1) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot remove the last admin");
             }
         }
@@ -148,16 +150,4 @@ public class OrgService {
         membershipRepo.delete(membership);
     }
 
-    private String generateSlug(String name) {
-        String base = name.trim().toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("^-|-$", "");
-        if (base.isEmpty()) base = "org";
-        String slug = base;
-        int attempt = 0;
-        while (orgRepo.existsBySlug(slug)) {
-            slug = base + "-" + (++attempt);
-        }
-        return slug;
-    }
 }

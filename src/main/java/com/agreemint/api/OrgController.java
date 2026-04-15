@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Organizations", description = "Workspace management, members, roles")
 @RestController
 @RequestMapping("/api/orgs")
 public class OrgController {

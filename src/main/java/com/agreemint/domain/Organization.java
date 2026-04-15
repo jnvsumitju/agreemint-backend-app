@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -33,11 +34,17 @@ public class Organization {
     @Column(nullable = false, length = 32)
     private OrgPlan plan = OrgPlan.FREE;
 
+    @Version
+    private Long version;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }

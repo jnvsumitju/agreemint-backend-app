@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@io.swagger.v3.oas.annotations.tags.Tag(name = "PDF Generation", description = "Generate and preview PDF documents")
 @RestController
 @RequestMapping("/api")
 public class GenerateController {

@@ -1,9 +1,13 @@
 package com.agreemint.service;
 
 import com.agreemint.api.dto.*;
+import com.agreemint.config.FrontendProperties;
 import com.agreemint.domain.*;
 import com.agreemint.repository.*;
 import com.agreemint.security.JwtService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
@@ -21,13 +26,27 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private final UserRepository userRepo;
     private final OrganizationRepository orgRepo;
     private final OrgMembershipRepository membershipRepo;
     private final RefreshTokenRepository refreshTokenRepo;
     private final PasswordResetTokenRepository resetTokenRepo;
+    private final EmailVerificationTokenRepository verificationTokenRepo;
+    private final OtpTokenRepository otpTokenRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
+    private final FrontendProperties frontendProps;
+    private final SlugService slugService;
+
+    @Value("${agreemint.otp.length:6}")
+    private int otpLength;
+
+    @Value("${agreemint.otp.ttl-minutes:10}")
+    private int otpTtlMinutes;
 
     public AuthService(
             UserRepository userRepo,
@@ -35,16 +54,26 @@ public class AuthService {
             OrgMembershipRepository membershipRepo,
             RefreshTokenRepository refreshTokenRepo,
             PasswordResetTokenRepository resetTokenRepo,
+            EmailVerificationTokenRepository verificationTokenRepo,
+            OtpTokenRepository otpTokenRepo,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            EmailService emailService,
+            FrontendProperties frontendProps,
+            SlugService slugService
     ) {
         this.userRepo = userRepo;
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
         this.refreshTokenRepo = refreshTokenRepo;
         this.resetTokenRepo = resetTokenRepo;
+        this.verificationTokenRepo = verificationTokenRepo;
+        this.otpTokenRepo = otpTokenRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailService = emailService;
+        this.frontendProps = frontendProps;
+        this.slugService = slugService;
     }
 
     @Transactional
@@ -63,7 +92,7 @@ public class AuthService {
         user = userRepo.save(user);
 
         // Create default personal org
-        String slug = generateSlug(req.name());
+        String slug = slugService.generateUniqueSlug(req.name());
         Organization org = new Organization();
         org.setName(req.name().trim() + "'s Workspace");
         org.setSlug(slug);
@@ -76,6 +105,9 @@ public class AuthService {
         membership.setOrganization(org);
         membership.setRole(OrgRole.ADMIN);
         membershipRepo.save(membership);
+
+        // Send email verification
+        sendVerificationEmail(user);
 
         return buildAuthResponse(user, org, OrgRole.ADMIN);
     }
@@ -94,9 +126,9 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
-        // Pick the first org (or null)
-        OrgMembership membership = membershipRepo.findByUserId(user.getId())
-                .stream().findFirst().orElse(null);
+        // Pick the first org (with eager fetch — avoids N+1)
+        OrgMembership membership = membershipRepo.findFirstByUserIdOrderByCreatedAtAsc(user.getId())
+                .orElse(null);
 
         Organization org = membership != null ? membership.getOrganization() : null;
         OrgRole role = membership != null ? membership.getRole() : null;
@@ -124,8 +156,8 @@ public class AuthService {
         refreshTokenRepo.delete(stored);
 
         User user = stored.getUser();
-        OrgMembership membership = membershipRepo.findByUserId(user.getId())
-                .stream().findFirst().orElse(null);
+        OrgMembership membership = membershipRepo.findFirstByUserIdOrderByCreatedAtAsc(user.getId())
+                .orElse(null);
 
         Organization org = membership != null ? membership.getOrganization() : null;
         OrgRole role = membership != null ? membership.getRole() : null;
@@ -147,9 +179,9 @@ public class AuthService {
         token.setExpiresAt(Instant.now().plusSeconds(3600)); // 1 hour
         resetTokenRepo.save(token);
 
-        // TODO: Send email with reset link containing rawToken
-        // For now, log it (development only)
-        System.out.println("[DEV] Password reset token for " + email + ": " + rawToken);
+        String resetLink = frontendProps.getBaseUrl() + "/reset-password?token=" + rawToken;
+        emailService.sendPasswordResetEmail(email, resetLink);
+        log.info("Password reset requested for email={}", email);
     }
 
     @Transactional
@@ -211,18 +243,120 @@ public class AuthService {
         );
     }
 
-    private String generateSlug(String name) {
-        String base = name.trim().toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("^-|-$", "");
-        if (base.isEmpty()) base = "workspace";
-        String slug = base;
-        int attempt = 0;
-        while (orgRepo.existsBySlug(slug)) {
-            slug = base + "-" + (++attempt);
-        }
-        return slug;
+
+    // ── Email Verification ──
+
+    private void sendVerificationEmail(User user) {
+        String rawToken = UUID.randomUUID().toString();
+
+        EmailVerificationToken token = new EmailVerificationToken();
+        token.setUser(user);
+        token.setTokenHash(sha256(rawToken));
+        token.setExpiresAt(Instant.now().plusSeconds(86400)); // 24 hours
+        verificationTokenRepo.save(token);
+
+        String verifyLink = frontendProps.getBaseUrl() + "/verify-email?token=" + rawToken;
+        emailService.sendEmailVerificationEmail(user.getEmail(), verifyLink);
     }
+
+    @Transactional
+    public void verifyEmail(String rawToken) {
+        String tokenHash = sha256(rawToken);
+        EmailVerificationToken stored = verificationTokenRepo.findByTokenHash(tokenHash)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired verification token"));
+
+        if (stored.getExpiresAt().isBefore(Instant.now())) {
+            verificationTokenRepo.delete(stored);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification token expired");
+        }
+
+        User user = stored.getUser();
+        user.setEmailVerified(true);
+        user.setUpdatedAt(Instant.now());
+        userRepo.save(user);
+        verificationTokenRepo.deleteByUserId(user.getId());
+
+        log.info("Email verified for userId={}", user.getId());
+    }
+
+    @Transactional
+    public void resendVerificationEmail(String email) {
+        User user = userRepo.findByEmail(email.toLowerCase().trim())
+                .orElse(null);
+        if (user == null || user.isEmailVerified()) return; // Don't reveal anything
+
+        // Delete old tokens
+        verificationTokenRepo.deleteByUserId(user.getId());
+        sendVerificationEmail(user);
+    }
+
+    // ── OTP ──
+
+    @Transactional
+    public void sendOtp(String email) {
+        User user = userRepo.findByEmail(email.toLowerCase().trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with this email"));
+
+        // Rate limit: 1 OTP per 60 seconds
+        if (otpTokenRepo.existsByUserIdAndCreatedAtAfter(user.getId(), Instant.now().minusSeconds(60))) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Please wait before requesting another code");
+        }
+
+        // Generate OTP code
+        String code = generateOtpCode(otpLength);
+
+        OtpToken otpToken = new OtpToken();
+        otpToken.setUser(user);
+        otpToken.setCodeHash(sha256(code));
+        otpToken.setExpiresAt(Instant.now().plusSeconds(otpTtlMinutes * 60L));
+        otpTokenRepo.save(otpToken);
+
+        emailService.sendOtpEmail(email, code, otpTtlMinutes);
+        log.info("OTP sent to email={}", email);
+    }
+
+    @Transactional
+    public AuthResponse verifyOtp(String email, String code) {
+        User user = userRepo.findByEmail(email.toLowerCase().trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or code"));
+
+        String codeHash = sha256(code);
+        List<OtpToken> validTokens = otpTokenRepo
+                .findByUserIdAndUsedFalseAndExpiresAtAfter(user.getId(), Instant.now());
+
+        OtpToken match = validTokens.stream()
+                .filter(t -> t.getCodeHash().equals(codeHash))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired code"));
+
+        match.setUsed(true);
+        otpTokenRepo.save(match);
+
+        // Mark email as verified (OTP proves email ownership)
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            user.setUpdatedAt(Instant.now());
+            userRepo.save(user);
+        }
+
+        // Return auth tokens (same as login)
+        OrgMembership membership = membershipRepo.findFirstByUserIdOrderByCreatedAtAsc(user.getId())
+                .orElse(null);
+        Organization org = membership != null ? membership.getOrganization() : null;
+        OrgRole role = membership != null ? membership.getRole() : null;
+
+        return buildAuthResponse(user, org, role);
+    }
+
+    private String generateOtpCode(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(SECURE_RANDOM.nextInt(10));
+        }
+        return sb.toString();
+    }
+
+    // ── Helpers ──
 
     private static String sha256(String input) {
         try {
