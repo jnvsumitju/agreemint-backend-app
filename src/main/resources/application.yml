@@ -17,12 +17,33 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
 
 agreemint:
   storage:
     root: ${user.home}/.agreemint/storage
   cors:
     origins: http://localhost:5173,http://127.0.0.1:5173
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-secure-256-bit-key-in-production-at-least-32-chars}
+    access-token-expiry-minutes: 15
+    refresh-token-expiry-days: 7
+  oauth:
+    google-enabled: ${OAUTH_GOOGLE_ENABLED:false}
+    google-client-id: ${GOOGLE_CLIENT_ID:}
+    google-client-secret: ${GOOGLE_CLIENT_SECRET:}
+    github-enabled: ${OAUTH_GITHUB_ENABLED:false}
+    github-client-id: ${GITHUB_CLIENT_ID:}
+    github-client-secret: ${GITHUB_CLIENT_SECRET:}
 
 server:
   port: 8080

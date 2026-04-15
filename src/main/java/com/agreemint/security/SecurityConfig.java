@@ -1,0 +1,62 @@
+package com.agreemint.security;
+
+import com.agreemint.config.OAuthProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtFilter;
+    private final OAuthProperties oauthProps;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, OAuthProperties oauthProps) {
+        this.jwtFilter = jwtFilter;
+        this.oauthProps = oauthProps;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // WebSocket endpoint (auth handled by STOMP interceptor)
+                .requestMatchers("/ws/**").permitAll()
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/oauth2/**").permitAll()
+                // Static resources and health
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/error").permitAll()
+                // Everything else under /api requires auth
+                .requestMatchers("/api/**").authenticated()
+                // Let non-API requests through (frontend SPA assets, etc.)
+                .anyRequest().permitAll()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Only enable OAuth2 login if at least one provider is configured
+        if (oauthProps.isAnyEnabled()) {
+            http.oauth2Login(oauth -> oauth
+                .authorizationEndpoint(ep -> ep.baseUri("/api/oauth2/authorize"))
+                .redirectionEndpoint(ep -> ep.baseUri("/api/oauth2/callback/*"))
+            );
+        }
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
