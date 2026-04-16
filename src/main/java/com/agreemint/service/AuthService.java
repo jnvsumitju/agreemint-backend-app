@@ -152,6 +152,8 @@ public class AuthService {
         // Send email verification (skip if registered via invite — email already trusted)
         if (!viaInvite) {
             sendVerificationEmail(user);
+            // Return a "verification required" response — no tokens, user cannot act yet
+            return new AuthResponse(null, null, UserResponse.from(user), null, null, true);
         }
 
         // If registered via invite, return the invited org as the active one (with invited role)
@@ -173,6 +175,11 @@ public class AuthService {
 
         if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        if (!user.isEmailVerified() && user.getProvider() == AuthProvider.LOCAL) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Please verify your email before signing in. Check your inbox for the verification link.");
         }
 
         // Pick the first org (with eager fetch — avoids N+1)
@@ -309,7 +316,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void verifyEmail(String rawToken) {
+    public AuthResponse verifyEmail(String rawToken) {
         String tokenHash = sha256(rawToken);
         EmailVerificationToken stored = verificationTokenRepo.findByTokenHash(tokenHash)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired verification token"));
@@ -326,6 +333,13 @@ public class AuthService {
         verificationTokenRepo.deleteByUserId(user.getId());
 
         log.info("Email verified for userId={}", user.getId());
+
+        // Log the user in automatically after successful verification
+        OrgMembership membership = membershipRepo.findFirstByUserIdOrderByCreatedAtAsc(user.getId())
+                .orElse(null);
+        Organization org = membership != null ? membership.getOrganization() : null;
+        OrgRole role = membership != null ? membership.getRole() : null;
+        return buildAuthResponse(user, org, role);
     }
 
     @Transactional

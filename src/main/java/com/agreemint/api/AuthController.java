@@ -70,9 +70,8 @@ public class AuthController {
     // ── Email Verification ──
 
     @GetMapping("/verify-email")
-    public ResponseEntity<Void> verifyEmail(@RequestParam String token) {
-        authService.verifyEmail(token);
-        return ResponseEntity.ok().build();
+    public AuthResponse verifyEmail(@RequestParam String token) {
+        return authService.verifyEmail(token);
     }
 
     @PostMapping("/resend-verification")
