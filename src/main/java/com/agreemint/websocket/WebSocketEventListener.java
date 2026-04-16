@@ -1,6 +1,7 @@
 package com.agreemint.websocket;
 
 import com.agreemint.collab.CollabService;
+import com.agreemint.collab.YjsService;
 import com.agreemint.config.WebSocketAuthInterceptor.WebSocketPrincipal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,14 +20,17 @@ public class WebSocketEventListener {
     private final PresenceService presenceService;
     private final SimpMessagingTemplate messagingTemplate;
     private final CollabService collabService;
+    private final YjsService yjsService;
 
     public WebSocketEventListener(
             PresenceService presenceService,
             SimpMessagingTemplate messagingTemplate,
-            CollabService collabService) {
+            CollabService collabService,
+            YjsService yjsService) {
         this.presenceService = presenceService;
         this.messagingTemplate = messagingTemplate;
         this.collabService = collabService;
+        this.yjsService = yjsService;
     }
 
     @EventListener
@@ -54,6 +58,7 @@ public class WebSocketEventListener {
             if (remaining.isEmpty()) {
                 collabService.flushIfDirty(templateId);
                 collabService.evict(templateId);
+                yjsService.evict(templateId);
             }
         }
     }

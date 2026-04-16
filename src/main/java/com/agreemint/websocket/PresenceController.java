@@ -73,6 +73,23 @@ public class PresenceController {
         );
     }
 
+    /**
+     * Selection broadcast: a client publishes the element ids it currently has
+     * selected; the server rebroadcasts to everyone else so they can render
+     * colored outlines indicating who is working on what.
+     */
+    @MessageMapping("/template/{templateId}/selection")
+    public void selection(@DestinationVariable UUID templateId, Map<String, Object> payload, Principal principal) {
+        WebSocketPrincipal wsp = extractPrincipal(principal);
+        if (wsp != null) {
+            payload.put("userId", wsp.getUserId().toString());
+        }
+        messagingTemplate.convertAndSend(
+                "/topic/template/" + templateId + "/selection",
+                payload
+        );
+    }
+
     private WebSocketPrincipal extractPrincipal(Principal principal) {
         if (principal instanceof UsernamePasswordAuthenticationToken auth) {
             Object inner = auth.getPrincipal();
