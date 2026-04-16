@@ -2,9 +2,9 @@ spring:
   application:
     name: agreemint-backend
   datasource:
-    url: jdbc:postgresql://localhost:5432/agreemint
-    username: app
-    password: Sumit@3745
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/agreemint
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -59,4 +59,4 @@ agreemint:
     github-client-secret: ${GITHUB_CLIENT_SECRET:}
 
 server:
-  port: 8080
+  port: ${PORT}

@@ -23,9 +23,9 @@ RUN mkdir -p /home/agreemint/.agreemint/storage && chown -R agreemint:agreemint 
 COPY --from=build /app/target/*.jar app.jar
 
 USER agreemint
-EXPOSE 8080
+ENV PORT=8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:$PORT/actuator/health || exit 1
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=$PORT -jar app.jar"]
