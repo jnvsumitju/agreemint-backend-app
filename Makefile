@@ -42,6 +42,9 @@ run: build
 		-e GITHUB_CLIENT_SECRET=$(GITHUB_CLIENT_SECRET) \
 		-e PORT=$(APP_PORT) \
 		-e SPRING_PROFILES_ACTIVE=prod \
+		-e REDIS_HOST=$(REDIS_HOST) \
+		-e REDIS_PORT=$(REDIS_PORT) \
+		-e REDIS_PASSWORD=$(REDIS_PASSWORD) \
 		$(APP_NAME)
 	@echo ""
 	@echo "  ✓ $(APP_NAME) running on http://localhost:$(APP_PORT)"
