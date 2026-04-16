@@ -1,5 +1,6 @@
 package com.agreemint.api;
 
+import com.agreemint.api.dto.InviteMemberResponse;
 import com.agreemint.api.dto.OrgMembershipResponse;
 import com.agreemint.api.dto.OrgResponse;
 import com.agreemint.domain.OrgRole;
@@ -63,14 +64,32 @@ public class OrgController {
     }
 
     @PostMapping("/{orgId}/members")
-    public ResponseEntity<OrgMembershipResponse> inviteMember(
+    public ResponseEntity<InviteMemberResponse> inviteMember(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID orgId,
             @RequestBody InviteMemberRequest req
     ) {
         OrgRole role = req.role() != null ? OrgRole.valueOf(req.role().toUpperCase()) : OrgRole.VIEWER;
-        OrgMembershipResponse result = orgService.inviteMember(principal.userId(), orgId, req.email(), role);
+        InviteMemberResponse result = orgService.inviteMember(principal.userId(), orgId, req.email(), role);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @GetMapping("/{orgId}/invitations")
+    public List<InviteMemberResponse.OrgInvitationResponse> listInvitations(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID orgId
+    ) {
+        return orgService.listPendingInvitations(principal.userId(), orgId);
+    }
+
+    @DeleteMapping("/{orgId}/invitations/{invitationId}")
+    public ResponseEntity<Void> cancelInvitation(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID orgId,
+            @PathVariable UUID invitationId
+    ) {
+        orgService.cancelInvitation(principal.userId(), orgId, invitationId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{orgId}/members/{membershipId}")

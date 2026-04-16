@@ -1,8 +1,11 @@
 package com.agreemint.service;
 
+import com.agreemint.api.dto.InviteMemberResponse;
 import com.agreemint.api.dto.OrgMembershipResponse;
 import com.agreemint.api.dto.OrgResponse;
+import com.agreemint.config.FrontendProperties;
 import com.agreemint.domain.*;
+import com.agreemint.repository.OrgInvitationRepository;
 import com.agreemint.repository.OrgMembershipRepository;
 import com.agreemint.repository.OrganizationRepository;
 import com.agreemint.repository.UserRepository;
@@ -13,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -21,22 +26,31 @@ public class OrgService {
 
     private final OrganizationRepository orgRepo;
     private final OrgMembershipRepository membershipRepo;
+    private final OrgInvitationRepository invitationRepo;
     private final UserRepository userRepo;
     private final OrgAuthorizationService authz;
     private final SlugService slugService;
+    private final EmailService emailService;
+    private final FrontendProperties frontendProps;
 
     public OrgService(
             OrganizationRepository orgRepo,
             OrgMembershipRepository membershipRepo,
+            OrgInvitationRepository invitationRepo,
             UserRepository userRepo,
             OrgAuthorizationService authz,
-            SlugService slugService
+            SlugService slugService,
+            EmailService emailService,
+            FrontendProperties frontendProps
     ) {
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
+        this.invitationRepo = invitationRepo;
         this.userRepo = userRepo;
         this.authz = authz;
         this.slugService = slugService;
+        this.emailService = emailService;
+        this.frontendProps = frontendProps;
     }
 
     @Transactional(readOnly = true)
@@ -94,25 +108,98 @@ public class OrgService {
     }
 
     @Transactional
-    public OrgMembershipResponse inviteMember(UUID actorId, UUID orgId, String email, OrgRole role) {
+    public InviteMemberResponse inviteMember(UUID actorId, UUID orgId, String email, OrgRole role) {
         authz.assertRole(actorId, orgId, OrgRole.ADMIN);
         Organization org = orgRepo.findById(orgId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        User invitee = userRepo.findByEmail(email.toLowerCase().trim())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email: " + email));
+        String normalizedEmail = email.toLowerCase().trim();
+        OrgRole assignedRole = role != null ? role : OrgRole.VIEWER;
 
-        if (membershipRepo.existsByUserIdAndOrganizationId(invitee.getId(), orgId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member of this organization");
+        // If user already registered, add directly
+        Optional<User> existingUser = userRepo.findByEmail(normalizedEmail);
+        if (existingUser.isPresent()) {
+            User invitee = existingUser.get();
+            if (membershipRepo.existsByUserIdAndOrganizationId(invitee.getId(), orgId)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member of this organization");
+            }
+            OrgMembership membership = new OrgMembership();
+            membership.setUser(invitee);
+            membership.setOrganization(org);
+            membership.setRole(assignedRole);
+            membership = membershipRepo.save(membership);
+            return InviteMemberResponse.added(OrgMembershipResponse.from(membership));
         }
 
-        OrgMembership membership = new OrgMembership();
-        membership.setUser(invitee);
-        membership.setOrganization(org);
-        membership.setRole(role != null ? role : OrgRole.VIEWER);
-        membership = membershipRepo.save(membership);
+        // User not registered — create pending invitation
+        if (invitationRepo.existsByOrgIdAndEmailAndAcceptedAtIsNull(orgId, normalizedEmail)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "An invitation has already been sent to this email");
+        }
 
-        return OrgMembershipResponse.from(membership);
+        User actor = userRepo.findById(actorId).orElse(null);
+        String actorName = actor != null ? actor.getName() : "A team member";
+
+        OrgInvitation invitation = new OrgInvitation();
+        invitation.setOrgId(orgId);
+        invitation.setEmail(normalizedEmail);
+        invitation.setRole(assignedRole);
+        invitation.setToken(UUID.randomUUID().toString());
+        invitation.setInvitedBy(actorId);
+        invitation.setExpiresAt(Instant.now().plus(7, ChronoUnit.DAYS));
+        invitationRepo.save(invitation);
+
+        String inviteLink = frontendProps.getBaseUrl() + "/register?invite=" + invitation.getToken();
+        emailService.sendOrgInviteEmail(normalizedEmail, org.getName(), actorName, assignedRole.name(), inviteLink);
+
+        return InviteMemberResponse.invited(new InviteMemberResponse.OrgInvitationResponse(
+                invitation.getId(), orgId, normalizedEmail, assignedRole.name(),
+                invitation.getCreatedAt(), invitation.getExpiresAt()
+        ));
+    }
+
+    @Transactional(readOnly = true)
+    public List<InviteMemberResponse.OrgInvitationResponse> listPendingInvitations(UUID actorId, UUID orgId) {
+        authz.assertRole(actorId, orgId, OrgRole.ADMIN);
+        return invitationRepo.findByOrgIdAndAcceptedAtIsNull(orgId).stream()
+                .filter(OrgInvitation::isPending)
+                .map(inv -> new InviteMemberResponse.OrgInvitationResponse(
+                        inv.getId(), inv.getOrgId(), inv.getEmail(), inv.getRole().name(),
+                        inv.getCreatedAt(), inv.getExpiresAt()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public void cancelInvitation(UUID actorId, UUID orgId, UUID invitationId) {
+        authz.assertRole(actorId, orgId, OrgRole.ADMIN);
+        OrgInvitation inv = invitationRepo.findById(invitationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!inv.getOrgId().equals(orgId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        invitationRepo.delete(inv);
+    }
+
+    /** Accept all pending invitations for a newly registered user. Called from AuthService. */
+    @Transactional
+    public void acceptPendingInvitations(User user) {
+        List<OrgInvitation> pending = invitationRepo.findByEmailAndAcceptedAtIsNull(user.getEmail());
+        for (OrgInvitation inv : pending) {
+            if (inv.isExpired()) continue;
+            if (membershipRepo.existsByUserIdAndOrganizationId(user.getId(), inv.getOrgId())) continue;
+
+            Organization org = orgRepo.findById(inv.getOrgId()).orElse(null);
+            if (org == null) continue;
+
+            OrgMembership membership = new OrgMembership();
+            membership.setUser(user);
+            membership.setOrganization(org);
+            membership.setRole(inv.getRole());
+            membershipRepo.save(membership);
+
+            inv.setAcceptedAt(Instant.now());
+            invitationRepo.save(inv);
+        }
     }
 
     @Transactional

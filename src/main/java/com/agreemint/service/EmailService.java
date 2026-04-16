@@ -107,6 +107,20 @@ public class EmailService {
         send(to, "Document status changed: '" + documentTitle + "' is now " + newStatus, html);
     }
 
+    /** Send org invitation email to an unregistered user. */
+    @Async
+    public void sendOrgInviteEmail(String to, String orgName, String inviterName,
+                                    String role, String inviteLink) {
+        Context ctx = new Context();
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("inviterName", inviterName);
+        ctx.setVariable("role", role);
+        ctx.setVariable("inviteLink", inviteLink);
+
+        String html = templateEngine.process("email/org-invite", ctx);
+        send(to, "You've been invited to join " + orgName + " on Agreemint", html);
+    }
+
     /** Warn about an upcoming or past document expiration. */
     @Async
     public void sendExpirationWarningEmail(String to, String documentTitle,

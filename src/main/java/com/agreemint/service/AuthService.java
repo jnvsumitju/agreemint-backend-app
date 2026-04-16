@@ -32,6 +32,7 @@ public class AuthService {
     private final UserRepository userRepo;
     private final OrganizationRepository orgRepo;
     private final OrgMembershipRepository membershipRepo;
+    private final OrgInvitationRepository invitationRepo;
     private final RefreshTokenRepository refreshTokenRepo;
     private final PasswordResetTokenRepository resetTokenRepo;
     private final EmailVerificationTokenRepository verificationTokenRepo;
@@ -52,6 +53,7 @@ public class AuthService {
             UserRepository userRepo,
             OrganizationRepository orgRepo,
             OrgMembershipRepository membershipRepo,
+            OrgInvitationRepository invitationRepo,
             RefreshTokenRepository refreshTokenRepo,
             PasswordResetTokenRepository resetTokenRepo,
             EmailVerificationTokenRepository verificationTokenRepo,
@@ -65,6 +67,7 @@ public class AuthService {
         this.userRepo = userRepo;
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
+        this.invitationRepo = invitationRepo;
         this.refreshTokenRepo = refreshTokenRepo;
         this.resetTokenRepo = resetTokenRepo;
         this.verificationTokenRepo = verificationTokenRepo;
@@ -82,13 +85,23 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
+        // Check if registering via a valid invite token
+        boolean viaInvite = false;
+        if (req.inviteToken() != null && !req.inviteToken().isBlank()) {
+            OrgInvitation tokenInv = invitationRepo.findByToken(req.inviteToken().trim()).orElse(null);
+            if (tokenInv != null && tokenInv.isPending()
+                    && tokenInv.getEmail().equalsIgnoreCase(req.email().trim())) {
+                viaInvite = true;
+            }
+        }
+
         // Create user
         User user = new User();
         user.setEmail(req.email().toLowerCase().trim());
         user.setName(req.name().trim());
         user.setPasswordHash(passwordEncoder.encode(req.password()));
         user.setProvider(AuthProvider.LOCAL);
-        user.setEmailVerified(false);
+        user.setEmailVerified(viaInvite);
         user = userRepo.save(user);
 
         // Create default personal org
@@ -106,8 +119,28 @@ public class AuthService {
         membership.setRole(OrgRole.ADMIN);
         membershipRepo.save(membership);
 
-        // Send email verification
-        sendVerificationEmail(user);
+        // Accept any pending org invitations for this email
+        List<OrgInvitation> pendingInvites = invitationRepo.findByEmailAndAcceptedAtIsNull(user.getEmail());
+        for (OrgInvitation inv : pendingInvites) {
+            if (inv.isExpired()) continue;
+            Organization invOrg = orgRepo.findById(inv.getOrgId()).orElse(null);
+            if (invOrg == null) continue;
+            if (membershipRepo.existsByUserIdAndOrganizationId(user.getId(), inv.getOrgId())) continue;
+
+            OrgMembership invMembership = new OrgMembership();
+            invMembership.setUser(user);
+            invMembership.setOrganization(invOrg);
+            invMembership.setRole(inv.getRole());
+            membershipRepo.save(invMembership);
+
+            inv.setAcceptedAt(Instant.now());
+            invitationRepo.save(inv);
+        }
+
+        // Send email verification (skip if registered via invite — email already trusted)
+        if (!viaInvite) {
+            sendVerificationEmail(user);
+        }
 
         return buildAuthResponse(user, org, OrgRole.ADMIN);
     }
