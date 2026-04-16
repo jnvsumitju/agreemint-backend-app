@@ -47,7 +47,7 @@ public class DocumentLifecycleEvent {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "jsonb")
     private String metadata;
 
     @Column(name = "created_at", nullable = false)
