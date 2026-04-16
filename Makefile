@@ -21,7 +21,7 @@ build:
 run: build
 	docker run -d --name $(APP_NAME) \
 	    --network backend \
-		-p $(APP_PORT):8080 \
+		-p $(APP_PORT):$(APP_PORT) \
 		-e SPRING_DATASOURCE_URL=jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME) \
 		-e SPRING_DATASOURCE_USERNAME=$(DB_USERNAME) \
 		-e SPRING_DATASOURCE_PASSWORD=$(DB_PASSWORD) \

@@ -24,7 +24,7 @@ RUN mkdir -p /home/agreemint/.agreemint/storage /app/logs && \
 COPY --from=build /app/target/*.jar app.jar
 
 USER agreemint
-ENV PORT=8080
+ENV PORT=9092
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
   CMD curl -f http://localhost:$PORT/actuator/health || exit 1
