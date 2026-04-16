@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,6 +69,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/**").authenticated()
                 // Let non-API requests through (frontend SPA assets, etc.)
                 .anyRequest().permitAll()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, authEx) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.setContentType("application/json");
+                    res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                })
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
