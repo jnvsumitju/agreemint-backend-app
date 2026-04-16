@@ -16,9 +16,10 @@ RUN ./mvnw package -DskipTests -B 2>/dev/null || mvn package -DskipTests -B
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Create non-root user
+# Create non-root user + required directories
 RUN groupadd -r agreemint && useradd -r -g agreemint agreemint
-RUN mkdir -p /home/agreemint/.agreemint/storage && chown -R agreemint:agreemint /home/agreemint
+RUN mkdir -p /home/agreemint/.agreemint/storage /app/logs && \
+    chown -R agreemint:agreemint /home/agreemint /app/logs
 
 COPY --from=build /app/target/*.jar app.jar
 
