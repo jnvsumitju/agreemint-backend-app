@@ -20,6 +20,7 @@ build:
 ## Run the container (rebuilds if image is missing)
 run: build
 	docker run -d --name $(APP_NAME) \
+	    --network backend \
 		-p $(APP_PORT):8080 \
 		--add-host=host.docker.internal:host-gateway \
 		-e SPRING_DATASOURCE_URL=jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME) \
@@ -40,6 +41,7 @@ run: build
 		-e GITHUB_CLIENT_ID=$(GITHUB_CLIENT_ID) \
 		-e GITHUB_CLIENT_SECRET=$(GITHUB_CLIENT_SECRET) \
 		-e PORT=$(APP_PORT) \
+		-e SPRING_PROFILES_ACTIVE=prod \
 		$(APP_NAME)
 	@echo ""
 	@echo "  ✓ $(APP_NAME) running on http://localhost:$(APP_PORT)"
