@@ -1,5 +1,6 @@
 package com.agreemint.websocket;
 
+import com.agreemint.collab.CollabService;
 import com.agreemint.config.WebSocketAuthInterceptor.WebSocketPrincipal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,10 +18,15 @@ public class WebSocketEventListener {
 
     private final PresenceService presenceService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final CollabService collabService;
 
-    public WebSocketEventListener(PresenceService presenceService, SimpMessagingTemplate messagingTemplate) {
+    public WebSocketEventListener(
+            PresenceService presenceService,
+            SimpMessagingTemplate messagingTemplate,
+            CollabService collabService) {
         this.presenceService = presenceService;
         this.messagingTemplate = messagingTemplate;
+        this.collabService = collabService;
     }
 
     @EventListener
@@ -43,6 +49,12 @@ public class WebSocketEventListener {
                     "/topic/template/" + templateId + "/presence",
                     message
             );
+            // Last editor left — flush any pending hot state to Postgres, then drop the
+            // Redis keys. TTL would clean them up anyway; explicit eviction is just tidier.
+            if (remaining.isEmpty()) {
+                collabService.flushIfDirty(templateId);
+                collabService.evict(templateId);
+            }
         }
     }
 

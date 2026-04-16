@@ -68,6 +68,31 @@ public class TemplateDraftService {
         return toResponse(d);
     }
 
+    /**
+     * Persist a layout produced by the collaborative-editor flush job.
+     * Runs outside any user context — authorisation is enforced on every op that
+     * built up this layout, so a flush does not need to re-check.
+     * Preserves existing {@code variables}; only updates {@code layoutJson} and {@code updatedAt}.
+     */
+    @Transactional
+    public void saveFromCollabFlush(UUID templateId, JsonNode layout) {
+        if (layout == null || layout.isNull()) return;
+        if (!templateRepository.existsById(templateId)) return;
+
+        TemplateDraft d = templateDraftRepository.findById(templateId).orElseGet(() -> {
+            TemplateDraft n = new TemplateDraft();
+            n.setTemplateId(templateId);
+            n.setVariables(JsonNodeFactory.instance.objectNode());
+            return n;
+        });
+        d.setLayoutJson(layout);
+        if (d.getVariables() == null) {
+            d.setVariables(JsonNodeFactory.instance.objectNode());
+        }
+        d.setUpdatedAt(Instant.now());
+        templateDraftRepository.save(d);
+    }
+
     @Transactional
     public TemplateVersionResponse commitDraft(UUID templateId) {
         TemplateDraft d = templateDraftRepository.findById(templateId)
