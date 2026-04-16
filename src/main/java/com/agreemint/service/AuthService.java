@@ -121,6 +121,8 @@ public class AuthService {
 
         // Accept any pending org invitations for this email
         List<OrgInvitation> pendingInvites = invitationRepo.findByEmailAndAcceptedAtIsNull(user.getEmail());
+        Organization primaryInviteOrg = null;
+        OrgRole primaryInviteRole = null;
         for (OrgInvitation inv : pendingInvites) {
             if (inv.isExpired()) continue;
             Organization invOrg = orgRepo.findById(inv.getOrgId()).orElse(null);
@@ -135,6 +137,16 @@ public class AuthService {
 
             inv.setAcceptedAt(Instant.now());
             invitationRepo.save(inv);
+
+            // Prefer the token-matched invitation as the active org
+            if (viaInvite && req.inviteToken() != null
+                    && req.inviteToken().trim().equals(inv.getToken())) {
+                primaryInviteOrg = invOrg;
+                primaryInviteRole = inv.getRole();
+            } else if (primaryInviteOrg == null) {
+                primaryInviteOrg = invOrg;
+                primaryInviteRole = inv.getRole();
+            }
         }
 
         // Send email verification (skip if registered via invite — email already trusted)
@@ -142,6 +154,10 @@ public class AuthService {
             sendVerificationEmail(user);
         }
 
+        // If registered via invite, return the invited org as the active one (with invited role)
+        if (primaryInviteOrg != null) {
+            return buildAuthResponse(user, primaryInviteOrg, primaryInviteRole);
+        }
         return buildAuthResponse(user, org, OrgRole.ADMIN);
     }
 
