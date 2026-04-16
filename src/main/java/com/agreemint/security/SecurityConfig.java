@@ -56,7 +56,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // WebSocket endpoint (auth handled by STOMP interceptor)
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/ws", "/ws/**").permitAll()
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/oauth2/**").permitAll()
