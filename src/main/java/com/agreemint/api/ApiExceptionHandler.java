@@ -1,5 +1,6 @@
 package com.agreemint.api;
 
+import com.agreemint.service.ReviewBlockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,20 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> illegalArgument(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", "Invalid value: " + e.getMessage()));
+    }
+
+    /**
+     * Commit gate: {@link ReviewBlockException} is mapped to 409 Conflict with a
+     * structured body so the frontend can surface the blocking reviews and offer
+     * dismiss / reopen actions.
+     */
+    @ExceptionHandler(ReviewBlockException.class)
+    public ResponseEntity<Map<String, Object>> reviewBlocked(ReviewBlockException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "error", e.getMessage(),
+                "code", "REVIEW_BLOCK",
+                "blockers", e.blockers()
+        ));
     }
 
     /** Handle Spring's ResponseStatusException (used throughout services). */

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f5; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5; padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding:32px 40px; text-align:center;">
+                            <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:700;">Agreemint</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <h2 style="margin:0 0 16px; color:#18181b; font-size:20px; font-weight:600;">A template was shared with you</h2>
+                            <p style="margin:0 0 24px; color:#52525b; font-size:14px; line-height:1.6;">
+                                <strong th:text="${sharerName}">Someone</strong> wants you to take a look at
+                                <strong th:text="${templateName}">Template</strong> on Agreemint.
+                            </p>
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                                <tr>
+                                    <td style="background-color:#7c3aed; border-radius:8px;">
+                                        <a th:href="${templateUrl}" style="display:inline-block; padding:12px 32px; color:#ffffff; font-size:14px; font-weight:600; text-decoration:none;">
+                                            Open Template
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin:24px 0 0; color:#a1a1aa; font-size:12px; line-height:1.5;">
+                                You'll only be able to open it if you already have access to this template in your organization.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <p style="margin:24px 0 0; color:#a1a1aa; font-size:11px; text-align:center;">
+                    Agreemint &mdash; Agreement management made simple
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

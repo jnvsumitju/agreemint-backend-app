@@ -4,6 +4,7 @@ import com.agreemint.api.BadRequestException;
 import com.agreemint.api.NotFoundException;
 import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateDraftResponse;
+import com.agreemint.api.dto.TemplateReviewResponse;
 import com.agreemint.api.dto.TemplateVersionResponse;
 import com.agreemint.api.dto.UpsertDraftRequest;
 import com.agreemint.domain.TemplateDraft;
@@ -11,12 +12,17 @@ import com.agreemint.repository.TemplateDraftRepository;
 import com.agreemint.repository.TemplateRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TemplateDraftService {
@@ -24,14 +30,17 @@ public class TemplateDraftService {
     private final TemplateRepository templateRepository;
     private final TemplateDraftRepository templateDraftRepository;
     private final TemplateVersionService templateVersionService;
+    private final TemplateReviewService templateReviewService;
 
     public TemplateDraftService(
             TemplateRepository templateRepository,
             TemplateDraftRepository templateDraftRepository,
-            TemplateVersionService templateVersionService) {
+            TemplateVersionService templateVersionService,
+            @Lazy TemplateReviewService templateReviewService) {
         this.templateRepository = templateRepository;
         this.templateDraftRepository = templateDraftRepository;
         this.templateVersionService = templateVersionService;
+        this.templateReviewService = templateReviewService;
     }
 
     @Transactional(readOnly = true)
@@ -95,6 +104,22 @@ public class TemplateDraftService {
 
     @Transactional
     public TemplateVersionResponse commitDraft(UUID templateId) {
+        // Commit gate: any review on the CURRENT LATEST committed version that is
+        // still CHANGES_REQUESTED blocks the next commit. Designer must either
+        // have the reviewer re-evaluate (→ APPROVED) or dismiss the review.
+        List<TemplateReviewResponse> blockers =
+                templateReviewService.blockingReviewsForLatestVersion(templateId);
+        if (!blockers.isEmpty()) {
+            String names = blockers.stream()
+                    .map(b -> b.reviewer().name())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            throw new ReviewBlockException(
+                    "Cannot commit: mandatory changes requested by " + names
+                            + ". Address the feedback (re-request review) or dismiss the review(s).",
+                    blockers);
+        }
+
         TemplateDraft d = templateDraftRepository.findById(templateId)
                 .orElseThrow(() -> new BadRequestException(
                         "No draft to commit. Wait for autosave or edit the template first."));

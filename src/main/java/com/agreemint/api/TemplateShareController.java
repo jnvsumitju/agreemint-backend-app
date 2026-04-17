@@ -45,8 +45,9 @@ public class TemplateShareController {
             @RequestBody ShareWithUserRequest req
     ) {
         orgAuthz.assertTemplateAccess(principal.userId(), templateId, OrgRole.ADMIN, OrgRole.DESIGNER);
-        OrgRole role = req.role() != null ? OrgRole.valueOf(req.role().toUpperCase()) : OrgRole.VIEWER;
-        TemplateShareResponse result = shareService.shareWithUser(templateId, req.email(), role, principal.userId());
+        // Role no longer accepted from the client — share is a pointer + notification,
+        // recipient's actual access is governed by their org membership.
+        TemplateShareResponse result = shareService.shareWithUser(templateId, req.email(), principal.userId());
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -57,8 +58,7 @@ public class TemplateShareController {
             @RequestBody GenerateShareLinkRequest req
     ) {
         orgAuthz.assertTemplateAccess(principal.userId(), templateId, OrgRole.ADMIN, OrgRole.DESIGNER);
-        OrgRole role = req.role() != null ? OrgRole.valueOf(req.role().toUpperCase()) : OrgRole.VIEWER;
-        TemplateShareResponse result = shareService.generateShareLink(templateId, role, principal.userId(), req.expiresInHours());
+        TemplateShareResponse result = shareService.generateShareLink(templateId, principal.userId(), req.expiresInHours());
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 

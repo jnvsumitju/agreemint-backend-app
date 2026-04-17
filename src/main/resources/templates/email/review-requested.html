@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f5; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5; padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding:32px 40px; text-align:center;">
+                            <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:700;">Agreemint</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <h2 style="margin:0 0 16px; color:#18181b; font-size:20px; font-weight:600;">Your review is requested</h2>
+                            <p style="margin:0 0 16px; color:#52525b; font-size:14px; line-height:1.6;">
+                                <strong th:text="${requesterName}">Someone</strong> asked you to review
+                                <strong th:text="${templateName}">Template</strong>
+                                (version&nbsp;<span th:text="${versionNumber}">1</span>).
+                            </p>
+                            <div th:if="${message != null and !#strings.isEmpty(message)}"
+                                 style="margin:0 0 24px; padding:12px 16px; background:#f4f4f5; border-left:3px solid #7c3aed; border-radius:4px; color:#3f3f46; font-size:13px; line-height:1.6;">
+                                <span th:text="${message}">Optional note from the requester.</span>
+                            </div>
+                            <p style="margin:0 0 24px; color:#52525b; font-size:14px; line-height:1.6;">
+                                Open the template to review it. You can approve it or ask for mandatory changes.
+                            </p>
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                                <tr>
+                                    <td style="background-color:#7c3aed; border-radius:8px;">
+                                        <a th:href="${reviewUrl}" style="display:inline-block; padding:12px 32px; color:#ffffff; font-size:14px; font-weight:600; text-decoration:none;">
+                                            Open & Review
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <p style="margin:24px 0 0; color:#a1a1aa; font-size:11px; text-align:center;">
+                    Agreemint &mdash; Agreement management made simple
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

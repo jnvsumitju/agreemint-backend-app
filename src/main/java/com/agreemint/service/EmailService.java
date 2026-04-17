@@ -121,6 +121,58 @@ public class EmailService {
         send(to, "You've been invited to join " + orgName + " on Agreemint", html);
     }
 
+    /**
+     * Notify someone that a template was shared with them.
+     * Simple pointer email — the recipient's actual access is governed by their
+     * org membership; the share itself is just a "heads up" signal.
+     */
+    @Async
+    public void sendTemplateSharedEmail(String to, String templateName,
+                                         String sharerName, String templateUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("templateName", templateName);
+        ctx.setVariable("sharerName", sharerName);
+        ctx.setVariable("templateUrl", templateUrl);
+
+        String html = templateEngine.process("email/template-shared", ctx);
+        send(to, sharerName + " shared \"" + templateName + "\" with you", html);
+    }
+
+    /** Ask a reviewer to look at a committed template version. */
+    @Async
+    public void sendReviewRequestedEmail(String to, String templateName, String requesterName,
+                                          int versionNumber, String message, String reviewUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("templateName", templateName);
+        ctx.setVariable("requesterName", requesterName);
+        ctx.setVariable("versionNumber", versionNumber);
+        ctx.setVariable("message", message == null ? "" : message);
+        ctx.setVariable("reviewUrl", reviewUrl);
+
+        String html = templateEngine.process("email/review-requested", ctx);
+        send(to, "Review requested: \"" + templateName + "\" (v" + versionNumber + ")", html);
+    }
+
+    /**
+     * Tell the requester that the reviewer has approved or asked for changes.
+     * {@code status} is the raw enum name ({@code APPROVED} or {@code CHANGES_REQUESTED}).
+     */
+    @Async
+    public void sendReviewDecisionEmail(String to, String templateName, String reviewerName,
+                                         String status, String summary, String templateUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("templateName", templateName);
+        ctx.setVariable("reviewerName", reviewerName);
+        ctx.setVariable("status", status);
+        ctx.setVariable("approved", "APPROVED".equals(status));
+        ctx.setVariable("summary", summary == null ? "" : summary);
+        ctx.setVariable("templateUrl", templateUrl);
+
+        String html = templateEngine.process("email/review-decision", ctx);
+        String verb = "APPROVED".equals(status) ? "approved" : "requested changes on";
+        send(to, reviewerName + " " + verb + " \"" + templateName + "\"", html);
+    }
+
     /** Warn about an upcoming or past document expiration. */
     @Async
     public void sendExpirationWarningEmail(String to, String documentTitle,
