@@ -82,6 +82,16 @@ public class AuthController {
 
     public record ResendVerificationRequest(String email) {}
 
+    /**
+     * Public: resolve an invite token → narrow summary for the register page.
+     * Lets the UI pre-fill the email field and lock it so the recipient can't
+     * accidentally register with a different address than the one invited.
+     */
+    @GetMapping("/invitations/resolve")
+    public InvitationResolveResponse resolveInvitation(@RequestParam String token) {
+        return authService.resolveInvitation(token);
+    }
+
     // ── OTP Login ──
 
     @PostMapping("/send-otp")

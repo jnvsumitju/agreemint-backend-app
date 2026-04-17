@@ -49,8 +49,22 @@ public class TemplateController {
     }
 
     @PostMapping
-    public TemplateResponse create(@Valid @RequestBody CreateTemplateRequest request) {
-        return templateService.create(request);
+    public TemplateResponse create(
+            @Valid @RequestBody CreateTemplateRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        // Stamp the authenticated user's active org + id onto the new template.
+        // Without these the authorization layer cannot gate access, so ANY
+        // subsequent `/access` call would have returned ADMIN for every user.
+        if (principal == null || principal.orgId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "No organization context — cannot create template");
+        }
+        // Only ADMIN/DESIGNER may create templates in an org.
+        orgAuthz.assertRole(principal.userId(), principal.orgId(),
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+        return templateService.create(request, principal.orgId(), principal.userId());
     }
 
     @GetMapping
@@ -144,11 +158,20 @@ public class TemplateController {
     /** Import a previously exported template JSON bundle, creating a new template + draft + committed version. */
     @PostMapping("/import")
     public ResponseEntity<TemplateResponse> importTemplate(
-            @RequestBody com.fasterxml.jackson.databind.JsonNode body
+            @RequestBody com.fasterxml.jackson.databind.JsonNode body,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+        if (principal == null || principal.orgId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "No organization context — cannot import template");
+        }
+        orgAuthz.assertRole(principal.userId(), principal.orgId(),
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+
         String name = body.has("name") ? body.get("name").asText() : "Imported Template";
         CreateTemplateRequest req = new CreateTemplateRequest(name, null);
-        TemplateResponse created = templateService.create(req);
+        TemplateResponse created = templateService.create(req, principal.orgId(), principal.userId());
 
         // If the export contains layout, save as draft then commit to create a version
         if (body.has("layout")) {

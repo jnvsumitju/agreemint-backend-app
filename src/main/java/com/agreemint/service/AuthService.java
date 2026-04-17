@@ -244,6 +244,37 @@ public class AuthService {
         return buildAuthResponse(user, org, role);
     }
 
+    /**
+     * Public: resolve a pending org invitation by its token. Returns a narrow,
+     * non-sensitive summary (email, org name, inviter name, role) so the
+     * registration page can pre-fill and lock the email field.
+     *
+     * <p>Returns 404 if the token is not recognised. Returns {@code expired=true}
+     * when the token is found but no longer valid — the UI can surface a
+     * dedicated error rather than a generic 404.
+     */
+    @Transactional(readOnly = true)
+    public InvitationResolveResponse resolveInvitation(String token) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found");
+        }
+        OrgInvitation inv = invitationRepo.findByToken(token.trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
+
+        Organization org = orgRepo.findById(inv.getOrgId()).orElse(null);
+        String inviterName = inv.getInvitedBy() != null
+                ? userRepo.findById(inv.getInvitedBy()).map(User::getName).orElse("A teammate")
+                : "A teammate";
+
+        return new InvitationResolveResponse(
+                inv.getEmail(),
+                org != null ? org.getName() : "",
+                inviterName,
+                inv.getRole().name(),
+                inv.isExpired() || !inv.isPending()
+        );
+    }
+
     @Transactional
     public void forgotPassword(String email) {
         var userOpt = userRepo.findByEmail(email.toLowerCase().trim());

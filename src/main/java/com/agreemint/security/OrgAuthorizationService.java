@@ -49,6 +49,11 @@ public class OrgAuthorizationService {
     /**
      * Assert the user can access a template at one of the allowed role levels.
      * Resolves the template's org, then delegates to {@link #assertRole}.
+     *
+     * <p>An orphan template (no {@code orgId}) is treated as belonging to its
+     * creator if {@code ownerId} is set; everyone else is forbidden. Legacy
+     * behaviour used to return {@code ADMIN} for any caller when {@code orgId}
+     * was null — that silently bypassed every role gate and let VIEWERs edit.
      */
     public OrgRole assertTemplateAccess(UUID userId, UUID templateId, OrgRole... allowed) {
         Template template = templateRepo.findById(templateId)
@@ -56,8 +61,12 @@ public class OrgAuthorizationService {
 
         UUID orgId = template.getOrgId();
         if (orgId == null) {
-            // Legacy unowned template — allow access (backward compat)
-            return OrgRole.ADMIN;
+            UUID ownerId = template.getOwnerId();
+            if (ownerId != null && ownerId.equals(userId)) {
+                return OrgRole.ADMIN;
+            }
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Template has no organization; only its owner may access it");
         }
         return assertRole(userId, orgId, allowed);
     }
