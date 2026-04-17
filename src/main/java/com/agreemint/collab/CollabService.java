@@ -420,6 +420,12 @@ public class CollabService {
             ObjectNode page = pageAt(root, e.pageIndex());
             if (page == null) return;
             page.set("localVariables", e.variables() == null ? JsonNodeFactory.instance.arrayNode() : e.variables());
+
+        } else if (op instanceof CollabOp.SetPageSpec e) {
+            // Template-wide page spec lives at root as the `page` field.
+            if (e.pageSpec() != null) {
+                root.set("page", e.pageSpec());
+            }
         }
     }
 
@@ -452,6 +458,7 @@ public class CollabService {
         if (op instanceof CollabOp.UpdatePage) return "updatePage";
         if (op instanceof CollabOp.SetGlobalVariables) return "setGlobalVariables";
         if (op instanceof CollabOp.SetPageVariables) return "setPageVariables";
+        if (op instanceof CollabOp.SetPageSpec) return "setPageSpec";
         return "unknown";
     }
 

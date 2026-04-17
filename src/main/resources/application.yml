@@ -23,6 +23,11 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000ms
+      # We only use StringRedisTemplate directly (no RedisRepository subclasses),
+      # so skip the scan that logs "Could not safely identify store assignment..."
+      # for every JPA repository at startup.
+      repositories:
+        enabled: false
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}

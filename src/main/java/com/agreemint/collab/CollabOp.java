@@ -26,6 +26,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = CollabOp.UpdatePage.class, name = "updatePage"),
         @JsonSubTypes.Type(value = CollabOp.SetGlobalVariables.class, name = "setGlobalVariables"),
         @JsonSubTypes.Type(value = CollabOp.SetPageVariables.class, name = "setPageVariables"),
+        @JsonSubTypes.Type(value = CollabOp.SetPageSpec.class, name = "setPageSpec"),
 })
 public sealed interface CollabOp permits
         CollabOp.AddElement,
@@ -37,7 +38,8 @@ public sealed interface CollabOp permits
         CollabOp.ReorderPages,
         CollabOp.UpdatePage,
         CollabOp.SetGlobalVariables,
-        CollabOp.SetPageVariables {
+        CollabOp.SetPageVariables,
+        CollabOp.SetPageSpec {
 
     record AddElement(int pageIndex, JsonNode element) implements CollabOp {}
 
@@ -60,4 +62,11 @@ public sealed interface CollabOp permits
     record SetGlobalVariables(JsonNode variables) implements CollabOp {}
 
     record SetPageVariables(int pageIndex, JsonNode variables) implements CollabOp {}
+
+    /**
+     * Template-wide {@code pageSpec} (size / margins / orientation). Lives at the
+     * root of the layout JSON as the {@code page} field (see {@code buildLayoutJson}),
+     * not inside {@code pages[i]}.
+     */
+    record SetPageSpec(JsonNode pageSpec) implements CollabOp {}
 }
