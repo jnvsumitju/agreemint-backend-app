@@ -3,6 +3,7 @@ package com.agreemint.collab;
 import com.agreemint.config.WebSocketAuthInterceptor.WebSocketPrincipal;
 import com.agreemint.domain.OrgRole;
 import com.agreemint.security.OrgAuthorizationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -63,10 +65,28 @@ public class CollabController {
             return;
         }
 
+        // Role gate: ADMIN/DESIGNER can send any op. REVIEWER is allowed to send
+        // updateElement ops whose patch touches ONLY the `comments` field — this
+        // is how the Reviews panel + CommentsPanel lets reviewers participate
+        // without giving them structural edit rights. Everything else from a
+        // REVIEWER or VIEWER is dropped.
+        boolean allowed;
         try {
             orgAuthz.assertTemplateAccess(wsp.getUserId(), templateId, OrgRole.ADMIN, OrgRole.DESIGNER);
+            allowed = true;
         } catch (ResponseStatusException ex) {
-            log.debug("Dropping op on template {} from user {}: {}", templateId, wsp.getUserId(), ex.getReason());
+            allowed = false;
+        }
+        if (!allowed && isCommentsOnlyOp(envelope.op())) {
+            try {
+                orgAuthz.assertTemplateAccess(wsp.getUserId(), templateId, OrgRole.REVIEWER);
+                allowed = true;
+            } catch (ResponseStatusException ex) {
+                // still not allowed — fall through
+            }
+        }
+        if (!allowed) {
+            log.debug("Dropping op on template {} from user {} (insufficient role)", templateId, wsp.getUserId());
             return;
         }
 
@@ -75,6 +95,38 @@ public class CollabController {
         } catch (RuntimeException ex) {
             log.warn("Failed to apply op on template {}: {}", templateId, ex.getMessage());
         }
+    }
+
+    /**
+     * True when an op is a pure comment mutation — i.e. a single-element
+     * {@code UpdateElement} whose patch's only populated top-level key is
+     * {@code comments}, or a {@code BulkUpdateElements} where every patch is
+     * comments-only. REVIEWERs may send these without holding the edit role.
+     */
+    private static boolean isCommentsOnlyOp(CollabOp op) {
+        if (op instanceof CollabOp.UpdateElement upd) {
+            return isCommentsOnlyPatch(upd.patch());
+        }
+        if (op instanceof CollabOp.BulkUpdateElements bulk && bulk.updates() != null) {
+            if (bulk.updates().isEmpty()) return false;
+            for (CollabOp.BulkUpdateElements.ElementPatch u : bulk.updates()) {
+                if (!isCommentsOnlyPatch(u.patch())) return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isCommentsOnlyPatch(JsonNode patch) {
+        if (patch == null || !patch.isObject()) return false;
+        Iterator<String> keys = patch.fieldNames();
+        int count = 0;
+        while (keys.hasNext()) {
+            String k = keys.next();
+            if (!"comments".equals(k)) return false;
+            count++;
+        }
+        return count == 1;
     }
 
     /**

@@ -104,23 +104,40 @@ public class AuthService {
         user.setEmailVerified(viaInvite);
         user = userRepo.save(user);
 
-        // Create default personal org
-        String slug = slugService.generateUniqueSlug(req.name());
-        Organization org = new Organization();
-        org.setName(req.name().trim() + "'s Workspace");
-        org.setSlug(slug);
-        org.setPlan(OrgPlan.FREE);
-        org = orgRepo.save(org);
+        // Decide whether to spin up a personal workspace for this user.
+        //
+        // Rule: if the user has *any* non-expired pending invitation to an
+        // existing organisation (reached here via email — the inviteToken is
+        // one path, but an admin may have sent an invite without the user
+        // clicking the link), they should NOT get a personal workspace
+        // auto-created. They only belong to the org(s) that invited them.
+        // Admins in those orgs can create additional workspaces for the user
+        // later if they want.
+        //
+        // If no pending invite exists for this email, the user is a fresh
+        // self-signup and gets the usual "<Name>'s Workspace" created with
+        // themselves as ADMIN.
+        List<OrgInvitation> pendingInvites = invitationRepo.findByEmailAndAcceptedAtIsNull(user.getEmail());
+        boolean hasValidPendingInvite = pendingInvites.stream()
+                .anyMatch(inv -> !inv.isExpired() && orgRepo.existsById(inv.getOrgId()));
 
-        // Make user ADMIN of their org
-        OrgMembership membership = new OrgMembership();
-        membership.setUser(user);
-        membership.setOrganization(org);
-        membership.setRole(OrgRole.ADMIN);
-        membershipRepo.save(membership);
+        Organization personalOrg = null;
+        if (!hasValidPendingInvite) {
+            String slug = slugService.generateUniqueSlug(req.name());
+            personalOrg = new Organization();
+            personalOrg.setName(req.name().trim() + "'s Workspace");
+            personalOrg.setSlug(slug);
+            personalOrg.setPlan(OrgPlan.FREE);
+            personalOrg = orgRepo.save(personalOrg);
+
+            OrgMembership adminMembership = new OrgMembership();
+            adminMembership.setUser(user);
+            adminMembership.setOrganization(personalOrg);
+            adminMembership.setRole(OrgRole.ADMIN);
+            membershipRepo.save(adminMembership);
+        }
 
         // Accept any pending org invitations for this email
-        List<OrgInvitation> pendingInvites = invitationRepo.findByEmailAndAcceptedAtIsNull(user.getEmail());
         Organization primaryInviteOrg = null;
         OrgRole primaryInviteRole = null;
         for (OrgInvitation inv : pendingInvites) {
@@ -160,7 +177,13 @@ public class AuthService {
         if (primaryInviteOrg != null) {
             return buildAuthResponse(user, primaryInviteOrg, primaryInviteRole);
         }
-        return buildAuthResponse(user, org, OrgRole.ADMIN);
+        // Defensive fallback — viaInvite implied an invitation existed, but if it
+        // couldn't be resolved for any reason, still return a usable session.
+        if (personalOrg != null) {
+            return buildAuthResponse(user, personalOrg, OrgRole.ADMIN);
+        }
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Registration completed without any organization assignment");
     }
 
     @Transactional
