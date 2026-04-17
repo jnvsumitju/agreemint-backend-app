@@ -140,12 +140,19 @@ public class CollabService {
             markDirty(templateId);
             touch(templateId);
 
-            Map<String, Object> broadcast = Map.of(
-                    "serverSeq", serverSeq,
-                    "clientOpId", clientOpId == null ? "" : clientOpId,
-                    "userId", userId == null ? "" : userId.toString(),
-                    "op", op
-            );
+            // Serialise the op as a tree so we can guarantee the "type" discriminator
+            // is present on the wire. Jackson's @JsonTypeInfo is erased when the op is
+            // referenced through Map<String, Object> (Object static type), so we build
+            // the JSON node ourselves and prepend the type.
+            ObjectNode opNode = (ObjectNode) mapper.valueToTree(op);
+            opNode.put("type", opTypeName(op));
+
+            ObjectNode broadcast = JsonNodeFactory.instance.objectNode();
+            broadcast.put("serverSeq", serverSeq);
+            broadcast.put("clientOpId", clientOpId == null ? "" : clientOpId);
+            broadcast.put("userId", userId == null ? "" : userId.toString());
+            broadcast.set("op", opNode);
+
             messaging.convertAndSend("/topic/template/" + templateId + "/ops", broadcast);
             return serverSeq;
         } finally {
@@ -301,9 +308,25 @@ public class CollabService {
         return legacy != null && legacy.isArray() && legacy.size() > 0;
     }
 
+    /**
+     * Default seed used when a template has no draft AND no committed version yet.
+     * Must contain at least one page whose id matches the client's default
+     * (see {@code LEGACY_SINGLE_PAGE_ID = 'page_1'} in
+     * {@code agreemint-frontend-app/src/types/layout.ts}) so the client's first
+     * {@code addElement} at {@code pageIndex: 0} targets an existing page on the
+     * server and is applied correctly. Without this seed, brand-new templates
+     * would have {@code pages: []} in Redis and every inbound op would silently
+     * no-op against a nonexistent page 0.
+     */
     private ObjectNode emptyLayout() {
         ObjectNode root = JsonNodeFactory.instance.objectNode();
-        root.set("pages", JsonNodeFactory.instance.arrayNode());
+        ArrayNode pages = JsonNodeFactory.instance.arrayNode();
+        ObjectNode firstPage = JsonNodeFactory.instance.objectNode();
+        firstPage.put("id", "page_1");
+        firstPage.put("name", "Page 1");
+        firstPage.set("elements", JsonNodeFactory.instance.arrayNode());
+        pages.add(firstPage);
+        root.set("pages", pages);
         root.set("globalVariables", JsonNodeFactory.instance.arrayNode());
         return root;
     }
@@ -411,6 +434,25 @@ public class CollabService {
     private static int pagesSize(ObjectNode root) {
         JsonNode pages = root.get("pages");
         return (pages instanceof ArrayNode arr) ? arr.size() : -1;
+    }
+
+    /**
+     * Wire-name for a {@link CollabOp} subtype — matches the {@code @JsonSubTypes}
+     * names on {@link CollabOp}. Kept as an explicit table rather than a class
+     * lookup so renaming a Java record does not silently break the wire protocol.
+     */
+    private static String opTypeName(CollabOp op) {
+        if (op instanceof CollabOp.AddElement) return "addElement";
+        if (op instanceof CollabOp.DeleteElements) return "deleteElements";
+        if (op instanceof CollabOp.UpdateElement) return "updateElement";
+        if (op instanceof CollabOp.BulkUpdateElements) return "bulkUpdateElements";
+        if (op instanceof CollabOp.AddPage) return "addPage";
+        if (op instanceof CollabOp.DeletePage) return "deletePage";
+        if (op instanceof CollabOp.ReorderPages) return "reorderPages";
+        if (op instanceof CollabOp.UpdatePage) return "updatePage";
+        if (op instanceof CollabOp.SetGlobalVariables) return "setGlobalVariables";
+        if (op instanceof CollabOp.SetPageVariables) return "setPageVariables";
+        return "unknown";
     }
 
     private static ArrayNode arrayField(ObjectNode parent, String name) {

@@ -38,7 +38,7 @@ public class CollabFlushJob {
             }
         }
         if (flushed > 0) {
-            log.debug("Collab flush persisted {} / {} dirty templates", flushed, dirty.size());
+            log.info("Collab flush persisted {} / {} dirty templates", flushed, dirty.size());
         }
     }
 }
