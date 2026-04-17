@@ -1,7 +1,9 @@
 package com.agreemint.collab;
 
 import com.agreemint.domain.TemplateDraft;
+import com.agreemint.domain.TemplateVersion;
 import com.agreemint.repository.TemplateDraftRepository;
+import com.agreemint.repository.TemplateVersionRepository;
 import com.agreemint.service.TemplateDraftService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,6 +56,7 @@ public class CollabService {
     private final ObjectMapper mapper;
     private final SimpMessagingTemplate messaging;
     private final TemplateDraftRepository draftRepo;
+    private final TemplateVersionRepository versionRepo;
     private final TemplateDraftService draftService;
 
     private final ConcurrentHashMap<UUID, ReentrantLock> locks = new ConcurrentHashMap<>();
@@ -63,11 +66,13 @@ public class CollabService {
             ObjectMapper mapper,
             SimpMessagingTemplate messaging,
             TemplateDraftRepository draftRepo,
+            TemplateVersionRepository versionRepo,
             TemplateDraftService draftService) {
         this.redis = redis;
         this.mapper = mapper;
         this.messaging = messaging;
         this.draftRepo = draftRepo;
+        this.versionRepo = versionRepo;
         this.draftService = draftService;
     }
 
@@ -263,11 +268,37 @@ public class CollabService {
         redis.expire(seqKey(templateId), TTL);
     }
 
+    /**
+     * Cold-start hydrate: prefer the current {@link TemplateDraft}; fall back to the
+     * latest {@link TemplateVersion} when no draft row exists yet (newly-committed
+     * templates or those that have never been edited). Only falls back to an empty
+     * skeleton if both are missing or carry an empty {@code pages} array.
+     */
     private JsonNode hydrateFromPostgres(UUID templateId) {
-        return draftRepo.findById(templateId)
+        JsonNode draft = draftRepo.findById(templateId)
                 .map(TemplateDraft::getLayoutJson)
-                .filter(j -> j != null && !j.isNull())
-                .orElseGet(this::emptyLayout);
+                .filter(this::hasRealContent)
+                .orElse(null);
+        if (draft != null) return draft;
+
+        List<TemplateVersion> versions = versionRepo.findByTemplate_IdOrderByVersionNumberDesc(templateId);
+        for (TemplateVersion v : versions) {
+            JsonNode layout = v.getLayoutJson();
+            if (hasRealContent(layout)) {
+                log.info("CollabService hydrating template {} from version v{}", templateId, v.getVersionNumber());
+                return layout;
+            }
+        }
+        return emptyLayout();
+    }
+
+    /** A layout "has content" if it's an object with a non-empty pages array (or legacy top-level elements). */
+    private boolean hasRealContent(JsonNode layout) {
+        if (layout == null || layout.isNull() || !layout.isObject()) return false;
+        JsonNode pages = layout.get("pages");
+        if (pages != null && pages.isArray() && pages.size() > 0) return true;
+        JsonNode legacy = layout.get("elements");
+        return legacy != null && legacy.isArray() && legacy.size() > 0;
     }
 
     private ObjectNode emptyLayout() {
@@ -282,12 +313,20 @@ public class CollabService {
     private void applyTo(ObjectNode root, CollabOp op) {
         if (op instanceof CollabOp.AddElement e) {
             ObjectNode page = pageAt(root, e.pageIndex());
-            if (page == null) return;
+            if (page == null) {
+                log.warn("applyOp {}: page index {} out of range (pages size={}) — dropping",
+                        op.getClass().getSimpleName(), e.pageIndex(), pagesSize(root));
+                return;
+            }
             arrayField(page, "elements").add(e.element() == null ? JsonNodeFactory.instance.objectNode() : e.element());
 
         } else if (op instanceof CollabOp.DeleteElements e) {
             ObjectNode page = pageAt(root, e.pageIndex());
-            if (page == null) return;
+            if (page == null) {
+                log.warn("applyOp DeleteElements: page index {} out of range (pages size={}) — dropping",
+                        e.pageIndex(), pagesSize(root));
+                return;
+            }
             ArrayNode elements = arrayField(page, "elements");
             if (e.elementIds() == null || e.elementIds().isEmpty()) return;
             Set<String> toRemove = new HashSet<>(e.elementIds());
@@ -300,15 +339,24 @@ public class CollabService {
 
         } else if (op instanceof CollabOp.UpdateElement e) {
             ObjectNode page = pageAt(root, e.pageIndex());
-            if (page == null) return;
+            if (page == null) {
+                log.warn("applyOp UpdateElement: page index {} out of range (pages size={}) for element {} — dropping",
+                        e.pageIndex(), pagesSize(root), e.elementId());
+                return;
+            }
             ObjectNode el = findElementById(arrayField(page, "elements"), e.elementId());
             if (el != null && e.patch() != null) {
                 deepMerge(el, e.patch());
+            } else if (el == null) {
+                log.warn("applyOp UpdateElement: element {} not found on page {} — dropping", e.elementId(), e.pageIndex());
             }
 
         } else if (op instanceof CollabOp.BulkUpdateElements e) {
             ObjectNode page = pageAt(root, e.pageIndex());
-            if (page == null || e.updates() == null) return;
+            if (page == null || e.updates() == null) {
+                if (page == null) log.warn("applyOp BulkUpdateElements: page index {} out of range — dropping", e.pageIndex());
+                return;
+            }
             ArrayNode elements = arrayField(page, "elements");
             for (CollabOp.BulkUpdateElements.ElementPatch u : e.updates()) {
                 ObjectNode el = findElementById(elements, u.elementId());
@@ -358,6 +406,11 @@ public class CollabService {
         if (index < 0 || index >= arr.size()) return null;
         JsonNode page = arr.get(index);
         return (page instanceof ObjectNode o) ? o : null;
+    }
+
+    private static int pagesSize(ObjectNode root) {
+        JsonNode pages = root.get("pages");
+        return (pages instanceof ArrayNode arr) ? arr.size() : -1;
     }
 
     private static ArrayNode arrayField(ObjectNode parent, String name) {
