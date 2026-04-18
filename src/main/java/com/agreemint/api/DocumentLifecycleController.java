@@ -5,6 +5,7 @@ import com.agreemint.api.dto.DocumentLifecycleResponse;
 import com.agreemint.api.dto.LifecycleStatsResponse;
 import com.agreemint.api.dto.PendingApprovalResponse;
 import com.agreemint.api.dto.TransitionStatusRequest;
+import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.LifecycleStatus;
 import com.agreemint.domain.OrgRole;
 import com.agreemint.security.OrgAuthorizationService;
@@ -45,11 +46,12 @@ public class DocumentLifecycleController {
     public List<DocumentLifecycleResponse> list(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) LifecycleStatus status,
+            @RequestParam(required = false) DocumentSource source,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         authorizationService.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER, OrgRole.REVIEWER, OrgRole.VIEWER);
-        return lifecycleService.listDocuments(principal.orgId(), status, page, size);
+        return lifecycleService.listDocuments(principal.orgId(), source, status, page, size);
     }
 
     @GetMapping("/{id}/lifecycle")

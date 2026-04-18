@@ -1,5 +1,6 @@
 package com.agreemint.api.dto;
 
+import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.DocumentStatus;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.LifecycleStatus;
@@ -16,6 +17,7 @@ public record DocumentLifecycleResponse(
         String fileUrl,
         DocumentStatus generationStatus,
         LifecycleStatus lifecycleStatus,
+        DocumentSource source,
         UUID createdBy,
         UUID orgId,
         Instant expiresAt,
@@ -32,6 +34,7 @@ public record DocumentLifecycleResponse(
                 d.getFileUrl(),
                 d.getStatus(),
                 d.getLifecycleStatus(),
+                d.getSource(),
                 d.getCreatedBy(),
                 d.getOrgId(),
                 d.getExpiresAt(),

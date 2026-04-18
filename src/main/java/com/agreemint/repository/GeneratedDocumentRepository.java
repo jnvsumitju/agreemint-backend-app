@@ -1,5 +1,6 @@
 package com.agreemint.repository;
 
+import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.LifecycleStatus;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,16 @@ public interface GeneratedDocumentRepository extends JpaRepository<GeneratedDocu
 
     List<GeneratedDocument> findByOrgIdOrderByCreatedAtDesc(UUID orgId, Pageable pageable);
 
+    // Source-filtered variants — used by the Documents page's UI/API tabs.
+    List<GeneratedDocument> findByOrgIdAndSourceOrderByCreatedAtDesc(
+            UUID orgId, DocumentSource source, Pageable pageable);
+
+    List<GeneratedDocument> findByOrgIdAndSourceAndLifecycleStatusOrderByCreatedAtDesc(
+            UUID orgId, DocumentSource source, LifecycleStatus status, Pageable pageable);
+
     List<GeneratedDocument> findByExpiresAtBeforeAndLifecycleStatus(Instant before, LifecycleStatus status);
 
     long countByOrgIdAndLifecycleStatus(UUID orgId, LifecycleStatus status);
+
+    long countByOrgIdAndSource(UUID orgId, DocumentSource source);
 }

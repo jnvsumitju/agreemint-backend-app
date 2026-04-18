@@ -94,7 +94,11 @@ public class PublicApiController {
 
         JsonNode data = body != null ? body.data() : null;
         GenerateRequest req = new GenerateRequest(templateId, versionId, data);
-        GenerateResponse res = docService.generate(req, principal.userId(), principal.orgId());
+        // API-sourced: tag so the lifecycle workflow is skipped. Customers who
+        // run their own review/approval layer get the bare document + webhook
+        // and nothing else from our lifecycle tracking.
+        GenerateResponse res = docService.generate(req, principal.userId(), principal.orgId(),
+                com.agreemint.domain.DocumentSource.API_GENERATED);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 

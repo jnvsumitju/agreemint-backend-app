@@ -10,6 +10,7 @@ import com.agreemint.api.dto.DocumentTimelineEventResponse;
 import com.agreemint.api.dto.LifecycleStatsResponse;
 import com.agreemint.domain.ApprovalWorkflow;
 import com.agreemint.domain.DocumentLifecycleEvent;
+import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.LifecycleStatus;
 import com.agreemint.domain.User;
@@ -71,6 +72,14 @@ public class DocumentLifecycleService {
         GeneratedDocument doc = documentRepo.findById(documentId)
                 .orElseThrow(() -> new NotFoundException("Document not found"));
 
+        // API-sourced documents skip the lifecycle entirely — customers run
+        // their own review/approval on their side. Reject transition attempts
+        // loudly so a misconfigured UI can't push a terminal state on them.
+        if (doc.getSource() == DocumentSource.API_GENERATED) {
+            throw new BadRequestException(
+                    "API-generated documents do not participate in the lifecycle workflow");
+        }
+
         LifecycleStatus currentStatus = doc.getLifecycleStatus();
         if (currentStatus == null) currentStatus = LifecycleStatus.DRAFT;
 
@@ -126,9 +135,27 @@ public class DocumentLifecycleService {
 
     @Transactional(readOnly = true)
     public List<DocumentLifecycleResponse> listDocuments(UUID orgId, LifecycleStatus filterStatus, int page, int size) {
+        return listDocuments(orgId, null, filterStatus, page, size);
+    }
+
+    /**
+     * List documents with optional source + lifecycle-status filters. The
+     * Documents page uses {@code source} to populate its "UI / API" tabs and
+     * layers {@code filterStatus} on top for the UI tab only (API docs have
+     * no lifecycle).
+     */
+    @Transactional(readOnly = true)
+    public List<DocumentLifecycleResponse> listDocuments(UUID orgId, DocumentSource source,
+                                                          LifecycleStatus filterStatus,
+                                                          int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<GeneratedDocument> docs;
-        if (filterStatus != null) {
+        if (source != null && filterStatus != null) {
+            docs = documentRepo.findByOrgIdAndSourceAndLifecycleStatusOrderByCreatedAtDesc(
+                    orgId, source, filterStatus, pageable);
+        } else if (source != null) {
+            docs = documentRepo.findByOrgIdAndSourceOrderByCreatedAtDesc(orgId, source, pageable);
+        } else if (filterStatus != null) {
             docs = documentRepo.findByOrgIdAndLifecycleStatusOrderByCreatedAtDesc(orgId, filterStatus, pageable);
         } else {
             docs = documentRepo.findByOrgIdOrderByCreatedAtDesc(orgId, pageable);

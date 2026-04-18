@@ -49,6 +49,15 @@ public class GeneratedDocument {
     @Column(name = "lifecycle_status", length = 32)
     private LifecycleStatus lifecycleStatus = LifecycleStatus.DRAFT;
 
+    /**
+     * How the document was created. API-sourced documents skip the lifecycle
+     * (see {@link DocumentSource} and V17 migration). Backfill for legacy
+     * rows defaults to {@link DocumentSource#UI_GENERATED}.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private DocumentSource source = DocumentSource.UI_GENERATED;
+
     @Column(length = 512)
     private String title;
 
@@ -180,5 +189,13 @@ public class GeneratedDocument {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public DocumentSource getSource() {
+        return source;
+    }
+
+    public void setSource(DocumentSource source) {
+        this.source = source;
     }
 }

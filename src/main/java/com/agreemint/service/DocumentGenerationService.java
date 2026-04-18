@@ -3,6 +3,7 @@ package com.agreemint.service;
 import com.agreemint.api.dto.GenerateRequest;
 import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.GeneratedDocumentResponse;
+import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.DocumentStatus;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.TemplateVersion;
@@ -70,13 +71,26 @@ public class DocumentGenerationService {
         }
     }
 
+    /** Back-compat: unauthenticated callers / tests default to the UI path. */
     @Transactional
     public GenerateResponse generate(GenerateRequest request) {
-        return generate(request, null, null);
+        return generate(request, null, null, DocumentSource.UI_GENERATED);
     }
 
+    /** UI-path convenience overload — preserves the DRAFT-lifecycle default. */
     @Transactional
     public GenerateResponse generate(GenerateRequest request, UUID userId, UUID orgId) {
+        return generate(request, userId, orgId, DocumentSource.UI_GENERATED);
+    }
+
+    /**
+     * Main generate implementation. API-sourced documents skip the
+     * lifecycle entirely — the consuming company owns review/approval
+     * on their side, so carrying a status like DRAFT that never progresses
+     * would just be misleading in our UI.
+     */
+    @Transactional
+    public GenerateResponse generate(GenerateRequest request, UUID userId, UUID orgId, DocumentSource source) {
         TemplateVersion version = templateVersionService.getVersionEntity(
                 request.templateId(), request.versionId());
         JsonNode data = request.data();
@@ -89,7 +103,11 @@ public class DocumentGenerationService {
         doc.setVersion(version);
         doc.setInputData(data);
         doc.setStatus(DocumentStatus.PENDING);
-        doc.setLifecycleStatus(com.agreemint.domain.LifecycleStatus.DRAFT);
+        doc.setSource(source == null ? DocumentSource.UI_GENERATED : source);
+        // UI docs start DRAFT; API docs have no lifecycle — they're terminal.
+        doc.setLifecycleStatus(doc.getSource() == DocumentSource.API_GENERATED
+                ? null
+                : com.agreemint.domain.LifecycleStatus.DRAFT);
         if (userId != null) doc.setCreatedBy(userId);
         if (orgId != null) {
             doc.setOrgId(orgId);
