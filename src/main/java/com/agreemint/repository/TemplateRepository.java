@@ -15,8 +15,17 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
     /** All templates belonging to an org, plus legacy unowned templates. */
     List<Template> findByOrgIdOrOrgIdIsNull(UUID orgId);
 
-    /** Templates assigned to a specific product. Used by the Templates
-     *  page's product filter. */
+    /** Org-scoped list, newest first. Used by the Templates page. */
+    List<Template> findByOrgIdOrderByCreatedAtDesc(UUID orgId);
+
+    /** Org-scoped templates assigned to a specific product. The org check
+     *  is defence-in-depth on top of the product's own org scoping. */
+    List<Template> findByOrgIdAndProductIdOrderByCreatedAtDesc(UUID orgId, UUID productId);
+
+    /** @deprecated not org-scoped; retained only for callers that have
+     *     already verified org context. Prefer
+     *     {@link #findByOrgIdAndProductIdOrderByCreatedAtDesc}. */
+    @Deprecated
     List<Template> findByProductIdOrderByCreatedAtDesc(UUID productId);
 
     /** Count templates per product, org-scoped. Used by the Products page

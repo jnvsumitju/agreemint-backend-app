@@ -70,9 +70,19 @@ public class TemplateController {
 
     @GetMapping
     public List<TemplateResponse> list(
-            @RequestParam(value = "productId", required = false) UUID productId
+            @RequestParam(value = "productId", required = false) UUID productId,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return templateService.listFiltered(productId);
+        // Scope to the authenticated user's active org. Without this, the old
+        // findAll() fell through and every customer saw every other customer's
+        // templates — the tenancy leak reported when two workspaces rendered
+        // the same list.
+        if (principal == null || principal.orgId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "No organization context");
+        }
+        return templateService.listForOrg(principal.orgId(), productId);
     }
 
     @GetMapping("/{id}")

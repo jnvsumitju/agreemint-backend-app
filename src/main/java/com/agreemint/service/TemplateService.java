@@ -81,20 +81,33 @@ public class TemplateService {
         return toResponse(t);
     }
 
+    /**
+     * @deprecated Cross-org list. Retained only because callers that held
+     *     an org context were passing through it; new callers MUST use
+     *     {@link #listForOrg(UUID, UUID)} so tenants can't see each other's
+     *     templates. Falls back to returning only org-less (truly legacy)
+     *     templates so the method stays safe by default.
+     */
+    @Deprecated
     @Transactional(readOnly = true)
     public List<TemplateResponse> listAll() {
-        return listFiltered(null);
+        return templateRepository.findAll().stream()
+                .filter(t -> t.getOrgId() == null)
+                .map(this::toResponse)
+                .toList();
     }
 
     /**
-     * List templates, optionally narrowed to one product. Org scoping is
-     * enforced upstream by {@code OrgAuthorizationService} via the controller.
+     * List an org's templates, optionally narrowed to one product. The org
+     * filter is the primary tenancy boundary — without it, every customer
+     * saw every other customer's templates.
      */
     @Transactional(readOnly = true)
-    public List<TemplateResponse> listFiltered(UUID productId) {
+    public List<TemplateResponse> listForOrg(UUID orgId, UUID productId) {
+        if (orgId == null) return List.of();
         List<Template> rows = productId != null
-                ? templateRepository.findByProductIdOrderByCreatedAtDesc(productId)
-                : templateRepository.findAll();
+                ? templateRepository.findByOrgIdAndProductIdOrderByCreatedAtDesc(orgId, productId)
+                : templateRepository.findByOrgIdOrderByCreatedAtDesc(orgId);
         Map<UUID, String> productNames = productNameCache(rows);
         return rows.stream()
                 .map(t -> toResponse(t, productNames.get(t.getProductId())))
