@@ -103,10 +103,10 @@ public class TemplateReviewService {
         List<TemplateReview> affected = new ArrayList<>();
         for (UUID reviewerId : reviewerIds) {
             if (reviewerId == null) continue;
-            if (reviewerId.equals(requesterId)) {
-                // Self-review is allowed — sometimes you want to flag "I want to re-check"
-                // against yourself — but we still create the row so UX is predictable.
-            }
+            // Self-review is allowed — the requester can assign themselves so
+            // that the same person can both own a template and be on the
+            // reviewer list (useful for admins who are the only reviewer in a
+            // small org, or who want to formally sign off on their own work).
             User reviewer = userRepo.findById(reviewerId).orElse(null);
             if (reviewer == null) continue;
 
