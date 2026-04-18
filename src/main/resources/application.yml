@@ -2,7 +2,11 @@ spring:
   application:
     name: agreemint-backend
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/agreemint
+    # DB_NAME is a proper env — Aiven's default is "defaultdb", a fresh self-hosted
+    # Postgres is usually "agreemint". Fall back to "agreemint" when unset so local
+    # dev keeps working. SPRING_DATASOURCE_URL (if set by the Makefile) still
+    # overrides this whole URL.
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME:agreemint}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
