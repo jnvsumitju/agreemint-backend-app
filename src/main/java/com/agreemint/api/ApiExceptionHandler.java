@@ -5,9 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -42,9 +45,47 @@ public class ApiExceptionHandler {
 
     /** Handle invalid enum values, UUID parsing, etc. — return 400 instead of 500. */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> illegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", "Invalid value: " + e.getMessage()));
+    public ResponseEntity<Map<String, Object>> illegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Invalid value: " + e.getMessage(),
+                "code", "INVALID_ARGUMENT"
+        ));
+    }
+
+    /**
+     * Path / query parameter failed type conversion (e.g. non-UUID supplied
+     * where a UUID is required). Spring wraps the underlying
+     * {@link IllegalArgumentException} so the generic handler above doesn't
+     * catch it — map it explicitly to a 400 that names the offending parameter.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> typeMismatch(MethodArgumentTypeMismatchException e) {
+        String type = e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "value";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Parameter '" + e.getName() + "' must be a valid " + type
+                        + " (got: " + e.getValue() + ")",
+                "code", "INVALID_PARAMETER",
+                "parameter", e.getName()
+        ));
+    }
+
+    /** Missing required query / form parameter. */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> missingParam(MissingServletRequestParameterException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Missing required parameter '" + e.getParameterName() + "'",
+                "code", "MISSING_PARAMETER",
+                "parameter", e.getParameterName()
+        ));
+    }
+
+    /** Malformed / empty JSON body — avoids a 500 from Jackson bubbling up. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> badJson(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Request body could not be parsed as JSON",
+                "code", "MALFORMED_BODY"
+        ));
     }
 
     /**
