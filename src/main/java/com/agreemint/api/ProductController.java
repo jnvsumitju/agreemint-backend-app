@@ -42,6 +42,22 @@ public class ProductController {
         return productService.list(orgId).stream().map(ProductResponse::from).toList();
     }
 
+    /**
+     * Dedicated metrics endpoint for the Products page. Returns one row per
+     * product with template + document counts (split by source) + last-
+     * generated timestamp. Any org member can see this — it mirrors the
+     * visibility of the plain list.
+     */
+    @GetMapping("/metrics")
+    public List<com.agreemint.api.dto.ProductMetricsResponse> metrics(
+            @PathVariable UUID orgId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        orgAuthz.assertRole(principal.userId(), orgId,
+                OrgRole.ADMIN, OrgRole.DESIGNER, OrgRole.REVIEWER, OrgRole.VIEWER);
+        return productService.listWithMetrics(orgId);
+    }
+
     @PostMapping
     public ResponseEntity<ProductResponse> create(
             @PathVariable UUID orgId,

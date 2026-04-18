@@ -29,4 +29,20 @@ public interface GeneratedDocumentRepository extends JpaRepository<GeneratedDocu
     long countByOrgIdAndLifecycleStatus(UUID orgId, LifecycleStatus status);
 
     long countByOrgIdAndSource(UUID orgId, DocumentSource source);
+
+    /**
+     * Per-product document totals with UI/API breakdown and last-generated
+     * timestamp. Returns rows of {@code (productId, source, count, maxCreatedAt)}
+     * aggregated via the template join. The source column lets the caller
+     * split UI vs API totals; grouping also by product means this is one
+     * trip to the DB per Products-page render.
+     */
+    @org.springframework.data.jpa.repository.Query(
+            "select t.productId, d.source, count(d), max(d.createdAt) "
+          + "from GeneratedDocument d "
+          + "  join d.template t "
+          + "where d.orgId = :orgId and t.productId is not null "
+          + "group by t.productId, d.source")
+    List<Object[]> aggregateDocsByProduct(
+            @org.springframework.data.repository.query.Param("orgId") UUID orgId);
 }

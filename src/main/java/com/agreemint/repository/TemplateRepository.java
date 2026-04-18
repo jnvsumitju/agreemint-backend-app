@@ -18,4 +18,13 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
     /** Templates assigned to a specific product. Used by the Templates
      *  page's product filter. */
     List<Template> findByProductIdOrderByCreatedAtDesc(UUID productId);
+
+    /** Count templates per product, org-scoped. Used by the Products page
+     *  metrics. {@code null} product_id rows are filtered out. */
+    @org.springframework.data.jpa.repository.Query(
+            "select t.productId, count(t) from Template t "
+          + "where t.orgId = :orgId and t.productId is not null "
+          + "group by t.productId")
+    List<Object[]> countTemplatesGroupedByProduct(
+            @org.springframework.data.repository.query.Param("orgId") UUID orgId);
 }
