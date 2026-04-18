@@ -13,11 +13,13 @@ import com.agreemint.domain.DocumentLifecycleEvent;
 import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.LifecycleStatus;
+import com.agreemint.domain.Product;
 import com.agreemint.domain.User;
 import com.agreemint.repository.ApprovalStepRepository;
 import com.agreemint.repository.ApprovalWorkflowRepository;
 import com.agreemint.repository.DocumentLifecycleEventRepository;
 import com.agreemint.repository.GeneratedDocumentRepository;
+import com.agreemint.repository.ProductRepository;
 import com.agreemint.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -43,6 +47,7 @@ public class DocumentLifecycleService {
     private final ApprovalWorkflowRepository workflowRepo;
     private final ApprovalStepRepository stepRepo;
     private final UserRepository userRepo;
+    private final ProductRepository productRepo;
     private final NotificationService notificationService;
     private final ActivityService activityService;
     private final EmailService emailService;
@@ -53,6 +58,7 @@ public class DocumentLifecycleService {
             ApprovalWorkflowRepository workflowRepo,
             ApprovalStepRepository stepRepo,
             UserRepository userRepo,
+            ProductRepository productRepo,
             NotificationService notificationService,
             ActivityService activityService,
             EmailService emailService) {
@@ -61,6 +67,7 @@ public class DocumentLifecycleService {
         this.workflowRepo = workflowRepo;
         this.stepRepo = stepRepo;
         this.userRepo = userRepo;
+        this.productRepo = productRepo;
         this.notificationService = notificationService;
         this.activityService = activityService;
         this.emailService = emailService;
@@ -130,12 +137,21 @@ public class DocumentLifecycleService {
             }
         }
 
-        return DocumentLifecycleResponse.from(doc);
+        return singleResponse(doc);
     }
 
     @Transactional(readOnly = true)
     public List<DocumentLifecycleResponse> listDocuments(UUID orgId, LifecycleStatus filterStatus, int page, int size) {
         return listDocuments(orgId, null, filterStatus, page, size);
+    }
+
+    /** Single-row response with the product name looked up on demand. */
+    private DocumentLifecycleResponse singleResponse(GeneratedDocument doc) {
+        UUID productId = doc.getTemplate().getProductId();
+        String productName = productId == null
+                ? null
+                : productRepo.findById(productId).map(Product::getName).orElse(null);
+        return DocumentLifecycleResponse.from(doc, productName);
     }
 
     /**
@@ -160,7 +176,27 @@ public class DocumentLifecycleService {
         } else {
             docs = documentRepo.findByOrgIdOrderByCreatedAtDesc(orgId, pageable);
         }
-        return docs.stream().map(DocumentLifecycleResponse::from).toList();
+        Map<UUID, String> productNames = resolveProductNames(docs);
+        return docs.stream()
+                .map(d -> DocumentLifecycleResponse.from(d,
+                        productNames.get(d.getTemplate().getProductId())))
+                .toList();
+    }
+
+    /** Batch the product-name lookup for a page of documents so rendering
+     *  the Documents table doesn't N+1 the products table. */
+    private Map<UUID, String> resolveProductNames(List<GeneratedDocument> docs) {
+        List<UUID> productIds = docs.stream()
+                .map(d -> d.getTemplate().getProductId())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (productIds.isEmpty()) return Map.of();
+        Map<UUID, String> out = new HashMap<>();
+        for (Product p : productRepo.findAllById(productIds)) {
+            out.put(p.getId(), p.getName());
+        }
+        return out;
     }
 
     @Transactional(readOnly = true)
@@ -179,7 +215,7 @@ public class DocumentLifecycleService {
                 .orElse(null);
 
         return new DocumentDetailResponse(
-                DocumentLifecycleResponse.from(doc),
+                singleResponse(doc),
                 timeline,
                 workflow
         );

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -68,8 +69,10 @@ public class TemplateController {
     }
 
     @GetMapping
-    public List<TemplateResponse> list() {
-        return templateService.listAll();
+    public List<TemplateResponse> list(
+            @RequestParam(value = "productId", required = false) UUID productId
+    ) {
+        return templateService.listFiltered(productId);
     }
 
     @GetMapping("/{id}")
@@ -159,6 +162,7 @@ public class TemplateController {
     @PostMapping("/import")
     public ResponseEntity<TemplateResponse> importTemplate(
             @RequestBody com.fasterxml.jackson.databind.JsonNode body,
+            @RequestParam("productId") UUID productId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         if (principal == null || principal.orgId() == null) {
@@ -170,7 +174,9 @@ public class TemplateController {
                 OrgRole.ADMIN, OrgRole.DESIGNER);
 
         String name = body.has("name") ? body.get("name").asText() : "Imported Template";
-        CreateTemplateRequest req = new CreateTemplateRequest(name, null);
+        // Imports now require a target product. The frontend import dialog is
+        // expected to present the Product dropdown before posting.
+        CreateTemplateRequest req = new CreateTemplateRequest(name, null, productId);
         TemplateResponse created = templateService.create(req, principal.orgId(), principal.userId());
 
         // If the export contains layout, save as draft then commit to create a version

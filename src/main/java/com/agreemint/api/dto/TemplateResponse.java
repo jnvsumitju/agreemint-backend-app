@@ -7,6 +7,8 @@ public record TemplateResponse(
         UUID id,
         String name,
         String createdBy,
-        Instant createdAt
+        Instant createdAt,
+        UUID productId,
+        String productName
 ) {
 }

@@ -148,7 +148,12 @@ public class PublicApiController {
         Template t = templateRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Template not found"));
         assertSameOrg(principal, t.getOrgId());
-        return new TemplateResponse(t.getId(), t.getName(), t.getCreatedBy(), t.getCreatedAt());
+        // Product name is resolved by TemplateService.getResponse for the JWT
+        // path; the public API response surface intentionally omits it — the
+        // productId is enough for API consumers, they don't need our human
+        // label. Pass null for productName to keep the v1 contract stable.
+        return new TemplateResponse(t.getId(), t.getName(), t.getCreatedBy(),
+                t.getCreatedAt(), t.getProductId(), null);
     }
 
     @Operation(summary = "List committed versions of a template, newest first")

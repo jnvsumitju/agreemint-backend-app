@@ -11,6 +11,9 @@ import java.util.UUID;
 public record DocumentLifecycleResponse(
         UUID id,
         UUID templateId,
+        String templateName,
+        UUID productId,
+        String productName,
         UUID versionId,
         String title,
         String description,
@@ -24,10 +27,17 @@ public record DocumentLifecycleResponse(
         Instant createdAt,
         Instant updatedAt
 ) {
-    public static DocumentLifecycleResponse from(GeneratedDocument d) {
+    /**
+     * Base builder — pass the looked-up product name explicitly so the list
+     * path can batch the join rather than lazy-loading product-per-row.
+     */
+    public static DocumentLifecycleResponse from(GeneratedDocument d, String productName) {
         return new DocumentLifecycleResponse(
                 d.getId(),
                 d.getTemplate().getId(),
+                d.getTemplate().getName(),
+                d.getTemplate().getProductId(),
+                productName,
                 d.getVersion().getId(),
                 d.getTitle(),
                 d.getDescription(),
@@ -41,5 +51,11 @@ public record DocumentLifecycleResponse(
                 d.getCreatedAt(),
                 d.getUpdatedAt()
         );
+    }
+
+    /** Convenience overload for single-row callers where the caller doesn't
+     *  already have the product name in hand. Skips the product label. */
+    public static DocumentLifecycleResponse from(GeneratedDocument d) {
+        return from(d, null);
     }
 }

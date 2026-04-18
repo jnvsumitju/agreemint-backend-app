@@ -31,6 +31,14 @@ public class Template {
     @Column(name = "owner_id")
     private UUID ownerId;
 
+    /**
+     * FK to {@code products.id}. Nullable for legacy templates created
+     * before the Products feature existed; new templates are required to
+     * set one via the create path.
+     */
+    @Column(name = "product_id")
+    private UUID productId;
+
     @Version
     private Long version;
 
@@ -86,5 +94,13 @@ public class Template {
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public UUID getProductId() {
+        return productId;
+    }
+
+    public void setProductId(UUID productId) {
+        this.productId = productId;
     }
 }
