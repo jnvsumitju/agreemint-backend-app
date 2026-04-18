@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
@@ -145,16 +148,32 @@ public class DocumentGenerationService {
     }
 
     /**
-     * Resolve a document id to a short-TTL presigned R2 URL. Controllers
-     * 302-redirect to this; the bytes never flow through the JVM.
+     * Resolve a document id to a short-TTL presigned R2 URL. Used by the
+     * API-key ({@code /api/v1/*}) downloads where 302-redirecting is fine —
+     * server-to-server clients follow redirects without CORS preflights.
      */
     @Transactional(readOnly = true)
     public URL resolvePresignedUrl(UUID documentId) {
+        assertDownloadable(documentId);
+        return r2.presignDocumentGet(documentKey(documentId));
+    }
+
+    /**
+     * Open a read stream to the stored PDF. The browser-facing
+     * {@code /api/documents/{id}/file} endpoint uses this to proxy bytes so
+     * the response is same-origin and no CORS preflight hits R2.
+     */
+    @Transactional(readOnly = true)
+    public ResponseInputStream<GetObjectResponse> openDocumentStream(UUID documentId) {
+        assertDownloadable(documentId);
+        return r2.openDocument(documentKey(documentId));
+    }
+
+    private void assertDownloadable(UUID documentId) {
         GeneratedDocument d = generatedDocumentRepository.findById(documentId)
                 .orElseThrow(() -> new com.agreemint.api.NotFoundException("Document not found"));
         if (d.getStatus() != DocumentStatus.COMPLETED || d.getFileUrl() == null) {
             throw new com.agreemint.api.NotFoundException("PDF not available");
         }
-        return r2.presignDocumentGet(documentKey(documentId));
     }
 }

@@ -4,10 +4,12 @@ import com.agreemint.config.R2Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -91,8 +93,24 @@ public class R2StorageService {
     }
 
     /**
+     * Open a read stream to a document-bucket object. Caller MUST close
+     * the returned stream (typically Spring closes it after writing the
+     * response body). Use this when you want to proxy bytes through the
+     * backend rather than handing out a presigned URL — avoids CORS on
+     * the R2 endpoint for browsers that preflight cross-origin fetches.
+     */
+    public ResponseInputStream<GetObjectResponse> openDocument(String key) {
+        return s3.getObject(GetObjectRequest.builder()
+                .bucket(props.getBucketDocuments())
+                .key(key)
+                .build());
+    }
+
+    /**
      * Short-lived signed URL for a private-bucket object. TTL comes from
      * {@link R2Properties#getPresignTtlMinutes()} (default 5 minutes).
+     * Retained for API-key callers (curl / server-to-server) where CORS
+     * doesn't apply and a redirect is cheaper than a proxied byte stream.
      */
     public URL presignDocumentGet(String key) {
         int ttl = Math.max(props.getPresignTtlMinutes(), 1);
