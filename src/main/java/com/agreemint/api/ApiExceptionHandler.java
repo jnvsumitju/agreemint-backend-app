@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 
@@ -65,6 +66,17 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> responseStatus(ResponseStatusException e) {
         return ResponseEntity.status(e.getStatusCode())
                 .body(Map.of("error", e.getReason() != null ? e.getReason() : "Request failed"));
+    }
+
+    /**
+     * Unknown path (probes, scanners, root `/`, stale frontend URLs). Return a
+     * quiet 404 instead of letting it fall through to the catch-all, which
+     * would log every hit at ERROR level and masquerade as a 500.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, String>> noResource(NoResourceFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Not found"));
     }
 
     /** Catch-all: log the error but do NOT leak exception details to the client. */

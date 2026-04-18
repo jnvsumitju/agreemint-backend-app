@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -39,7 +40,11 @@ public class ActivityLog {
     @Column(name = "entity_name", length = 512)
     private String entityName;
 
+    // Column is JSONB; the field is a pre-serialised JSON string. Without the
+    // `?::jsonb` cast, Hibernate binds the parameter as VARCHAR and Postgres
+    // refuses the implicit cast (SQLSTATE 42804).
     @Column(columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     private String metadata;
 
     @Column(name = "created_at", nullable = false)

@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -47,7 +48,10 @@ public class DocumentLifecycleEvent {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    // Column is JSONB; the field is a pre-serialised JSON string. Same
+    // `?::jsonb` cast as ActivityLog — see the note there.
     @Column(columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     private String metadata;
 
     @Column(name = "created_at", nullable = false)
