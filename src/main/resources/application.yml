@@ -68,6 +68,15 @@ agreemint:
     github-enabled: ${OAUTH_GITHUB_ENABLED:false}
     github-client-id: ${GITHUB_CLIENT_ID:}
     github-client-secret: ${GITHUB_CLIENT_SECRET:}
+  # Developer platform — Phase 2 (Bucket4j) reads these. Redis host/port/password
+  # come from the existing spring.data.redis.* above (REDIS_HOST / REDIS_PORT /
+  # REDIS_PASSWORD); no new connection envs are needed.
+  ratelimit:
+    org-daily-max: ${RATELIMIT_ORG_DAILY_MAX:10000}
+  # Developer platform — Phase 6 (API key expiry warnings). Quartz-style cron.
+  # Default fires every day at 09:00 local time of the backend host.
+  api-keys:
+    expiry-warning-cron: ${API_KEY_EXPIRY_WARNING_CRON:0 0 9 * * *}
 
 server:
   port: ${PORT}

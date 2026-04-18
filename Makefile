@@ -45,6 +45,8 @@ run: build
 		-e REDIS_HOST=$(REDIS_HOST) \
 		-e REDIS_PORT=$(REDIS_PORT) \
 		-e REDIS_PASSWORD=$(REDIS_PASSWORD) \
+		-e RATELIMIT_ORG_DAILY_MAX=$(RATELIMIT_ORG_DAILY_MAX) \
+		-e API_KEY_EXPIRY_WARNING_CRON=$(API_KEY_EXPIRY_WARNING_CRON) \
 		$(APP_NAME)
 	@echo ""
 	@echo "  ✓ $(APP_NAME) running on http://localhost:$(APP_PORT)"

@@ -51,6 +51,7 @@ public class TemplateReviewService {
     private final NotificationService notificationService;
     private final EmailService emailService;
     private final FrontendProperties frontendProps;
+    private final WebhookService webhookService;
 
     public TemplateReviewService(
             TemplateReviewRepository reviewRepo,
@@ -59,7 +60,8 @@ public class TemplateReviewService {
             UserRepository userRepo,
             NotificationService notificationService,
             EmailService emailService,
-            FrontendProperties frontendProps) {
+            FrontendProperties frontendProps,
+            WebhookService webhookService) {
         this.reviewRepo = reviewRepo;
         this.versionRepo = versionRepo;
         this.templateRepo = templateRepo;
@@ -67,6 +69,7 @@ public class TemplateReviewService {
         this.notificationService = notificationService;
         this.emailService = emailService;
         this.frontendProps = frontendProps;
+        this.webhookService = webhookService;
     }
 
     // ── Write ────────────────────────────────────────────────────────────────
@@ -136,6 +139,15 @@ public class TemplateReviewService {
                     version.getVersionNumber(),
                     message,
                     templateEditorUrl(templateId));
+
+            webhookService.emit(template.getOrgId(), "review.requested", java.util.Map.of(
+                    "reviewId", review.getId().toString(),
+                    "templateId", templateId.toString(),
+                    "versionId", versionId.toString(),
+                    "versionNumber", version.getVersionNumber(),
+                    "requesterId", requesterId.toString(),
+                    "reviewerId", reviewerId.toString()
+            ));
         }
 
         return toResponses(affected);
@@ -162,6 +174,16 @@ public class TemplateReviewService {
         reviewRepo.save(review);
 
         notifyRequesterOfDecision(review, decision, summary);
+
+        webhookService.emit(review.getTemplateId() != null
+                ? templateRepo.findById(review.getTemplateId()).map(t -> t.getOrgId()).orElse(null)
+                : null,
+            "review.decided", java.util.Map.of(
+                "reviewId", review.getId().toString(),
+                "templateId", review.getTemplateId() == null ? "" : review.getTemplateId().toString(),
+                "versionId", review.getVersionId() == null ? "" : review.getVersionId().toString(),
+                "reviewerId", review.getReviewerId().toString(),
+                "status", decision.name()));
         return toResponse(review);
     }
 

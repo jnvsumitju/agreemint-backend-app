@@ -31,16 +31,19 @@ public class TemplateDraftService {
     private final TemplateDraftRepository templateDraftRepository;
     private final TemplateVersionService templateVersionService;
     private final TemplateReviewService templateReviewService;
+    private final WebhookService webhookService;
 
     public TemplateDraftService(
             TemplateRepository templateRepository,
             TemplateDraftRepository templateDraftRepository,
             TemplateVersionService templateVersionService,
-            @Lazy TemplateReviewService templateReviewService) {
+            @Lazy TemplateReviewService templateReviewService,
+            WebhookService webhookService) {
         this.templateRepository = templateRepository;
         this.templateDraftRepository = templateDraftRepository;
         this.templateVersionService = templateVersionService;
         this.templateReviewService = templateReviewService;
+        this.webhookService = webhookService;
     }
 
     @Transactional(readOnly = true)
@@ -130,6 +133,16 @@ public class TemplateDraftService {
         CreateVersionRequest req = new CreateVersionRequest(d.getLayoutJson(), vars);
         TemplateVersionResponse created = templateVersionService.createVersion(templateId, req);
         templateDraftRepository.deleteById(templateId);
+
+        UUID orgId = templateRepository.findById(templateId).map(t -> t.getOrgId()).orElse(null);
+        if (orgId != null) {
+            webhookService.emit(orgId, "template.version.committed", java.util.Map.of(
+                    "templateId", templateId.toString(),
+                    "versionId", created.id().toString(),
+                    "versionNumber", created.versionNumber(),
+                    "createdAt", created.createdAt() == null ? "" : created.createdAt().toString()
+            ));
+        }
         return created;
     }
 

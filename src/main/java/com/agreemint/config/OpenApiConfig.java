@@ -30,6 +30,14 @@ public class OpenApiConfig {
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")
-                                .description("JWT access token. Obtain via POST /api/auth/login or /api/auth/register.")));
+                                .description("JWT access token. Obtain via POST /api/auth/login or /api/auth/register."))
+                        // Public /api/v1/* endpoints authenticate via X-Api-Key; per-endpoint
+                        // scope is enforced server-side (see PublicApiController @PreAuthorize).
+                        .addSecuritySchemes("ApiKeyAuth", new SecurityScheme()
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.HEADER)
+                                .name("X-Api-Key")
+                                .description("Org-scoped API key. Create one at Settings → Developer. "
+                                        + "Format: ak_live_<40 hex chars>.")));
     }
 }

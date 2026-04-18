@@ -173,6 +173,21 @@ public class EmailService {
         send(to, reviewerName + " " + verb + " \"" + templateName + "\"", html);
     }
 
+    /** Warn a workspace admin that an API key is about to expire. */
+    @Async
+    public void sendApiKeyExpiryWarningEmail(String to, String orgName, String keyName,
+                                              long daysLeft, String developerUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("keyName", keyName);
+        ctx.setVariable("daysLeft", daysLeft);
+        ctx.setVariable("developerUrl", developerUrl);
+
+        String html = templateEngine.process("email/api-key-expiry-warning", ctx);
+        send(to, "API key \"" + keyName + "\" expires in " + daysLeft + " day"
+                + (daysLeft == 1 ? "" : "s"), html);
+    }
+
     /** Warn about an upcoming or past document expiration. */
     @Async
     public void sendExpirationWarningEmail(String to, String documentTitle,

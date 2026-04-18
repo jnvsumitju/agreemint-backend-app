@@ -4,6 +4,7 @@ import com.agreemint.config.OAuthProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,16 +22,23 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+// Required so @PreAuthorize("hasAuthority('SCOPE_…')") on the v1 controller actually enforces.
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final ApiKeyAuthenticationFilter apiKeyFilter;
     private final OAuthProperties oauthProps;
 
     @Value("${agreemint.cors.origins:http://localhost:5173}")
     private String corsOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter, OAuthProperties oauthProps) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtFilter,
+            ApiKeyAuthenticationFilter apiKeyFilter,
+            OAuthProperties oauthProps) {
         this.jwtFilter = jwtFilter;
+        this.apiKeyFilter = apiKeyFilter;
         this.oauthProps = oauthProps;
     }
 
@@ -65,6 +73,9 @@ public class SecurityConfig {
                 // Static resources and health
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/error").permitAll()
+                // Public developer API — authenticated via X-Api-Key filter; scope
+                // checks are enforced per-endpoint via @PreAuthorize.
+                .requestMatchers("/api/v1/**").authenticated()
                 // Everything else under /api requires auth
                 .requestMatchers("/api/**").authenticated()
                 // Let non-API requests through (frontend SPA assets, etc.)
@@ -77,6 +88,10 @@ public class SecurityConfig {
                     res.getWriter().write("{\"error\":\"Unauthorized\"}");
                 })
             )
+            // Order: API-key filter first (handles X-Api-Key), then JWT filter. A
+            // request carrying both headers is handled by whichever runs first —
+            // API keys win by design.
+            .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Only enable OAuth2 login if at least one provider is configured

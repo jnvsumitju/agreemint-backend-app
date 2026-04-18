@@ -30,16 +30,19 @@ public class DocumentGenerationService {
     private final GeneratedDocumentRepository generatedDocumentRepository;
     private final PdfRendererService pdfRendererService;
     private final StorageProperties storageProperties;
+    private final WebhookService webhookService;
 
     public DocumentGenerationService(
             TemplateVersionService templateVersionService,
             GeneratedDocumentRepository generatedDocumentRepository,
             PdfRendererService pdfRendererService,
-            StorageProperties storageProperties) {
+            StorageProperties storageProperties,
+            WebhookService webhookService) {
         this.templateVersionService = templateVersionService;
         this.generatedDocumentRepository = generatedDocumentRepository;
         this.pdfRendererService = pdfRendererService;
         this.storageProperties = storageProperties;
+        this.webhookService = webhookService;
     }
 
     /** Renders PDF from arbitrary layout JSON (e.g. editor preview / local state). */
@@ -108,6 +111,20 @@ public class DocumentGenerationService {
                     "PDF generation failed: " + e.getMessage());
         }
         generatedDocumentRepository.save(doc);
+
+        // Webhook emit — fire-and-forget (persisted as PENDING; dispatcher picks up).
+        UUID payloadOrgId = doc.getOrgId();
+        if (payloadOrgId != null) {
+            webhookService.emit(payloadOrgId, "document.generated", java.util.Map.of(
+                    "documentId", doc.getId().toString(),
+                    "templateId", doc.getTemplate().getId().toString(),
+                    "versionId", doc.getVersion().getId().toString(),
+                    "status", doc.getStatus().name(),
+                    "fileUrl", doc.getFileUrl() == null ? "" : doc.getFileUrl(),
+                    "createdAt", doc.getCreatedAt() == null ? "" : doc.getCreatedAt().toString()
+            ));
+        }
+
         return new GenerateResponse(doc.getId(), doc.getFileUrl());
     }
 
