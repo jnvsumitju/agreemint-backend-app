@@ -3,7 +3,6 @@ package com.agreemint.service;
 import com.agreemint.api.dto.GenerateRequest;
 import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.GeneratedDocumentResponse;
-import com.agreemint.config.StorageProperties;
 import com.agreemint.domain.DocumentStatus;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.TemplateVersion;
@@ -17,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URL;
 import java.util.UUID;
 
 @Service
@@ -29,20 +27,25 @@ public class DocumentGenerationService {
     private final TemplateVersionService templateVersionService;
     private final GeneratedDocumentRepository generatedDocumentRepository;
     private final PdfRendererService pdfRendererService;
-    private final StorageProperties storageProperties;
+    private final R2StorageService r2;
     private final WebhookService webhookService;
 
     public DocumentGenerationService(
             TemplateVersionService templateVersionService,
             GeneratedDocumentRepository generatedDocumentRepository,
             PdfRendererService pdfRendererService,
-            StorageProperties storageProperties,
+            R2StorageService r2,
             WebhookService webhookService) {
         this.templateVersionService = templateVersionService;
         this.generatedDocumentRepository = generatedDocumentRepository;
         this.pdfRendererService = pdfRendererService;
-        this.storageProperties = storageProperties;
+        this.r2 = r2;
         this.webhookService = webhookService;
+    }
+
+    /** R2 object key under the private documents bucket for a document id. */
+    public static String documentKey(UUID documentId) {
+        return "documents/" + documentId + ".pdf";
     }
 
     /** Renders PDF from arbitrary layout JSON (e.g. editor preview / local state). */
@@ -93,13 +96,12 @@ public class DocumentGenerationService {
         generatedDocumentRepository.save(doc);
         generatedDocumentRepository.flush();
 
-        Path root = storageProperties.getRoot();
-        Path target = root.resolve(doc.getId() + ".pdf");
-
         try {
-            Files.createDirectories(root);
             byte[] pdf = pdfRendererService.render(version.getLayoutJson(), data);
-            Files.write(target, pdf);
+            r2.putDocument(documentKey(doc.getId()), pdf, "application/pdf");
+            // `fileUrl` stays as our own routing endpoint — the controller
+            // redirects to a fresh presigned R2 URL on each hit, so the
+            // column doesn't need to know the bucket / account layout.
             doc.setFileUrl("/api/documents/" + doc.getId() + "/file");
             doc.setStatus(DocumentStatus.COMPLETED);
         } catch (IOException e) {
@@ -142,17 +144,17 @@ public class DocumentGenerationService {
         );
     }
 
+    /**
+     * Resolve a document id to a short-TTL presigned R2 URL. Controllers
+     * 302-redirect to this; the bytes never flow through the JVM.
+     */
     @Transactional(readOnly = true)
-    public Path resolveFile(UUID documentId) {
+    public URL resolvePresignedUrl(UUID documentId) {
         GeneratedDocument d = generatedDocumentRepository.findById(documentId)
                 .orElseThrow(() -> new com.agreemint.api.NotFoundException("Document not found"));
         if (d.getStatus() != DocumentStatus.COMPLETED || d.getFileUrl() == null) {
             throw new com.agreemint.api.NotFoundException("PDF not available");
         }
-        Path p = storageProperties.getRoot().resolve(d.getId() + ".pdf");
-        if (!Files.isRegularFile(p)) {
-            throw new com.agreemint.api.NotFoundException("PDF file missing");
-        }
-        return p;
+        return r2.presignDocumentGet(documentKey(documentId));
     }
 }

@@ -19,17 +19,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.file.Path;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -115,20 +113,23 @@ public class PublicApiController {
         return doc;
     }
 
-    @Operation(summary = "Stream the generated PDF")
+    @Operation(summary = "Download the generated PDF",
+            description = "Returns a 302 redirect to a short-TTL presigned URL on " +
+                    "object storage. Most HTTP clients follow redirects automatically; " +
+                    "pass --location to curl.")
     @GetMapping("/documents/{id}/file")
     @PreAuthorize("hasAuthority('SCOPE_documents:read')")
-    public ResponseEntity<FileSystemResource> downloadDocument(
+    public ResponseEntity<Void> downloadDocument(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         UUID docOrg = docRepo.findById(id).map(d -> d.getOrgId()).orElse(null);
         assertSameOrg(principal, docOrg);
-        Path p = docService.resolveFile(id);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + id + ".pdf\"")
-                .body(new FileSystemResource(p));
+        URL presigned = docService.resolvePresignedUrl(id);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, presigned.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .build();
     }
 
     // ── Templates + versions (read) ──────────────────────────────────────────

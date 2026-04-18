@@ -47,6 +47,12 @@ spring:
     suffix: .html
     mode: HTML
     check-template-location: false
+  servlet:
+    multipart:
+      # Avatar uploads — keep well under R2's 5 GB object limit; this is the
+      # enforced ceiling per upload and matches the validation in AvatarController.
+      max-file-size: 3MB
+      max-request-size: 3MB
 
 agreemint:
   storage:
@@ -81,6 +87,20 @@ agreemint:
   # Default fires every day at 09:00 local time of the backend host.
   api-keys:
     expiry-warning-cron: ${API_KEY_EXPIRY_WARNING_CRON:0 0 9 * * *}
+  # Cloudflare R2 (S3-compatible) object storage — used for generated PDFs
+  # (private bucket, accessed via short-TTL presigned URLs) and user/org
+  # avatars (public bucket, URL stored in users.avatar_url /
+  # organizations.logo_url). Leave blank to run the old in-memory/local
+  # behaviour during development, but PDF + avatar endpoints will 500
+  # until these are filled in.
+  r2:
+    account-id: ${R2_ACCOUNT_ID:}
+    access-key-id: ${R2_ACCESS_KEY_ID:}
+    secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+    bucket-documents: ${R2_BUCKET_DOCUMENTS:agreemint-documents}
+    bucket-public: ${R2_BUCKET_PUBLIC:agreemint-public}
+    public-base-url: ${R2_PUBLIC_BASE_URL:}
+    presign-ttl-minutes: ${R2_PRESIGN_TTL_MINUTES:5}
 
 server:
   port: ${PORT}
