@@ -11,11 +11,13 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
@@ -24,6 +26,9 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
 import com.itextpdf.layout.renderer.CellRenderer;
 import com.itextpdf.layout.renderer.DrawContext;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -346,22 +351,77 @@ public class PdfRendererService {
         }
         for (JsonNode run : runs) {
             String type = run.path("type").asText("text");
+            // Resolve the hyperlink href for this run, if any. `{{var}}`
+            // placeholders in the stored href (e.g.
+            // "https://portal/{{orderId}}") are substituted against the
+            // current row / global data context, then the result is checked
+            // against the protocol safe-list. Anything that fails the
+            // safe-list is silently dropped so an unsafe URL never makes
+            // it into a rendered PDF annotation.
+            String rawHref = run.path("linkHref").asText("");
+            String resolvedHref = rawHref.isEmpty()
+                    ? null
+                    : sanitizePdfLinkHref(substitute(rawHref, data, rowContext));
+
+            String textValue;
             if ("var".equals(type)) {
                 String name = run.path("name").asText("");
-                String val = lookup(name, data, rowContext);
-                Text t = new Text(val);
-                applyRunTextStyle(t, run, elementStyle);
-                p.add(t);
+                textValue = lookup(name, data, rowContext);
             } else {
-                String text = run.path("text").asText("");
-                String sub = substitute(text, data, rowContext);
-                Text t = new Text(sub);
-                applyRunTextStyle(t, run, elementStyle);
-                p.add(t);
+                textValue = substitute(run.path("text").asText(""), data, rowContext);
             }
+            Text t;
+            if (resolvedHref != null) {
+                // Link extends Text — wrapping the run in a Link adds a
+                // clickable URI annotation covering the run's text area.
+                t = new Link(textValue, PdfAction.createURI(resolvedHref));
+                // Visual affordance: if the author didn't set an explicit
+                // color on the run OR the element, underline + blue so the
+                // PDF looks like a link by convention.
+                applyRunTextStyle(t, run, elementStyle);
+                if (run.path("color").asText("").isEmpty()
+                        && (elementStyle == null || elementStyle.isNull()
+                        || elementStyle.path("color").asText("").isEmpty())) {
+                    t.setFontColor(new DeviceRgb(0x25, 0x63, 0xEB));
+                }
+                if (!run.path("underline").asBoolean(false)) {
+                    t.setUnderline(0.75f, -2f);
+                }
+            } else {
+                t = new Text(textValue);
+                applyRunTextStyle(t, run, elementStyle);
+            }
+            p.add(t);
         }
         applyParagraphAlignmentOnly(p, elementStyle);
         return p;
+    }
+
+    /** Protocols accepted for PDF link annotations. Mirrors the client-side safe-list in `richContent.ts`. */
+    private static final Set<String> SAFE_PDF_LINK_SCHEMES = Set.of("http", "https", "mailto", "tel");
+
+    /**
+     * Trim / validate a resolved link URL before turning it into a PdfAction.
+     * Returns null if the URL is empty, malformed, or uses an unsafe scheme.
+     * Variable-only hrefs that never got resolved (still look like `{{var}}`)
+     * are rejected here — a real href at this point should always be a
+     * concrete URI.
+     */
+    private static String sanitizePdfLinkHref(String raw) {
+        if (raw == null) return null;
+        String trimmed = raw.trim();
+        if (trimmed.isEmpty()) return null;
+        if (trimmed.length() > 2048) return null;
+        if (trimmed.contains("{{") || trimmed.contains("}}")) return null;
+        try {
+            URI uri = new URI(trimmed);
+            String scheme = uri.getScheme();
+            if (scheme == null) return null;
+            if (!SAFE_PDF_LINK_SCHEMES.contains(scheme.toLowerCase())) return null;
+            return uri.toString();
+        } catch (URISyntaxException ex) {
+            return null;
+        }
     }
 
     private void applyRunTextStyle(Text t, JsonNode run, JsonNode elementStyle) {
