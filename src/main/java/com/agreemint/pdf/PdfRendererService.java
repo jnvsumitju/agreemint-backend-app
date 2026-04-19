@@ -2,11 +2,14 @@ package com.agreemint.pdf;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -56,9 +59,27 @@ public class PdfRendererService {
     private final ObjectMapper objectMapper;
     private final LayoutBehaviourResolver behaviourResolver;
 
+    /**
+     * ZapfDingbats is one of PDF's built-in Standard-14 fonts (no file bundling
+     * required) and — unlike Helvetica — includes the Geometric Shapes glyphs
+     * we need for bulleted-list markers at every nesting level: ● (U+25CF),
+     * ❍ (U+274D, used as a font-safe substitute for the hollow ○ U+25CB),
+     * ■ (U+25A0), □ (U+25A1). Helvetica's WinAnsi encoding silently drops
+     * these as zero-width glyphs, which is exactly why nested-level bullets
+     * were missing from the rendered PDF.
+     */
+    private final PdfFont dingbatFont;
+
     public PdfRendererService(ObjectMapper objectMapper, LayoutBehaviourResolver behaviourResolver) {
         this.objectMapper = objectMapper;
         this.behaviourResolver = behaviourResolver;
+        PdfFont df = null;
+        try {
+            df = PdfFontFactory.createFont(StandardFonts.ZAPFDINGBATS);
+        } catch (IOException ex) {
+            log.warn("Failed to load ZapfDingbats for list markers: {}", ex.getMessage());
+        }
+        this.dingbatFont = df;
     }
 
     public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
@@ -738,7 +759,15 @@ public class PdfRendererService {
             p.setMarginLeft(level * indent);
 
             if (!marker.isEmpty()) {
-                p.add(new Text(marker + "\u00A0\u00A0"));
+                Text markerText = new Text(marker);
+                // Geometric-shape markers only render in ZapfDingbats. Leave
+                // alphanumeric / dash markers in the default font so ordered
+                // lists (1., 2., a., b., i., ii.) and dashes keep rendering.
+                if (dingbatFont != null && isDingbatShapeMarker(marker)) {
+                    markerText.setFont(dingbatFont);
+                }
+                p.add(markerText);
+                p.add(new Text("\u00A0\u00A0"));
             }
             p.add(new Text(itemText));
 
@@ -857,16 +886,36 @@ public class PdfRendererService {
     private String listMarkerForIndex(String style, int index, int startNumber) {
         int n = startNumber + index;
         return switch (style) {
-            case "disc" -> "\u2022";
-            case "circle" -> "\u25CB";
-            case "square" -> "\u25A0";
-            case "dash" -> "\u2013";
+            // Shape markers use codepoints present in ZapfDingbats so they
+            // actually render in the PDF (see `dingbatFont` comment). U+25CB
+            // (hollow circle ○) is not in ZapfDingbats — U+274D (❍) is the
+            // closest shadowed-white-circle substitute it ships with.
+            case "disc" -> "\u25CF";    // ●  black circle
+            case "circle" -> "\u274D";  // ❍  shadowed white circle (stand-in for ○)
+            case "square" -> "\u25A0";  // ■  black square
+            case "dash" -> "\u2013";    // –  en-dash (stays in default font)
             case "number" -> n + ".";
             case "alpha" -> listToAlpha(n) + ".";
             case "roman" -> listToRoman(n) + ".";
             case "none" -> "";
-            default -> "\u2022";
+            default -> "\u25CF";
         };
+    }
+
+    /**
+     * True when the marker string is a geometric-shape glyph that only
+     * renders in ZapfDingbats. Alphanumeric markers + en-dash stay in the
+     * default font.
+     */
+    private static boolean isDingbatShapeMarker(String marker) {
+        if (marker.isEmpty()) return false;
+        for (int i = 0; i < marker.length(); i++) {
+            char c = marker.charAt(i);
+            if (c == '\u25CF' || c == '\u25A0' || c == '\u25A1' || c == '\u274D' || c == '\u2022') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String listToAlpha(int n) {
