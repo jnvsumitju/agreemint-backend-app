@@ -650,6 +650,28 @@ public class PdfRendererService {
 
     // ── LIST element ──
 
+    /**
+     * Bullet styles cycle with indent level (canvas parity):
+     *   disc → circle → square → dash → disc …
+     */
+    private static final String[] BULLET_CYCLE = { "disc", "circle", "square", "dash" };
+
+    /**
+     * Ordered styles cycle with indent level (canvas parity):
+     *   number → alpha → roman → number …
+     */
+    private static final String[] ORDERED_CYCLE = { "number", "alpha", "roman" };
+
+    /** Flat result of walking a list's tree structure, preserving per-row indent. */
+    private static final class ListRow {
+        final String text;
+        final int indent;
+        ListRow(String text, int indent) {
+            this.text = text;
+            this.indent = indent;
+        }
+    }
+
     private void addList(PdfDocument pdfDoc, Document document, JsonNode el, JsonNode data, float pageHeight, int pageNumber) {
         float x = (float) el.path("x").asDouble(0);
         float elY = (float) el.path("y").asDouble(0);
@@ -675,20 +697,35 @@ public class PdfRendererService {
             bgCanvas.restoreState();
         }
 
-        // Resolve items
-        java.util.List<String> items = resolveListItems(el, data);
-        if (items.isEmpty()) return;
+        // Resolve items (flat list of text + indent pairs).
+        List<ListRow> rows = resolveListRows(el, data);
+        if (rows.isEmpty()) return;
 
-        float markerWidth = indent;
-        float textWidth = Math.max(1, w - indent);
+        float markerColWidth = indent;
+        float textColWidth = Math.max(1, w - indent);
 
-        Table listTable = new Table(new float[]{ markerWidth, textWidth });
+        Table listTable = new Table(new float[]{ markerColWidth, textColWidth });
         listTable.setWidth(UnitValue.createPointValue(w));
         listTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
 
-        for (int i = 0; i < items.size(); i++) {
-            String marker = listMarkerForIndex(listStyleStr, i, startNumber);
-            String itemText = substitute(items.get(i), data, null);
+        // Per-indent ordered counters: ordered markers (number/alpha/roman) reset
+        // their sequence on each new indent level so nested sublists re-start at 1.
+        java.util.Map<Integer, Integer> groupCountByIndent = new java.util.HashMap<>();
+
+        for (int i = 0; i < rows.size(); i++) {
+            ListRow row = rows.get(i);
+            int level = row.indent;
+            // Reset any deeper indent counters when we step back up — matches
+            // the canvas's group-at-depth bookkeeping so "1, 2, a, b, 3" works.
+            groupCountByIndent.keySet().removeIf(k -> k > level);
+            int groupIndex = groupCountByIndent.getOrDefault(level, 0);
+            groupCountByIndent.put(level, groupIndex + 1);
+
+            String marker = listMarkerForItem(listStyleStr, level, groupIndex, startNumber);
+            String itemText = substitute(row.text, data, null);
+
+            // Each indent level shifts the whole row right by one indent width.
+            float leftPad = level * indent;
 
             // Marker cell
             Paragraph markerP = new Paragraph(marker);
@@ -697,6 +734,7 @@ public class PdfRendererService {
             Cell markerCell = new Cell().add(markerP)
                     .setBorder(com.itextpdf.layout.borders.Border.NO_BORDER)
                     .setPaddingRight(4)
+                    .setPaddingLeft(leftPad)
                     .setPaddingTop(i == 0 ? 0 : itemSpacing)
                     .setPaddingBottom(0);
 
@@ -716,40 +754,109 @@ public class PdfRendererService {
         document.add(listTable);
     }
 
-    private java.util.List<String> resolveListItems(JsonNode el, JsonNode data) {
+    /**
+     * Flatten a list element into a sequence of text + indent rows. Supports:
+     *   • Loop mode (dataKey): reads the array from {@code data}, resolves each
+     *     item through the template in {@code content}, recurses into a
+     *     {@code children} field (or whatever {@code listChildrenKey} is set to).
+     *   • Static mode (listItems): walks the {@code ListItemNode} tree that
+     *     the frontend persists — objects with {@code text} + optional
+     *     {@code children[]}. Previously this path called {@code item.asText("")}
+     *     on the object node, which Jackson resolves to the empty string — so
+     *     markers rendered but the typed text was silently dropped.
+     */
+    private List<ListRow> resolveListRows(JsonNode el, JsonNode data) {
+        List<ListRow> out = new ArrayList<>();
         String dataKey = el.path("dataKey").asText("");
         if (!dataKey.isEmpty()) {
             JsonNode items = resolveDataPath(data, dataKey);
             if (items == null || !items.isArray()) items = data.path(dataKey);
-            if (!items.isArray()) return java.util.List.of();
-
+            if (!items.isArray()) return out;
             String template = el.path("content").asText("{{.}}");
-            java.util.List<String> result = new java.util.ArrayList<>();
-            for (JsonNode item : items) {
-                if (item.isTextual()) {
-                    result.add(template.replace("{{.}}", item.asText("")));
-                } else if (item.isObject()) {
-                    String resolved = template;
-                    var fields = item.fields();
-                    while (fields.hasNext()) {
-                        var field = fields.next();
-                        resolved = resolved.replace("{{" + field.getKey() + "}}", field.getValue().asText(""));
-                    }
-                    result.add(resolved);
-                } else {
-                    result.add(item.asText(""));
+            String childrenKey = el.path("listChildrenKey").asText("").trim();
+            if (childrenKey.isEmpty()) childrenKey = "children";
+            walkLoopItems(items, template, childrenKey, 0, out);
+            return out;
+        }
+        JsonNode listItems = el.path("listItems");
+        if (!listItems.isArray()) return out;
+        walkStaticItems(listItems, 0, out);
+        return out;
+    }
+
+    private void walkStaticItems(JsonNode nodes, int depth, List<ListRow> out) {
+        if (!nodes.isArray()) return;
+        for (JsonNode node : nodes) {
+            if (node.isTextual()) {
+                // Legacy shape: plain string. Keep as-is.
+                out.add(new ListRow(node.asText(""), depth));
+            } else if (node.isObject()) {
+                // Current shape: ListItemNode { text, children? }
+                out.add(new ListRow(node.path("text").asText(""), depth));
+                JsonNode children = node.path("children");
+                if (children.isArray() && children.size() > 0) {
+                    walkStaticItems(children, depth + 1, out);
+                }
+            } else {
+                out.add(new ListRow(node.asText(""), depth));
+            }
+        }
+    }
+
+    private void walkLoopItems(JsonNode items, String template, String childrenKey, int depth, List<ListRow> out) {
+        for (JsonNode item : items) {
+            String text;
+            if (item.isTextual()) {
+                text = template.replace("{{.}}", item.asText(""));
+            } else if (item.isObject()) {
+                String resolved = template;
+                var fields = item.fields();
+                while (fields.hasNext()) {
+                    var field = fields.next();
+                    resolved = resolved.replace("{{" + field.getKey() + "}}", field.getValue().asText(""));
+                }
+                text = resolved;
+            } else {
+                text = item.asText("");
+            }
+            out.add(new ListRow(text, depth));
+            if (item.isObject()) {
+                JsonNode children = item.path(childrenKey);
+                if (children.isArray() && children.size() > 0) {
+                    walkLoopItems(children, template, childrenKey, depth + 1, out);
                 }
             }
-            return result;
         }
-        // Static mode
-        JsonNode listItems = el.path("listItems");
-        if (!listItems.isArray()) return java.util.List.of();
-        java.util.List<String> result = new java.util.ArrayList<>();
-        for (JsonNode item : listItems) {
-            result.add(item.asText(""));
+    }
+
+    /**
+     * Resolve the marker for a given row taking indent level + ordered-group
+     * counter into account. Mirrors {@code markerForItem} in
+     * {@code ListElementCanvas.tsx}: bullet styles cycle with depth, ordered
+     * styles cycle AND count within each depth group.
+     */
+    private String listMarkerForItem(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
+        if ("none".equals(baseStyle)) return "";
+        boolean isOrdered = "number".equals(baseStyle)
+                || "alpha".equals(baseStyle)
+                || "roman".equals(baseStyle);
+        if (isOrdered) {
+            int baseIdx = indexOf(ORDERED_CYCLE, baseStyle);
+            if (baseIdx < 0) baseIdx = 0;
+            String effective = ORDERED_CYCLE[(baseIdx + indentLevel) % ORDERED_CYCLE.length];
+            return listMarkerForIndex(effective, groupIndex, startNumber);
         }
-        return result;
+        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
+        String effective = BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+        // Bullet markers don't use the numeric index.
+        return listMarkerForIndex(effective, 0, 1);
+    }
+
+    private static int indexOf(String[] arr, String v) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(v)) return i;
+        }
+        return -1;
     }
 
     private String listMarkerForIndex(String style, int index, int startNumber) {
