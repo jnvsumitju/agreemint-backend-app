@@ -11,12 +11,15 @@ public record UserResponse(
         String name,
         String avatarUrl,
         String provider,
-        Instant createdAt
+        Instant createdAt,
+        /** Internal Agreemint staff — clients use this to gate admin-portal UI. */
+        boolean isStaff
 ) {
     public static UserResponse from(User u) {
         return new UserResponse(
                 u.getId(), u.getEmail(), u.getName(),
-                u.getAvatarUrl(), u.getProvider().name(), u.getCreatedAt()
+                u.getAvatarUrl(), u.getProvider().name(), u.getCreatedAt(),
+                u.isStaff()
         );
     }
 }
