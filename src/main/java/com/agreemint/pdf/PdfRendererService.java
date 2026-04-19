@@ -12,6 +12,7 @@ import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
@@ -21,6 +22,8 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
+import com.itextpdf.layout.renderer.CellRenderer;
+import com.itextpdf.layout.renderer.DrawContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -687,7 +690,6 @@ public class PdfRendererService {
         int startNumber = el.path("listStartNumber").asInt(1);
         float fontSize = (float) style.path("fontSize").asDouble(12);
         float lineHeight = (float) style.path("lineHeight").asDouble(1.4);
-        float rowHeight = fontSize * lineHeight;
         Color textColor = parseCssColorToItext(style.path("color").asText(""));
         if (textColor == null) textColor = ColorConstants.BLACK;
 
@@ -712,36 +714,33 @@ public class PdfRendererService {
         java.util.Map<Integer, Integer> groupCountByIndent = new java.util.HashMap<>();
 
         // ── Render strategy ────────────────────────────────────────────────
-        // 1. Shape markers (disc/circle/square/dash/none) — draw as vector
-        //    shapes on PdfCanvas at computed positions. This bypasses the
-        //    font encoding problems we hit with Helvetica (no Geometric
-        //    Shapes block) and ZapfDingbats (non-trivial 8-bit mapping).
-        // 2. Ordered markers (number/alpha/roman) — keep in the Paragraph
-        //    text since Helvetica has all digits + letters natively.
-        // 3. Text is always rendered as Paragraphs inside a fixed-position
-        //    Div so iText handles wrapping and text styling.
-        PdfCanvas markerCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
-        markerCanvas.saveState();
-
-        com.itextpdf.layout.element.Div container = new com.itextpdf.layout.element.Div();
-        container.setWidth(w);
-        container.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+        // We use iText's `Canvas` scoped to the element's bounding box. That
+        // makes content flow from (x, yTop) DOWN, exactly like the editor.
+        //
+        // Each list row is its own single-row Table with 2 cells:
+        //   [marker cell | text cell]
+        //
+        // Why a Table per row, not a shared container?
+        //   • The text cell can WRAP into multiple lines. Table guarantees the
+        //     marker cell's height matches the text cell's height, so the
+        //     marker always stays on the same vertical run as its first line
+        //     — something a naive "paragraph + marginLeft" cannot do, and
+        //     something manual row-height math would get wrong the moment
+        //     text wrapped (which is why earlier attempts drifted on long
+        //     strings).
+        //
+        // For shape markers (disc/circle/square/dash) we attach a custom
+        // CellRenderer that draws the vector shape AFTER iText has laid the
+        // cell out — at that point `getOccupiedAreaBBox()` tells us exactly
+        // where the cell's first line sits, so the bullet aligns perfectly.
+        // Ordered markers (1./a./ii.) are plain text in the marker cell.
+        Canvas listCanvas = new Canvas(new PdfCanvas(pdfDoc.getPage(pageNumber)),
+                new Rectangle(x, bottom, w, h));
 
         // Width reserved for the marker column INSIDE each row (after the
-        // indent left-margin has already been applied to the row). Shape
-        // markers are drawn inside this column; the text starts after it.
-        float markerColWidth = Math.max(10f, indent);
-
-        // Total natural height the list will occupy (each row consumes one
-        // rowHeight, and every row after the first adds an `itemSpacing`
-        // leading gap). We need this UPFRONT so we can pin the Div's
-        // fixed-position such that its TOP-LEFT lands at (x, yTop) —
-        // without this, `setFixedPosition(x, bottom, w)` makes iText auto-
-        // size the Div and anchor its BOTTOM at `bottom`, which pushes the
-        // text well below the bullet markers (which we draw relative to
-        // `yTop`).
-        float naturalHeight = rows.size() * rowHeight
-                + Math.max(0, rows.size() - 1) * itemSpacing;
+        // row's indent left-margin). Shape markers are drawn inside this
+        // column via CellRenderer; ordered markers are text in this cell.
+        float markerColWidth = Math.max(12f, indent);
 
         for (int i = 0; i < rows.size(); i++) {
             ListRow row = rows.get(i);
@@ -752,101 +751,111 @@ public class PdfRendererService {
             int groupIndex = groupCountByIndent.getOrDefault(level, 0);
             groupCountByIndent.put(level, groupIndex + 1);
 
-            String effectiveBulletStyle = effectiveBulletStyleFor(listStyleStr, level);
+            final String effectiveBulletStyle = effectiveBulletStyleFor(listStyleStr, level);
             String textMarker = textMarkerFor(listStyleStr, level, groupIndex, startNumber);
             String itemText = substitute(row.text, data, null);
 
-            float rowLeft = x + level * indent;
-            // Row top in PDF coords (y increases upward). Content flows from
-            // `yTop` downward; each row consumes rowHeight, with an
-            // itemSpacing gap BEFORE every row after the first.
-            float rowTop = yTop - i * (rowHeight + itemSpacing);
-            // Optical center of lowercase text within the line box. Helvetica's
-            // baseline sits ~0.72 * fontSize below the ascender top, and the
-            // x-height center is ~0.25 * fontSize above the baseline. Line
-            // leading (lineHeight > 1) pads both sides equally, so:
-            //   center ≈ rowTop − (rowHeight − fontSize)/2 − fontSize × 0.47
-            float linePadTop = (rowHeight - fontSize) * 0.5f;
-            float markerCy = rowTop - linePadTop - fontSize * 0.47f;
-            float markerCx = rowLeft + markerColWidth * 0.5f;
+            float rowLeftIndent = level * indent;
+            // The row's own width inside the list is (w − rowLeftIndent).
+            // Column 1 = markerColWidth (fixed pt). Column 2 = remainder.
+            float textColWidth = Math.max(1f, w - rowLeftIndent - markerColWidth);
+
+            Table rowTable = new Table(UnitValue.createPointArray(new float[]{ markerColWidth, textColWidth }));
+            rowTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+            rowTable.setMarginTop(i == 0 ? 0 : itemSpacing);
+            rowTable.setMarginBottom(0);
+            rowTable.setMarginLeft(rowLeftIndent);
+            rowTable.setWidth(UnitValue.createPointValue(rowLeftIndent + markerColWidth + textColWidth));
+
+            // ── Marker cell ────────────────────────────────────────────
+            Cell markerCell = new Cell();
+            markerCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+            markerCell.setPadding(0);
+            markerCell.setPaddingRight(2);
+            markerCell.setVerticalAlignment(VerticalAlignment.TOP);
 
             if (effectiveBulletStyle != null) {
-                drawShapeMarker(markerCanvas, effectiveBulletStyle, markerCx, markerCy, fontSize, textColor);
+                // Shape marker — custom renderer draws a circle/square/dash
+                // on PdfCanvas after the cell's final position is known.
+                final float markerFontSize = fontSize;
+                final float markerLineHeight = lineHeight;
+                final Color markerColor = textColor;
+                markerCell.setNextRenderer(new ShapeMarkerCellRenderer(
+                        markerCell, effectiveBulletStyle, markerFontSize, markerLineHeight, markerColor));
+            } else if (!textMarker.isEmpty()) {
+                // Ordered marker — plain Paragraph in the cell. Right-aligned
+                // so "1.", "10.", "100." all terminate at the same column.
+                Paragraph mp = new Paragraph(textMarker);
+                applyTextStyle(mp, style);
+                mp.setTextAlignment(TextAlignment.RIGHT);
+                mp.setMargin(0);
+                markerCell.add(mp);
             }
 
-            Paragraph p = new Paragraph();
-            applyTextStyle(p, style);
-            p.setMarginTop(i == 0 ? 0 : itemSpacing);
-            p.setMarginBottom(0);
-            // Indent the whole row + leave room for the marker column.
-            p.setMarginLeft(level * indent + markerColWidth);
+            rowTable.addCell(markerCell);
 
-            if (!textMarker.isEmpty()) {
-                // Ordered markers ("1.", "a.", "ii.") — render in the
-                // default font as part of the paragraph text. Two NBSPs
-                // separate marker from the text content.
-                p.add(new Text(textMarker + "\u00A0\u00A0"));
-            }
-            p.add(new Text(itemText));
+            // ── Text cell ──────────────────────────────────────────────
+            Paragraph tp = new Paragraph(itemText);
+            applyTextStyle(tp, style);
+            tp.setMargin(0);
+            Cell textCell = new Cell();
+            textCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+            textCell.setPadding(0);
+            textCell.setPaddingLeft(2);
+            textCell.setVerticalAlignment(VerticalAlignment.TOP);
+            textCell.add(tp);
+            rowTable.addCell(textCell);
 
-            container.add(p);
+            listCanvas.add(rowTable);
         }
 
-        markerCanvas.restoreState();
-
-        // Pin the Div's BL at (x, yTop − naturalHeight) so its content top
-        // lines up with yTop, which is the same reference the marker Y
-        // positions use above.
-        container.setFixedPosition(pageNumber, x, yTop - naturalHeight, w);
-        document.add(container);
+        listCanvas.close();
     }
 
     /**
-     * Returns the bullet style to draw ({@code disc}/{@code circle}/{@code square}/{@code dash})
-     * for a given row, or {@code null} if the base style is ordered or {@code none} — in
-     * which case {@link #textMarkerFor} handles the marker instead.
+     * Custom cell renderer that draws a vector bullet shape inside the cell
+     * after iText has decided the cell's final occupied area. This is how
+     * the marker tracks its first-line row even when the adjacent text cell
+     * wraps to multiple lines — the renderer reads the laid-out bbox, not a
+     * pre-computed row height guess.
      */
-    private String effectiveBulletStyleFor(String baseStyle, int indentLevel) {
-        if ("none".equals(baseStyle)) return null;
-        if ("number".equals(baseStyle) || "alpha".equals(baseStyle) || "roman".equals(baseStyle)) {
-            return null;
+    private static final class ShapeMarkerCellRenderer extends CellRenderer {
+        private final String style;
+        private final float fontSize;
+        private final float lineHeight;
+        private final Color color;
+
+        ShapeMarkerCellRenderer(Cell modelElement, String style, float fontSize, float lineHeight, Color color) {
+            super(modelElement);
+            this.style = style;
+            this.fontSize = fontSize;
+            this.lineHeight = lineHeight;
+            this.color = color;
         }
-        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
-        return BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+
+        @Override
+        public com.itextpdf.layout.renderer.IRenderer getNextRenderer() {
+            return new ShapeMarkerCellRenderer((Cell) getModelElement(), style, fontSize, lineHeight, color);
+        }
+
+        @Override
+        public void draw(DrawContext drawContext) {
+            super.draw(drawContext);
+            Rectangle bbox = getOccupiedAreaBBox();
+            PdfCanvas canvas = drawContext.getCanvas();
+            // The marker aligns with the FIRST line of the row. Optical centre
+            // of lowercase text sits ≈ linePadTop + fontSize × 0.47 below the
+            // line box top; the first line box sits at the cell's top edge.
+            float rowH = fontSize * lineHeight;
+            float linePadTop = (rowH - fontSize) * 0.5f;
+            float cy = bbox.getTop() - linePadTop - fontSize * 0.47f;
+            float cx = bbox.getLeft() + bbox.getWidth() * 0.5f;
+            PdfRendererService.drawShapeMarkerStatic(canvas, style, cx, cy, fontSize, color);
+        }
     }
 
-    /**
-     * Returns the ordered marker text ({@code "1."}, {@code "a."}, etc.) for a
-     * row, or an empty string when the base style is a bullet style —
-     * {@link #drawShapeMarker} handles bullets on the canvas directly.
-     */
-    private String textMarkerFor(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
-        if ("none".equals(baseStyle)) return "";
-        boolean isOrdered = "number".equals(baseStyle)
-                || "alpha".equals(baseStyle)
-                || "roman".equals(baseStyle);
-        if (!isOrdered) return "";
-        int baseIdx = indexOf(ORDERED_CYCLE, baseStyle);
-        if (baseIdx < 0) baseIdx = 0;
-        String effective = ORDERED_CYCLE[(baseIdx + indentLevel) % ORDERED_CYCLE.length];
-        int n = startNumber + groupIndex;
-        return switch (effective) {
-            case "number" -> n + ".";
-            case "alpha" -> listToAlpha(n) + ".";
-            case "roman" -> listToRoman(n) + ".";
-            default -> "";
-        };
-    }
-
-    /**
-     * Draw a bullet-style marker as a vector shape on the page canvas. Using
-     * PdfCanvas primitives (instead of a character glyph) sidesteps all font
-     * encoding pitfalls — every shape renders reliably regardless of which
-     * fonts are available.
-     */
-    private void drawShapeMarker(PdfCanvas canvas, String style, float cx, float cy, float fontSize, Color color) {
-        // Marker radius/size scaled off font size so bullets look right at
-        // any text scale.
+    /** Static helper so {@link ShapeMarkerCellRenderer} can draw without a service instance. */
+    static void drawShapeMarkerStatic(PdfCanvas canvas, String style, float cx, float cy, float fontSize, Color color) {
         float r = fontSize * 0.18f;
         canvas.saveState();
         canvas.setFillColor(color);
@@ -872,12 +881,49 @@ public class PdfRendererService {
                 canvas.stroke();
             }
             default -> {
-                // Unknown bullet style — fall back to a filled circle.
                 canvas.circle(cx, cy, r);
                 canvas.fill();
             }
         }
         canvas.restoreState();
+    }
+
+    /**
+     * Returns the bullet style to draw ({@code disc}/{@code circle}/{@code square}/{@code dash})
+     * for a given row, or {@code null} if the base style is ordered or {@code none} — in
+     * which case {@link #textMarkerFor} handles the marker instead.
+     */
+    private String effectiveBulletStyleFor(String baseStyle, int indentLevel) {
+        if ("none".equals(baseStyle)) return null;
+        if ("number".equals(baseStyle) || "alpha".equals(baseStyle) || "roman".equals(baseStyle)) {
+            return null;
+        }
+        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
+        return BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+    }
+
+    /**
+     * Returns the ordered marker text ({@code "1."}, {@code "a."}, etc.) for a
+     * row, or an empty string when the base style is a bullet style — shape
+     * bullets are handled by {@link ShapeMarkerCellRenderer} drawing directly
+     * onto the page canvas.
+     */
+    private String textMarkerFor(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
+        if ("none".equals(baseStyle)) return "";
+        boolean isOrdered = "number".equals(baseStyle)
+                || "alpha".equals(baseStyle)
+                || "roman".equals(baseStyle);
+        if (!isOrdered) return "";
+        int baseIdx = indexOf(ORDERED_CYCLE, baseStyle);
+        if (baseIdx < 0) baseIdx = 0;
+        String effective = ORDERED_CYCLE[(baseIdx + indentLevel) % ORDERED_CYCLE.length];
+        int n = startNumber + groupIndex;
+        return switch (effective) {
+            case "number" -> n + ".";
+            case "alpha" -> listToAlpha(n) + ".";
+            case "roman" -> listToRoman(n) + ".";
+            default -> "";
+        };
     }
 
     /**
