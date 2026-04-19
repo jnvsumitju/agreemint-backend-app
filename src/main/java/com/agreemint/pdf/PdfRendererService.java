@@ -2,14 +2,11 @@ package com.agreemint.pdf;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -59,27 +56,9 @@ public class PdfRendererService {
     private final ObjectMapper objectMapper;
     private final LayoutBehaviourResolver behaviourResolver;
 
-    /**
-     * ZapfDingbats is one of PDF's built-in Standard-14 fonts (no file bundling
-     * required) and — unlike Helvetica — includes the Geometric Shapes glyphs
-     * we need for bulleted-list markers at every nesting level: ● (U+25CF),
-     * ❍ (U+274D, used as a font-safe substitute for the hollow ○ U+25CB),
-     * ■ (U+25A0), □ (U+25A1). Helvetica's WinAnsi encoding silently drops
-     * these as zero-width glyphs, which is exactly why nested-level bullets
-     * were missing from the rendered PDF.
-     */
-    private final PdfFont dingbatFont;
-
     public PdfRendererService(ObjectMapper objectMapper, LayoutBehaviourResolver behaviourResolver) {
         this.objectMapper = objectMapper;
         this.behaviourResolver = behaviourResolver;
-        PdfFont df = null;
-        try {
-            df = PdfFontFactory.createFont(StandardFonts.ZAPFDINGBATS);
-        } catch (IOException ex) {
-            log.warn("Failed to load ZapfDingbats for list markers: {}", ex.getMessage());
-        }
-        this.dingbatFont = df;
     }
 
     public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
@@ -706,6 +685,11 @@ public class PdfRendererService {
         float itemSpacing = (float) el.path("listItemSpacing").asDouble(4);
         float indent = (float) el.path("listIndent").asDouble(16);
         int startNumber = el.path("listStartNumber").asInt(1);
+        float fontSize = (float) style.path("fontSize").asDouble(12);
+        float lineHeight = (float) style.path("lineHeight").asDouble(1.4);
+        float rowHeight = fontSize * lineHeight;
+        Color textColor = parseCssColorToItext(style.path("color").asText(""));
+        if (textColor == null) textColor = ColorConstants.BLACK;
 
         // Background fill
         Color frameBg = parseCssColorToItext(style.path("backgroundColor").asText(""));
@@ -727,14 +711,26 @@ public class PdfRendererService {
         // re-start at 1.
         java.util.Map<Integer, Integer> groupCountByIndent = new java.util.HashMap<>();
 
-        // We emit one Paragraph per row inside a fixed-position Div. Using
-        // paragraphs (instead of a fixed 2-column table) lets each row carry
-        // its own `marginLeft` so nested items visibly indent, and prevents
-        // the bullet from being clipped when the indent pushes the marker
-        // beyond a fixed marker-column width.
+        // ── Render strategy ────────────────────────────────────────────────
+        // 1. Shape markers (disc/circle/square/dash/none) — draw as vector
+        //    shapes on PdfCanvas at computed positions. This bypasses the
+        //    font encoding problems we hit with Helvetica (no Geometric
+        //    Shapes block) and ZapfDingbats (non-trivial 8-bit mapping).
+        // 2. Ordered markers (number/alpha/roman) — keep in the Paragraph
+        //    text since Helvetica has all digits + letters natively.
+        // 3. Text is always rendered as Paragraphs inside a fixed-position
+        //    Div so iText handles wrapping and text styling.
+        PdfCanvas markerCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        markerCanvas.saveState();
+
         com.itextpdf.layout.element.Div container = new com.itextpdf.layout.element.Div();
         container.setWidth(w);
         container.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+
+        // Width reserved for the marker column INSIDE each row (after the
+        // indent left-margin has already been applied to the row). Shape
+        // markers are drawn inside this column; the text starts after it.
+        float markerColWidth = Math.max(10f, indent);
 
         for (int i = 0; i < rows.size(); i++) {
             ListRow row = rows.get(i);
@@ -745,37 +741,130 @@ public class PdfRendererService {
             int groupIndex = groupCountByIndent.getOrDefault(level, 0);
             groupCountByIndent.put(level, groupIndex + 1);
 
-            String marker = listMarkerForItem(listStyleStr, level, groupIndex, startNumber);
+            String effectiveBulletStyle = effectiveBulletStyleFor(listStyleStr, level);
+            String textMarker = textMarkerFor(listStyleStr, level, groupIndex, startNumber);
             String itemText = substitute(row.text, data, null);
 
-            // Compose marker + hair-space + text in a single paragraph. The
-            // paragraph's own marginLeft handles per-row indentation, and the
-            // non-breaking spaces between marker and text give the marker
-            // its own visual gutter without needing a separate column cell.
+            float rowLeft = x + level * indent;
+            // Row top in PDF coords (y increases upward). The container's
+            // content top is `yTop`, and each row consumes rowHeight +
+            // itemSpacing (except the first, which has no leading spacing).
+            float rowTop = yTop - i * (rowHeight + itemSpacing);
+            // Optical center of lowercase text within the line box. Helvetica's
+            // baseline sits ~0.72 * fontSize below the ascender top, and the
+            // x-height center is ~0.25 * fontSize above the baseline. Line
+            // leading (lineHeight > 1) pads both sides equally, so:
+            //   center ≈ rowTop − (rowHeight − fontSize)/2 − fontSize × 0.47
+            // which simplifies well to a single fontSize offset.
+            float linePadTop = (rowHeight - fontSize) * 0.5f;
+            float markerCy = rowTop - linePadTop - fontSize * 0.47f;
+            float markerCx = rowLeft + markerColWidth * 0.5f;
+
+            if (effectiveBulletStyle != null) {
+                drawShapeMarker(markerCanvas, effectiveBulletStyle, markerCx, markerCy, fontSize, textColor);
+            }
+
             Paragraph p = new Paragraph();
             applyTextStyle(p, style);
             p.setMarginTop(i == 0 ? 0 : itemSpacing);
             p.setMarginBottom(0);
-            p.setMarginLeft(level * indent);
+            // Indent the whole row + leave room for the marker column.
+            p.setMarginLeft(level * indent + markerColWidth);
 
-            if (!marker.isEmpty()) {
-                Text markerText = new Text(marker);
-                // Geometric-shape markers only render in ZapfDingbats. Leave
-                // alphanumeric / dash markers in the default font so ordered
-                // lists (1., 2., a., b., i., ii.) and dashes keep rendering.
-                if (dingbatFont != null && isDingbatShapeMarker(marker)) {
-                    markerText.setFont(dingbatFont);
-                }
-                p.add(markerText);
-                p.add(new Text("\u00A0\u00A0"));
+            if (!textMarker.isEmpty()) {
+                // Ordered markers ("1.", "a.", "ii.") — render in the
+                // default font as part of the paragraph text. Two NBSPs
+                // separate marker from the text content.
+                p.add(new Text(textMarker + "\u00A0\u00A0"));
             }
             p.add(new Text(itemText));
 
             container.add(p);
         }
 
+        markerCanvas.restoreState();
+
         container.setFixedPosition(pageNumber, x, bottom, w);
         document.add(container);
+    }
+
+    /**
+     * Returns the bullet style to draw ({@code disc}/{@code circle}/{@code square}/{@code dash})
+     * for a given row, or {@code null} if the base style is ordered or {@code none} — in
+     * which case {@link #textMarkerFor} handles the marker instead.
+     */
+    private String effectiveBulletStyleFor(String baseStyle, int indentLevel) {
+        if ("none".equals(baseStyle)) return null;
+        if ("number".equals(baseStyle) || "alpha".equals(baseStyle) || "roman".equals(baseStyle)) {
+            return null;
+        }
+        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
+        return BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+    }
+
+    /**
+     * Returns the ordered marker text ({@code "1."}, {@code "a."}, etc.) for a
+     * row, or an empty string when the base style is a bullet style —
+     * {@link #drawShapeMarker} handles bullets on the canvas directly.
+     */
+    private String textMarkerFor(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
+        if ("none".equals(baseStyle)) return "";
+        boolean isOrdered = "number".equals(baseStyle)
+                || "alpha".equals(baseStyle)
+                || "roman".equals(baseStyle);
+        if (!isOrdered) return "";
+        int baseIdx = indexOf(ORDERED_CYCLE, baseStyle);
+        if (baseIdx < 0) baseIdx = 0;
+        String effective = ORDERED_CYCLE[(baseIdx + indentLevel) % ORDERED_CYCLE.length];
+        int n = startNumber + groupIndex;
+        return switch (effective) {
+            case "number" -> n + ".";
+            case "alpha" -> listToAlpha(n) + ".";
+            case "roman" -> listToRoman(n) + ".";
+            default -> "";
+        };
+    }
+
+    /**
+     * Draw a bullet-style marker as a vector shape on the page canvas. Using
+     * PdfCanvas primitives (instead of a character glyph) sidesteps all font
+     * encoding pitfalls — every shape renders reliably regardless of which
+     * fonts are available.
+     */
+    private void drawShapeMarker(PdfCanvas canvas, String style, float cx, float cy, float fontSize, Color color) {
+        // Marker radius/size scaled off font size so bullets look right at
+        // any text scale.
+        float r = fontSize * 0.18f;
+        canvas.saveState();
+        canvas.setFillColor(color);
+        canvas.setStrokeColor(color);
+        canvas.setLineWidth(Math.max(0.5f, fontSize * 0.08f));
+        switch (style) {
+            case "disc" -> {
+                canvas.circle(cx, cy, r);
+                canvas.fill();
+            }
+            case "circle" -> {
+                canvas.circle(cx, cy, r);
+                canvas.stroke();
+            }
+            case "square" -> {
+                canvas.rectangle(cx - r, cy - r, r * 2, r * 2);
+                canvas.fill();
+            }
+            case "dash" -> {
+                float len = r * 1.8f;
+                canvas.moveTo(cx - len, cy);
+                canvas.lineTo(cx + len, cy);
+                canvas.stroke();
+            }
+            default -> {
+                // Unknown bullet style — fall back to a filled circle.
+                canvas.circle(cx, cy, r);
+                canvas.fill();
+            }
+        }
+        canvas.restoreState();
     }
 
     /**
@@ -853,69 +942,11 @@ public class PdfRendererService {
         }
     }
 
-    /**
-     * Resolve the marker for a given row taking indent level + ordered-group
-     * counter into account. Mirrors {@code markerForItem} in
-     * {@code ListElementCanvas.tsx}: bullet styles cycle with depth, ordered
-     * styles cycle AND count within each depth group.
-     */
-    private String listMarkerForItem(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
-        if ("none".equals(baseStyle)) return "";
-        boolean isOrdered = "number".equals(baseStyle)
-                || "alpha".equals(baseStyle)
-                || "roman".equals(baseStyle);
-        if (isOrdered) {
-            int baseIdx = indexOf(ORDERED_CYCLE, baseStyle);
-            if (baseIdx < 0) baseIdx = 0;
-            String effective = ORDERED_CYCLE[(baseIdx + indentLevel) % ORDERED_CYCLE.length];
-            return listMarkerForIndex(effective, groupIndex, startNumber);
-        }
-        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
-        String effective = BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
-        // Bullet markers don't use the numeric index.
-        return listMarkerForIndex(effective, 0, 1);
-    }
-
     private static int indexOf(String[] arr, String v) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i].equals(v)) return i;
         }
         return -1;
-    }
-
-    private String listMarkerForIndex(String style, int index, int startNumber) {
-        int n = startNumber + index;
-        return switch (style) {
-            // Shape markers use codepoints present in ZapfDingbats so they
-            // actually render in the PDF (see `dingbatFont` comment). U+25CB
-            // (hollow circle ○) is not in ZapfDingbats — U+274D (❍) is the
-            // closest shadowed-white-circle substitute it ships with.
-            case "disc" -> "\u25CF";    // ●  black circle
-            case "circle" -> "\u274D";  // ❍  shadowed white circle (stand-in for ○)
-            case "square" -> "\u25A0";  // ■  black square
-            case "dash" -> "\u2013";    // –  en-dash (stays in default font)
-            case "number" -> n + ".";
-            case "alpha" -> listToAlpha(n) + ".";
-            case "roman" -> listToRoman(n) + ".";
-            case "none" -> "";
-            default -> "\u25CF";
-        };
-    }
-
-    /**
-     * True when the marker string is a geometric-shape glyph that only
-     * renders in ZapfDingbats. Alphanumeric markers + en-dash stay in the
-     * default font.
-     */
-    private static boolean isDingbatShapeMarker(String marker) {
-        if (marker.isEmpty()) return false;
-        for (int i = 0; i < marker.length(); i++) {
-            char c = marker.charAt(i);
-            if (c == '\u25CF' || c == '\u25A0' || c == '\u25A1' || c == '\u274D' || c == '\u2022') {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String listToAlpha(int n) {
