@@ -701,16 +701,19 @@ public class PdfRendererService {
         List<ListRow> rows = resolveListRows(el, data);
         if (rows.isEmpty()) return;
 
-        float markerColWidth = indent;
-        float textColWidth = Math.max(1, w - indent);
-
-        Table listTable = new Table(new float[]{ markerColWidth, textColWidth });
-        listTable.setWidth(UnitValue.createPointValue(w));
-        listTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
-
-        // Per-indent ordered counters: ordered markers (number/alpha/roman) reset
-        // their sequence on each new indent level so nested sublists re-start at 1.
+        // Per-indent ordered counters: ordered markers (number/alpha/roman)
+        // reset their sequence on each new indent level so nested sublists
+        // re-start at 1.
         java.util.Map<Integer, Integer> groupCountByIndent = new java.util.HashMap<>();
+
+        // We emit one Paragraph per row inside a fixed-position Div. Using
+        // paragraphs (instead of a fixed 2-column table) lets each row carry
+        // its own `marginLeft` so nested items visibly indent, and prevents
+        // the bullet from being clipped when the indent pushes the marker
+        // beyond a fixed marker-column width.
+        com.itextpdf.layout.element.Div container = new com.itextpdf.layout.element.Div();
+        container.setWidth(w);
+        container.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
 
         for (int i = 0; i < rows.size(); i++) {
             ListRow row = rows.get(i);
@@ -724,34 +727,26 @@ public class PdfRendererService {
             String marker = listMarkerForItem(listStyleStr, level, groupIndex, startNumber);
             String itemText = substitute(row.text, data, null);
 
-            // Each indent level shifts the whole row right by one indent width.
-            float leftPad = level * indent;
+            // Compose marker + hair-space + text in a single paragraph. The
+            // paragraph's own marginLeft handles per-row indentation, and the
+            // non-breaking spaces between marker and text give the marker
+            // its own visual gutter without needing a separate column cell.
+            Paragraph p = new Paragraph();
+            applyTextStyle(p, style);
+            p.setMarginTop(i == 0 ? 0 : itemSpacing);
+            p.setMarginBottom(0);
+            p.setMarginLeft(level * indent);
 
-            // Marker cell
-            Paragraph markerP = new Paragraph(marker);
-            markerP.setTextAlignment(TextAlignment.RIGHT);
-            applyTextStyle(markerP, style);
-            Cell markerCell = new Cell().add(markerP)
-                    .setBorder(com.itextpdf.layout.borders.Border.NO_BORDER)
-                    .setPaddingRight(4)
-                    .setPaddingLeft(leftPad)
-                    .setPaddingTop(i == 0 ? 0 : itemSpacing)
-                    .setPaddingBottom(0);
+            if (!marker.isEmpty()) {
+                p.add(new Text(marker + "\u00A0\u00A0"));
+            }
+            p.add(new Text(itemText));
 
-            // Text cell
-            Paragraph textP = new Paragraph(itemText);
-            applyTextStyle(textP, style);
-            Cell textCell = new Cell().add(textP)
-                    .setBorder(com.itextpdf.layout.borders.Border.NO_BORDER)
-                    .setPaddingTop(i == 0 ? 0 : itemSpacing)
-                    .setPaddingBottom(0);
-
-            listTable.addCell(markerCell);
-            listTable.addCell(textCell);
+            container.add(p);
         }
 
-        listTable.setFixedPosition(pageNumber, x, bottom, w);
-        document.add(listTable);
+        container.setFixedPosition(pageNumber, x, bottom, w);
+        document.add(container);
     }
 
     /**
