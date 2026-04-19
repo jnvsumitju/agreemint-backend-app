@@ -28,12 +28,18 @@ public record UserPrincipal(
         String email,
         UUID orgId,
         OrgRole role,
-        Set<String> scopes
+        Set<String> scopes,
+        boolean staff
 ) implements UserDetails {
 
-    /** Legacy 4-arg constructor kept so JWT callers don't need to construct an empty scope set. */
+    /** Legacy 4-arg constructor kept so existing JWT callers don't need to construct an empty scope set. */
     public UserPrincipal(UUID userId, String email, UUID orgId, OrgRole role) {
-        this(userId, email, orgId, role, Set.of());
+        this(userId, email, orgId, role, Set.of(), false);
+    }
+
+    /** 5-arg constructor for API-key paths that don't carry a staff flag. */
+    public UserPrincipal(UUID userId, String email, UUID orgId, OrgRole role, Set<String> scopes) {
+        this(userId, email, orgId, role, scopes, false);
     }
 
     @Override
@@ -48,6 +54,11 @@ public record UserPrincipal(
         }
         if (scopes != null) {
             for (String s : scopes) auths.add(new SimpleGrantedAuthority("SCOPE_" + s));
+        }
+        // Staff authority gates every /api/admin/* route via SecurityConfig and
+        // any @PreAuthorize("hasAuthority('ROLE_STAFF')") we add later.
+        if (staff) {
+            auths.add(new SimpleGrantedAuthority("ROLE_STAFF"));
         }
         return auths;
     }

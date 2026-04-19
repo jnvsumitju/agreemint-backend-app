@@ -42,8 +42,40 @@ public class JwtService {
                 .claim("name", user.getName())
                 .claim("orgId", orgId != null ? orgId.toString() : null)
                 .claim("role", role != null ? role.name() : null)
+                // `isStaff` gates the admin portal + /api/admin/* routes. Always
+                // included (true or false) so the frontend can decide what to
+                // render on login without an extra round-trip.
+                .claim("isStaff", user.isStaff())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(accessTokenExpiry)))
+                .signWith(signingKey)
+                .compact();
+    }
+
+    /**
+     * Short-lived impersonation token — issued by a staff user to stand in as a
+     * target user for debugging / support. Carries an `impersonatedBy` claim so
+     * the audit log can always attribute actions to the real operator, and a
+     * tight {@code ttl} (typically ≤ 30 min) passed by the caller.
+     */
+    public String generateImpersonationToken(
+            User target,
+            UUID targetOrgId,
+            OrgRole targetRole,
+            UUID impersonatedBy,
+            Duration ttl) {
+        Instant now = Instant.now();
+        Duration effective = ttl != null ? ttl : Duration.ofMinutes(15);
+        return Jwts.builder()
+                .subject(target.getId().toString())
+                .claim("email", target.getEmail())
+                .claim("name", target.getName())
+                .claim("orgId", targetOrgId != null ? targetOrgId.toString() : null)
+                .claim("role", targetRole != null ? targetRole.name() : null)
+                .claim("isStaff", false)
+                .claim("impersonatedBy", impersonatedBy != null ? impersonatedBy.toString() : null)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(effective)))
                 .signWith(signingKey)
                 .compact();
     }

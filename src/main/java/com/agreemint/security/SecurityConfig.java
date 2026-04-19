@@ -76,6 +76,10 @@ public class SecurityConfig {
                 // Public developer API — authenticated via X-Api-Key filter; scope
                 // checks are enforced per-endpoint via @PreAuthorize.
                 .requestMatchers("/api/v1/**").authenticated()
+                // Internal admin portal — gated on the ROLE_STAFF authority that
+                // UserPrincipal emits when the JWT's `isStaff` claim is true.
+                // Non-staff requests come back as 403 before any controller runs.
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_STAFF")
                 // Everything else under /api requires auth
                 .requestMatchers("/api/**").authenticated()
                 // Let non-API requests through (frontend SPA assets, etc.)

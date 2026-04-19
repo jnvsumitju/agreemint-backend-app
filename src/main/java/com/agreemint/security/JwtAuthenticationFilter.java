@@ -49,6 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = claims.get("email", String.class);
         String orgIdStr = claims.get("orgId", String.class);
         String roleStr = claims.get("role", String.class);
+        Boolean staffClaim = claims.get("isStaff", Boolean.class);
+        boolean staff = Boolean.TRUE.equals(staffClaim);
 
         UUID orgId = orgIdStr != null ? UUID.fromString(orgIdStr) : null;
         OrgRole role = roleStr != null ? OrgRole.valueOf(roleStr) : null;
@@ -65,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        UserPrincipal principal = new UserPrincipal(userId, email, orgId, role);
+        UserPrincipal principal = new UserPrincipal(userId, email, orgId, role, java.util.Set.of(), staff);
         var auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
 

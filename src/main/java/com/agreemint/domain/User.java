@@ -42,6 +42,10 @@ public class User {
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false;
 
+    /** Internal Agreemint staff — gates every /api/admin/* route + the admin portal UI. */
+    @Column(name = "is_staff", nullable = false)
+    private boolean staff = false;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -71,6 +75,9 @@ public class User {
 
     public boolean isEmailVerified() { return emailVerified; }
     public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+
+    public boolean isStaff() { return staff; }
+    public void setStaff(boolean staff) { this.staff = staff; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
