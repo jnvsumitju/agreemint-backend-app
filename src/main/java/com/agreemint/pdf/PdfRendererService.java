@@ -732,6 +732,17 @@ public class PdfRendererService {
         // markers are drawn inside this column; the text starts after it.
         float markerColWidth = Math.max(10f, indent);
 
+        // Total natural height the list will occupy (each row consumes one
+        // rowHeight, and every row after the first adds an `itemSpacing`
+        // leading gap). We need this UPFRONT so we can pin the Div's
+        // fixed-position such that its TOP-LEFT lands at (x, yTop) —
+        // without this, `setFixedPosition(x, bottom, w)` makes iText auto-
+        // size the Div and anchor its BOTTOM at `bottom`, which pushes the
+        // text well below the bullet markers (which we draw relative to
+        // `yTop`).
+        float naturalHeight = rows.size() * rowHeight
+                + Math.max(0, rows.size() - 1) * itemSpacing;
+
         for (int i = 0; i < rows.size(); i++) {
             ListRow row = rows.get(i);
             int level = row.indent;
@@ -746,16 +757,15 @@ public class PdfRendererService {
             String itemText = substitute(row.text, data, null);
 
             float rowLeft = x + level * indent;
-            // Row top in PDF coords (y increases upward). The container's
-            // content top is `yTop`, and each row consumes rowHeight +
-            // itemSpacing (except the first, which has no leading spacing).
+            // Row top in PDF coords (y increases upward). Content flows from
+            // `yTop` downward; each row consumes rowHeight, with an
+            // itemSpacing gap BEFORE every row after the first.
             float rowTop = yTop - i * (rowHeight + itemSpacing);
             // Optical center of lowercase text within the line box. Helvetica's
             // baseline sits ~0.72 * fontSize below the ascender top, and the
             // x-height center is ~0.25 * fontSize above the baseline. Line
             // leading (lineHeight > 1) pads both sides equally, so:
             //   center ≈ rowTop − (rowHeight − fontSize)/2 − fontSize × 0.47
-            // which simplifies well to a single fontSize offset.
             float linePadTop = (rowHeight - fontSize) * 0.5f;
             float markerCy = rowTop - linePadTop - fontSize * 0.47f;
             float markerCx = rowLeft + markerColWidth * 0.5f;
@@ -784,7 +794,10 @@ public class PdfRendererService {
 
         markerCanvas.restoreState();
 
-        container.setFixedPosition(pageNumber, x, bottom, w);
+        // Pin the Div's BL at (x, yTop − naturalHeight) so its content top
+        // lines up with yTop, which is the same reference the marker Y
+        // positions use above.
+        container.setFixedPosition(pageNumber, x, yTop - naturalHeight, w);
         document.add(container);
     }
 
