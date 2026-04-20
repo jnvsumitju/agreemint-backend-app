@@ -64,6 +64,11 @@ agreemint:
     from-name: ${EMAIL_FROM_NAME:Agreemint}
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  features:
+    # Kill-switch for the pixel-parity renderer. Off by default through the
+    # phase 0-4 build-out; flipped in phase 5 once golden tests are green.
+    pixel-parity:
+      enabled: ${FEATURE_PIXEL_PARITY:false}
   otp:
     length: 6
     ttl-minutes: 10
