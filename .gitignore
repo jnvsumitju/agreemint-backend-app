@@ -16,3 +16,5 @@ target/
 .env.development.example
 .env.test.example
 .env.production.example
+logs
+logs/agreemint.log

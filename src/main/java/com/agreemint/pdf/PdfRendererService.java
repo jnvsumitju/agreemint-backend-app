@@ -23,11 +23,13 @@ import com.itextpdf.kernel.pdf.extgstate.PdfExtGState;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.OverflowPropertyValue;
 import com.itextpdf.layout.properties.Property;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
@@ -355,53 +357,54 @@ public class PdfRendererService {
         p.setPadding(0);
         p.setMargin(0);
 
-        // Pixel-parity: top-anchor the paragraph so its top edge sits at the
-        // element's top edge (matching the canvas's `h-full w-full` div with
-        // default top-aligned block flow). To anchor the top we need to know
-        // the laid-out height, so measure via a throwaway layout pass and
-        // offset the iText bottom-left accordingly.
-        //
-        // Legacy path keeps the bottom anchor the comment below describes —
-        // short elements won't clip because the paragraph still auto-sizes
-        // upward, just from a different anchor point.
-        float anchorBottom = bottom;
         if (parityOn()) {
-            // Top-anchor only needs the height; skip the per-line harvest work
-            // here. `null` runIndex map → measurement skips the identity-bookkeeping
-            // entirely, keeping the addText hot path as fast as before phase 1.5.
-            float measured = measureParagraphLayout(p, w, null).height();
-            if (measured > 0f) {
-                anchorBottom = yTop - measured;
-            }
-        }
+            // Pixel-parity path: wrap the paragraph in a fixed-size {@code Div}
+            // that clips anything exceeding the authored element height. This
+            // matches the canvas's `overflow-hidden` wrapper around the text
+            // block — content that doesn't fit is invisibly dropped on BOTH
+            // sides so canvas and PDF show the same visible glyphs at the
+            // same positions. The save-time overflow soft-assist is still
+            // the author's escape hatch when content was authored too tall.
+            //
+            // The Div's default vertical alignment is top, so the paragraph
+            // flows from the Div's top edge — we get top-anchoring for free,
+            // no more throwaway-layout measurement pass needed inside addText.
+            Div container = new Div()
+                    .setPadding(0)
+                    .setMargin(0)
+                    .setWidth(w)
+                    .setHeight(h);
+            container.setProperty(Property.OVERFLOW_X, OverflowPropertyValue.HIDDEN);
+            container.setProperty(Property.OVERFLOW_Y, OverflowPropertyValue.HIDDEN);
+            container.add(p);
 
-        // Phase 4.7 — TEXT rotation. iText's Paragraph rotates around its own
-        // bottom-left (`setFixedPosition` anchor) by default, but canvas CSS
-        // `transform: rotate()` rotates around the element center. Re-center
-        // the rotation by offsetting the anchor so the rotated bbox's center
-        // still lands at the original element center.
-        float rotatedAnchorX = x;
-        float rotatedAnchorY = anchorBottom;
-        if (parityOn()) {
+            // Phase 4.7 — TEXT rotation around the element center. iText rotates
+            // around a container's bottom-left anchor, so we offset the anchor
+            // so the rotated bbox center still lands at the original element
+            // center. Math identical to the pre-Div version.
+            float rotatedAnchorX = x;
+            float rotatedAnchorY = bottom;
             double rotationDeg = style.path("rotation").asDouble(0);
             if (rotationDeg != 0) {
-                // Canvas rotation is CW-positive; PDF CCW-positive.
                 double theta = Math.toRadians(-rotationDeg);
                 float cos = (float) Math.cos(theta);
                 float sin = (float) Math.sin(theta);
-                // Use the element's authored box height (`h`) for center math —
-                // the canvas rotates around the box center, not the text's
-                // measured height, so the visual pivot matches even when the
-                // text is shorter than the box.
                 float centerShiftX = w / 2f * (1f - cos) + h / 2f * sin;
                 float centerShiftY = h / 2f * (1f - cos) - w / 2f * sin;
                 rotatedAnchorX += centerShiftX;
                 rotatedAnchorY += centerShiftY;
-                p.setProperty(Property.ROTATION_ANGLE, (double) theta);
+                container.setProperty(Property.ROTATION_ANGLE, theta);
             }
+            applyOpacityToElement(container, style);
+            container.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
+            document.add(container);
+            return;
         }
+
+        // Legacy bottom-anchor path (flag off). Paragraph grows upward from the
+        // element bottom — the historical behaviour that predates phase 1.
         applyOpacityToElement(p, style);
-        p.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
+        p.setFixedPosition(pageNumber, x, bottom, w);
         document.add(p);
     }
 
@@ -1077,8 +1080,36 @@ public class PdfRendererService {
         // cell out — at that point `getOccupiedAreaBBox()` tells us exactly
         // where the cell's first line sits, so the bullet aligns perfectly.
         // Ordered markers (1./a./ii.) are plain text in the marker cell.
-        Canvas listCanvas = new Canvas(new PdfCanvas(pdfDoc.getPage(pageNumber)),
-                new Rectangle(x, bottom, w, h));
+        // Pixel-parity LIST clip. iText's Canvas silently drops items that
+        // don't fit vertically in its Rectangle — for CSS-flow-style parity
+        // we need the renderer to ATTEMPT to draw every item, then let a
+        // graphics-state clip at the element bbox hide any overflow. Without
+        // this, canvas + PDF disagree on which items are visible when the
+        // list sum-height exceeds the authored box (canvas shows more
+        // because CSS flow is slightly tighter than iText's line metrics).
+        //
+        // Legacy path keeps the tight rectangle so pre-parity output is
+        // bit-identical.
+        PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        boolean listClipPushed = false;
+        Rectangle canvasRect;
+        if (parityOn()) {
+            pdfCanvas.saveState();
+            pdfCanvas.rectangle(x, bottom, w, h);
+            pdfCanvas.clip();
+            pdfCanvas.endPath();
+            listClipPushed = true;
+            // Extend the draw rectangle DOWNWARD so iText has room to lay out
+            // every item. The top stays at the element's top edge (where
+            // iText begins its flow); extra headroom below absorbs any items
+            // that don't fit visually — those pixels are then masked by the
+            // clip path above.
+            float extraHeadroom = Math.max(pageHeight, 1000f);
+            canvasRect = new Rectangle(x, bottom - extraHeadroom, w, h + extraHeadroom);
+        } else {
+            canvasRect = new Rectangle(x, bottom, w, h);
+        }
+        Canvas listCanvas = new Canvas(pdfCanvas, canvasRect);
 
         // Width reserved for the marker column INSIDE each row (after the
         // row's indent left-margin). Shape markers are drawn inside this
@@ -1153,6 +1184,9 @@ public class PdfRendererService {
         }
 
         listCanvas.close();
+        if (listClipPushed) {
+            pdfCanvas.restoreState();
+        }
     }
 
     /**
