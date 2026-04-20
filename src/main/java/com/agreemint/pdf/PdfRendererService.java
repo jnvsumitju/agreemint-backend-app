@@ -11,7 +11,10 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfArray;
+import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.action.PdfAction;
+import com.itextpdf.kernel.pdf.annot.PdfLinkAnnotation;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
@@ -372,12 +375,28 @@ public class PdfRendererService {
             }
             Text t;
             if (resolvedHref != null) {
-                // Link extends Text — wrapping the run in a Link adds a
-                // clickable URI annotation covering the run's text area.
-                t = new Link(textValue, PdfAction.createURI(resolvedHref));
+                // iText `Link` extends `Text` and attaches a
+                // `PdfLinkAnnotation` covering the run's text box. PDF
+                // viewers (Acrobat, Preview, Chrome, Firefox) turn the
+                // cursor into a hand / anchor pointer when hovering any
+                // area backed by a link annotation — so just creating the
+                // Link is enough for the "clickable link with pointer
+                // cursor" behaviour the user is asking about.
+                Link link = new Link(textValue, PdfAction.createURI(resolvedHref));
+                // By default iText's PdfLinkAnnotation ships with a thin
+                // black border drawn around the clickable rectangle in
+                // many viewers. Zero the border + switch the highlight
+                // mode to "invert" so the only visible cue is the text
+                // styling below (blue + underline) — same convention web
+                // links use.
+                PdfLinkAnnotation annot = link.getLinkAnnotation();
+                annot.setBorder(new PdfArray(new int[] { 0, 0, 0 }));
+                annot.put(PdfName.H, PdfName.I);
+                t = link;
                 // Visual affordance: if the author didn't set an explicit
-                // color on the run OR the element, underline + blue so the
-                // PDF looks like a link by convention.
+                // colour on the run OR the element, paint the linked text
+                // in conventional link-blue + give it an underline so the
+                // PDF reads as a hyperlink even without the hover cursor.
                 applyRunTextStyle(t, run, elementStyle);
                 if (run.path("color").asText("").isEmpty()
                         && (elementStyle == null || elementStyle.isNull()
