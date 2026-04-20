@@ -22,7 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LayoutMeasurementServiceTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private final LayoutMeasurementService service = new LayoutMeasurementService();
+    // Passing null for the ObjectProvider means `getIfAvailable()` yields null,
+    // which makes {@link LayoutMeasurementService} return an empty measurement
+    // for every element. That's exactly what we want for these contract tests —
+    // phase-1 renderer integration is covered by a separate Spring-context test.
+    private final LayoutMeasurementService service = new LayoutMeasurementService(null);
 
     @Test
     void measure_returnsEmptyMeasurementPerElement() {

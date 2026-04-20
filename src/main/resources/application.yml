@@ -65,10 +65,13 @@ agreemint:
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
   features:
-    # Kill-switch for the pixel-parity renderer. Off by default through the
-    # phase 0-4 build-out; flipped in phase 5 once golden tests are green.
+    # Pixel-parity renderer — on by default since phase 5. Kept as an env-var
+    # kill-switch for 6 months post-launch per the risk register; set
+    # FEATURE_PIXEL_PARITY=false to fall back to the legacy path without a
+    # deploy. Legacy code paths stay in place until the kill-switch window
+    # expires; only then can the flag + legacy branches be removed.
     pixel-parity:
-      enabled: ${FEATURE_PIXEL_PARITY:false}
+      enabled: ${FEATURE_PIXEL_PARITY:true}
   otp:
     length: 6
     ttl-minutes: 10

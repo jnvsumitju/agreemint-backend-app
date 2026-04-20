@@ -134,7 +134,11 @@ class PdfRendererServiceMultiPageTest {
         root.set("pages", pages);
         root.set("elements", textElementArray("mirror"));
 
-        PdfRendererService svc = new PdfRendererService(mapper, new LayoutBehaviourResolver(mapper));
+        PdfRendererService svc = new PdfRendererService(
+                mapper,
+                new LayoutBehaviourResolver(mapper),
+                new PdfFontRegistry(),
+                new com.agreemint.config.PixelParityProperties());
         byte[] pdf = svc.render(root, JsonNodeFactory.instance.objectNode());
 
         try (PdfReader reader = new PdfReader(new java.io.ByteArrayInputStream(pdf)); PdfDocument doc = new PdfDocument(reader)) {
