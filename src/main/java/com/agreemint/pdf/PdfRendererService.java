@@ -594,7 +594,40 @@ public class PdfRendererService {
         for (int i = 0; i < columns.size(); i++) {
             colWidths[i] = colWidths[i] / sumW * 100f;
         }
-        Table table = new Table(UnitValue.createPercentArray(colWidths)).useAllAvailableWidth();
+        Table table = new Table(UnitValue.createPercentArray(colWidths));
+
+        // ── Row-height distribution ───────────────────────────────────────
+        // iText sizes cells to their content by default — empty cells become
+        // just padding-tall (~10pt), so a table designed to be 150pt tall on
+        // canvas prints as a squished 40pt sliver. Distribute the element's
+        // configured height across header + body rows so the printed table
+        // matches the canvas footprint.
+        //
+        // `tableRowWeights` (per-body-row weights) lets the author give one
+        // row more vertical space than another on the canvas; we mirror the
+        // same distribution in the PDF. Header row weight is 1 by convention.
+        float totalTableHeight = (float) el.path("height").asDouble(0);
+        int bodyRowCountForHeight = 0;
+        for (JsonNode row : rows) {
+            if (row != null && row.isObject() && behaviourResolver.tableRowHidden(behaviour(el), row, data)) continue;
+            bodyRowCountForHeight++;
+        }
+        float[] rowWeights = readTableRowWeights(el.get("tableRowWeights"), bodyRowCountForHeight);
+        // Weighted distribution: header = 1, body rows = rowWeights[i]
+        float weightSum = 1f; // header
+        for (float wRow : rowWeights) weightSum += wRow;
+        float headerRowHeight;
+        float[] bodyRowHeights = new float[bodyRowCountForHeight];
+        if (totalTableHeight > 0f && weightSum > 0f) {
+            headerRowHeight = totalTableHeight / weightSum;
+            for (int i = 0; i < bodyRowCountForHeight; i++) {
+                bodyRowHeights[i] = (rowWeights[i] / weightSum) * totalTableHeight;
+            }
+        } else {
+            // Fall back: let iText size cells normally.
+            headerRowHeight = 0f;
+            for (int i = 0; i < bodyRowCountForHeight; i++) bodyRowHeights[i] = 0f;
+        }
 
         JsonNode headerStyle = objectMapper.createObjectNode().put("bold", true);
         int headerColIndex = 0;
@@ -604,6 +637,9 @@ public class PdfRendererService {
                     .add(headerParagraph)
                     .setVerticalAlignment(VerticalAlignment.MIDDLE)
                     .setPadding(4);
+            if (headerRowHeight > 0f) {
+                headerCell.setHeight(UnitValue.createPointValue(headerRowHeight));
+            }
             Color headerBg = parseCssColorToItext(effectiveTableCellBackground(el, -1, headerColIndex));
             if (headerBg != null) {
                 headerCell.setBackgroundColor(headerBg);
@@ -635,6 +671,13 @@ public class PdfRendererService {
                         .add(para)
                         .setVerticalAlignment(VerticalAlignment.MIDDLE)
                         .setPadding(4);
+                // Pin the cell height so the visible body row matches the
+                // canvas row. Without this, an empty cell (static-mode
+                // preview) would collapse to line-height + padding and the
+                // whole table prints as a thin sliver.
+                if (dataRowIndex < bodyRowHeights.length && bodyRowHeights[dataRowIndex] > 0f) {
+                    bodyCell.setHeight(UnitValue.createPointValue(bodyRowHeights[dataRowIndex]));
+                }
                 Color cellBg = parseCssColorToItext(effectiveTableCellBackground(el, dataRowIndex, bodyColIndex));
                 if (delta.backgroundColor() != null && !delta.backgroundColor().isBlank()) {
                     Color ob = parseCssColorToItext(delta.backgroundColor());
@@ -651,8 +694,12 @@ public class PdfRendererService {
             dataRowIndex++;
         }
 
-        table.setMarginTop((float) el.path("marginTop").asDouble(8));
-        table.setMarginBottom((float) el.path("marginBottom").asDouble(8));
+        // Margin-top/bottom are canvas-level affordances for the author;
+        // the PDF positions the table via `setFixedPosition` so the
+        // table's `y` is already exact. Zero the margins so the rendered
+        // table doesn't drift away from its canvas anchor.
+        table.setMarginTop(0);
+        table.setMarginBottom(0);
 
         float x = (float) el.path("x").asDouble(0);
         float elY = (float) el.path("y").asDouble(0);
@@ -662,8 +709,39 @@ public class PdfRendererService {
         }
         float h = (float) el.path("height").asDouble(120);
         float bottom = pageHeight - elY - h;
+        // Explicit table width matches the canvas element's width. Dropped
+        // `.useAllAvailableWidth()` from the Table initialiser above —
+        // combined with `setFixedPosition` it was redundant and sometimes
+        // caused iText to over-stretch the table beyond the element's
+        // designed footprint.
+        table.setWidth(UnitValue.createPointValue(w));
         table.setFixedPosition(pageNumber, x, bottom, w);
         document.add(table);
+    }
+
+    /** Behaviour access pulled out so the row-height pre-pass doesn't need to re-fetch. */
+    private static JsonNode behaviour(JsonNode el) {
+        return el.path("behaviour");
+    }
+
+    /**
+     * Normalise the per-body-row weight array.
+     * • If the layout doesn't supply valid weights (or the length doesn't
+     *   match the visible row count), fall back to equal weights.
+     * • Zero or negative weights are replaced with 1 to avoid collapsing
+     *   a row to 0 height.
+     */
+    private static float[] readTableRowWeights(JsonNode rowWeightsNode, int bodyRowCount) {
+        float[] w = new float[bodyRowCount];
+        if (rowWeightsNode != null && rowWeightsNode.isArray() && rowWeightsNode.size() == bodyRowCount) {
+            for (int i = 0; i < bodyRowCount; i++) {
+                double d = rowWeightsNode.get(i).asDouble(1);
+                w[i] = d > 0 ? (float) d : 1f;
+            }
+            return w;
+        }
+        java.util.Arrays.fill(w, 1f);
+        return w;
     }
 
     private String cellValue(JsonNode row, String key, JsonNode globalData) {
