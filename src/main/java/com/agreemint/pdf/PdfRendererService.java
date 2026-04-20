@@ -109,13 +109,24 @@ public class PdfRendererService {
                 }
                 JsonNode drawEl = resolved.element();
                 String type = drawEl.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
-                if (("HEADER".equals(type) || "FOOTER".equals(type))
-                        && drawEl.path("bandElements").isArray()
-                        && drawEl.path("bandElements").size() > 0) {
-                    renderBandChildren(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
-                    continue;
+                // Per-element try/catch so one bad element (unsupported
+                // font glyph, malformed link, bogus image URL, …) can't
+                // tank the whole page. Log the offender and move on.
+                // Symptom this prevents: element N throwing silently
+                // stopped the loop, elements N+1..end never rendered.
+                try {
+                    if (("HEADER".equals(type) || "FOOTER".equals(type))
+                            && drawEl.path("bandElements").isArray()
+                            && drawEl.path("bandElements").size() > 0) {
+                        renderBandChildren(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                        continue;
+                    }
+                    dispatchElementByType(pdfDoc, document, drawEl, type, pageData, pageHeight, pageNumber);
+                } catch (RuntimeException | IOException ex) {
+                    log.warn("PDF render skipped element id={} type={} ({}): {}",
+                            drawEl.path("id").asText("?"), type,
+                            ex.getClass().getSimpleName(), ex.getMessage());
                 }
-                dispatchElementByType(pdfDoc, document, drawEl, type, pageData, pageHeight, pageNumber);
             }
         }
 
@@ -300,8 +311,16 @@ public class PdfRendererService {
         Paragraph p = buildParagraphFromContent(el.get("content"), data, null, style);
         p.setPadding(0);
         p.setMargin(0);
-        p.setHeight(UnitValue.createPointValue(h));
-        p.setVerticalAlignment(VerticalAlignment.TOP);
+        // NOTE: we used to call `p.setHeight(UnitValue.createPointValue(h))`
+        // to pin the paragraph to the element's canvas-designed height.
+        // That caused short elements to silently clip their content — iText
+        // wouldn't render a single line of text if the rendered line box
+        // (font ascender + descender + leading) was even 1pt taller than
+        // the stored `h`. Symptom: a one-line text element rendered fine
+        // on canvas, disappeared entirely from the PDF.
+        // Let the paragraph auto-size instead; `setFixedPosition(x, bottom, w)`
+        // still anchors the bottom-left so the element starts at the same
+        // screen position as the canvas.
         p.setFixedPosition(pageNumber, x, bottom, w);
         document.add(p);
     }
@@ -513,13 +532,44 @@ public class PdfRendererService {
         if (!columns.isArray() || columns.isEmpty()) {
             return;
         }
-        String dataKey = el.path("dataKey").asText("items");
-        JsonNode rows = resolveDataPath(data, dataKey);
-        if (rows == null || !rows.isArray()) {
-            rows = data.path(dataKey);
-        }
-        if (!rows.isArray()) {
-            rows = JsonNodeFactory.instance.arrayNode();
+        // Loop mode vs static mode:
+        //   - Loop: element.dataKey is an explicit string key/path; we look
+        //     up an array at that key in the data context and emit one row
+        //     per entry. Empty array → no body rows.
+        //   - Static: no dataKey set → render `tablePreviewBodyRows` empty
+        //     body rows, exactly matching what the canvas shows the author
+        //     so the printed PDF isn't a header-only sliver. Previously
+        //     this code defaulted the dataKey to "items" — if the caller
+        //     didn't pass an "items" array, we silently fell through to
+        //     an empty rows list and only the header row rendered
+        //     (the "squished table" symptom).
+        JsonNode dataKeyNode = el.get("dataKey");
+        String dataKey = (dataKeyNode != null && dataKeyNode.isTextual())
+                ? dataKeyNode.asText("").trim()
+                : "";
+        boolean loopMode = !dataKey.isEmpty();
+        JsonNode rows;
+        if (loopMode) {
+            JsonNode resolved = resolveDataPath(data, dataKey);
+            if (resolved == null || !resolved.isArray()) {
+                resolved = data.path(dataKey);
+            }
+            rows = resolved.isArray() ? resolved : JsonNodeFactory.instance.arrayNode();
+        } else {
+            // Static mode — synthesize N empty row objects so every column's
+            // body cell still gets a Paragraph (keeps cell heights, borders,
+            // and alternating backgrounds consistent with the canvas).
+            int previewRows = 3;
+            JsonNode prNode = el.get("tablePreviewBodyRows");
+            if (prNode != null && prNode.isNumber()) {
+                int parsed = prNode.asInt(3);
+                if (parsed > 0) previewRows = Math.min(30, parsed);
+            }
+            com.fasterxml.jackson.databind.node.ArrayNode synth = JsonNodeFactory.instance.arrayNode();
+            for (int i = 0; i < previewRows; i++) {
+                synth.add(JsonNodeFactory.instance.objectNode());
+            }
+            rows = synth;
         }
 
         float[] colWidths = new float[columns.size()];
