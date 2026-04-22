@@ -81,6 +81,38 @@ public class TemplateDraftService {
     }
 
     /**
+     * Persist ONLY the draft {@code variables} while preserving the current
+     * {@code layoutJson}. Counterpart to {@link #saveFromCollabFlush}, which
+     * persists only the layout. Splitting the two write paths avoids a race:
+     * the collab flush job owns layout; client-initiated debounced saves own
+     * variables. If either side used the full {@link #upsertDraft} they would
+     * clobber the other domain with a stale copy.
+     *
+     * <p>The frontend triggers this whenever a body-cell edit (or any other
+     * variable-value mutation) hits the store. Without it, typed preview data
+     * vanished on reload because the collab layer only carries layout ops +
+     * variable <em>definitions</em> — not variable <em>values</em>.
+     */
+    @Transactional
+    public void upsertDraftVariables(UUID templateId, JsonNode variables) {
+        if (!templateRepository.existsById(templateId)) {
+            throw new NotFoundException("Template not found");
+        }
+        JsonNode vars = (variables == null || variables.isNull())
+                ? JsonNodeFactory.instance.objectNode()
+                : variables;
+        TemplateDraft d = templateDraftRepository.findById(templateId).orElseGet(() -> {
+            TemplateDraft n = new TemplateDraft();
+            n.setTemplateId(templateId);
+            n.setLayoutJson(JsonNodeFactory.instance.objectNode());
+            return n;
+        });
+        d.setVariables(vars);
+        d.setUpdatedAt(Instant.now());
+        templateDraftRepository.save(d);
+    }
+
+    /**
      * Persist a layout produced by the collaborative-editor flush job.
      * Runs outside any user context — authorisation is enforced on every op that
      * built up this layout, so a flush does not need to re-check.

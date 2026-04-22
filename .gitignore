@@ -17,4 +17,3 @@ target/
 .env.test.example
 .env.production.example
 logs
-logs/agreemint.log

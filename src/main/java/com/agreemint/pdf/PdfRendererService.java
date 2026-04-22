@@ -74,6 +74,7 @@ public class PdfRendererService {
     /** Built-in merge keys; overlay per PDF page so headers/footers can show page x of y. */
     private static final String DATA_KEY_TOTAL_PAGES = "totalPages";
     private static final String DATA_KEY_PAGE_NUMBER = "pageNumber";
+    private static final String DATA_KEY_CURRENT_DATE = "currentDate";
 
     /** Canvas default — matches {@code RichTextBlockPreview.tsx:63} (`lineHeight: lineHeight ?? 1.4`). */
     static final float DEFAULT_LINE_HEIGHT = 1.4f;
@@ -118,8 +119,12 @@ public class PdfRendererService {
     }
 
     public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
+        long startNanos = System.nanoTime();
         PageSpec pageSpec = readPage(layoutJson);
         List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
+        int totalElements = perPageElements.stream().mapToInt(p -> p.isArray() ? p.size() : 0).sum();
+        log.info("render start parity={} pages={} elements={}",
+                parityOn(), perPageElements.size(), totalElements);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
@@ -176,7 +181,11 @@ public class PdfRendererService {
         }
 
         document.close();
-        return baos.toByteArray();
+        byte[] bytes = baos.toByteArray();
+        long ms = (System.nanoTime() - startNanos) / 1_000_000L;
+        log.info("render done pages={} bytes={} elapsedMs={}",
+                perPageElements.size(), bytes.length, ms);
+        return bytes;
     }
 
     /**
@@ -275,6 +284,15 @@ public class PdfRendererService {
         }
         base.put(DATA_KEY_TOTAL_PAGES, Integer.toString(totalPages));
         base.put(DATA_KEY_PAGE_NUMBER, Integer.toString(pageNumber1Based));
+        // Auto-populate `currentDate` (ISO `YYYY-MM-DD`). The frontend strips
+        // this key from the payload on its way out (it's a system variable
+        // the comment said "backend computes"), but nothing actually did —
+        // so a TEXT element with a {{currentDate}} chip rendered empty in
+        // the generated PDF. Seed only if the caller didn't already provide
+        // one (API callers may want to override with their own date).
+        if (!base.has(DATA_KEY_CURRENT_DATE)) {
+            base.put(DATA_KEY_CURRENT_DATE, java.time.LocalDate.now().toString());
+        }
         return base;
     }
 
@@ -310,22 +328,39 @@ public class PdfRendererService {
             JsonNode pageData,
             float pageHeight,
             int pageNumber) throws IOException {
-        switch (type) {
-            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" ->
-                    addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
-            case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
-            case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
-            case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "TRIANGLE" -> addTriangleShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "DIAMOND" -> addDiamondShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "LIST" -> addList(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
-            default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+        String id = drawEl.path("id").asText("?");
+        try {
+            log.debug("render page={} type={} id={} box=({},{},{}×{}) parity={}",
+                    pageNumber, type, id,
+                    drawEl.path("x").asDouble(0),
+                    drawEl.path("y").asDouble(0),
+                    drawEl.path("width").asDouble(0),
+                    drawEl.path("height").asDouble(0),
+                    parityOn());
+            switch (type) {
+                case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" ->
+                        addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
+                case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
+                case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "TRIANGLE" -> addTriangleShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "DIAMOND" -> addDiamondShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "LIST" -> addList(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+            }
+        } catch (RuntimeException e) {
+            // Log the failing element's context then rethrow so the exception
+            // handler still maps to 500 with its generic message — but ops now
+            // sees WHICH element crashed, not just the stack trace.
+            log.error("dispatchElementByType failed — type={} id={} page={}: {}",
+                    type, id, pageNumber, e.toString(), e);
+            throw e;
         }
     }
 
@@ -338,6 +373,19 @@ public class PdfRendererService {
         float bottom = yTop - h;
 
         JsonNode style = el.path("style");
+
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the element,
+        // matching {@link #addBox}. Runs before the frame fill + text draw so
+        // the shadow lives beneath the textbox. Without this the canvas
+        // showed a shadow (CSS drop-shadow on the wrapper) that silently
+        // vanished in the generated PDF.
+        JsonNode shadowNode = style.path("shadow");
+        if (parityOn() && shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.Shape.RECTANGLE,
+                    0f, x, bottom, w, h, pageNumber);
+        }
+
         /*
          * Paragraph backgrounds in iText only cover the laid-out text height, which is usually
          * smaller than the editor's element height — leaving empty space at the top of the box.
@@ -358,32 +406,24 @@ public class PdfRendererService {
         p.setMargin(0);
 
         if (parityOn()) {
-            // Pixel-parity path: wrap the paragraph in a fixed-size {@code Div}
-            // that clips anything exceeding the authored element height. This
-            // matches the canvas's `overflow-hidden` wrapper around the text
-            // block — content that doesn't fit is invisibly dropped on BOTH
-            // sides so canvas and PDF show the same visible glyphs at the
-            // same positions. The save-time overflow soft-assist is still
-            // the author's escape hatch when content was authored too tall.
-            //
-            // The Div's default vertical alignment is top, so the paragraph
-            // flows from the Div's top edge — we get top-anchoring for free,
-            // no more throwaway-layout measurement pass needed inside addText.
-            Div container = new Div()
-                    .setPadding(0)
-                    .setMargin(0)
-                    .setWidth(w)
-                    .setHeight(h);
-            container.setProperty(Property.OVERFLOW_X, OverflowPropertyValue.HIDDEN);
-            container.setProperty(Property.OVERFLOW_Y, OverflowPropertyValue.HIDDEN);
-            container.add(p);
+            // Pixel-parity path. Top-anchor the paragraph via its measured
+            // height, then apply a graphics-state clip at the authored box so
+            // overflow is hidden on both sides (matches canvas
+            // `overflow-hidden`). We DELIBERATELY avoid `Div.setHeight(h)` +
+            // `OVERFLOW_HIDDEN` here: iText's BlockRenderer drops ENTIRE
+            // content (not just the overflowing portion) when the rendered
+            // line-box is even 1pt taller than the configured height, logging
+            // "Element content was clipped because some height properties are
+            // set" and emitting an empty PDF. The graphics-state clip avoids
+            // that cliff — short text renders fully, long text is clipped at
+            // the box edge.
+            float measured = measureParagraphLayout(p, w, null).height();
+            float anchorBottom = measured > 0f ? yTop - measured : bottom;
 
-            // Phase 4.7 — TEXT rotation around the element center. iText rotates
-            // around a container's bottom-left anchor, so we offset the anchor
-            // so the rotated bbox center still lands at the original element
-            // center. Math identical to the pre-Div version.
+            // Phase 4.7 — TEXT rotation around the element center. Offset the
+            // anchor so the rotated bbox's center stays at the element center.
             float rotatedAnchorX = x;
-            float rotatedAnchorY = bottom;
+            float rotatedAnchorY = anchorBottom;
             double rotationDeg = style.path("rotation").asDouble(0);
             if (rotationDeg != 0) {
                 double theta = Math.toRadians(-rotationDeg);
@@ -393,11 +433,25 @@ public class PdfRendererService {
                 float centerShiftY = h / 2f * (1f - cos) - w / 2f * sin;
                 rotatedAnchorX += centerShiftX;
                 rotatedAnchorY += centerShiftY;
-                container.setProperty(Property.ROTATION_ANGLE, theta);
+                p.setProperty(Property.ROTATION_ANGLE, theta);
             }
-            applyOpacityToElement(container, style);
-            container.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
-            document.add(container);
+            applyOpacityToElement(p, style);
+
+            // Push the clip onto the page graphics state BEFORE `document.add`
+            // so the paragraph renders through it. Paragraph overflow below
+            // `bottom` (or above `yTop`, if rotation swings it) is invisibly
+            // masked. Pop the clip after.
+            PdfCanvas clipCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            clipCanvas.saveState();
+            clipCanvas.rectangle(x, bottom, w, h);
+            clipCanvas.clip();
+            clipCanvas.endPath();
+            p.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
+            document.add(p);
+            clipCanvas.restoreState();
+
+            log.debug("addText parity id={} box=({}, {}, {}×{}) measured={} clipped={}",
+                    el.path("id").asText("?"), x, elY, w, h, measured, measured > h);
             return;
         }
 
@@ -672,18 +726,39 @@ public class PdfRendererService {
             }
             rows = resolved.isArray() ? resolved : JsonNodeFactory.instance.arrayNode();
         } else {
-            // Static mode — synthesize N empty row objects so every column's
-            // body cell still gets a Paragraph (keeps cell heights, borders,
-            // and alternating backgrounds consistent with the canvas).
+            // Static mode — build row objects from `tableStaticCells`, the
+            // frontend's per-cell storage for loop-off tables. Keys are
+            // `"row,col"` (same coordinate convention as the backgrounds
+            // maps); values are serialized rich-run JSON that
+            // buildParagraphFromContent() already knows how to parse.
+            //
+            // When no cell is set at (row,col) we leave the field absent so
+            // the body cell renders empty — identical to the prior behaviour
+            // that synthesised empty rows.
             int previewRows = 3;
             JsonNode prNode = el.get("tablePreviewBodyRows");
             if (prNode != null && prNode.isNumber()) {
                 int parsed = prNode.asInt(3);
                 if (parsed > 0) previewRows = Math.min(30, parsed);
             }
+            JsonNode staticCells = el.path("tableStaticCells");
             com.fasterxml.jackson.databind.node.ArrayNode synth = JsonNodeFactory.instance.arrayNode();
             for (int i = 0; i < previewRows; i++) {
-                synth.add(JsonNodeFactory.instance.objectNode());
+                ObjectNode rowObj = JsonNodeFactory.instance.objectNode();
+                if (staticCells != null && staticCells.isObject()) {
+                    int colIdx = 0;
+                    for (JsonNode col : columns) {
+                        String colKey = col.path("key").asText("");
+                        if (!colKey.isEmpty()) {
+                            JsonNode cellVal = staticCells.get(i + "," + colIdx);
+                            if (cellVal != null && cellVal.isTextual()) {
+                                rowObj.set(colKey, cellVal);
+                            }
+                        }
+                        colIdx++;
+                    }
+                }
+                synth.add(rowObj);
             }
             rows = synth;
         }
@@ -902,7 +977,7 @@ public class PdfRendererService {
         return n != null && n.isTextual() ? n.asText() : null;
     }
 
-    /** Fill precedence: cell > column > row (matches frontend). Keys: cell="row,col", col="0"…, row="-1","0"… */
+    /** Fill precedence: cell > column > row > element.style.backgroundColor (matches frontend). */
     private String effectiveTableCellBackground(JsonNode el, int row, int col) {
         JsonNode cellMap = el.path("tableCellBackgrounds");
         String cellBg = textFromStringObjectMap(cellMap, row + "," + col);
@@ -918,6 +993,19 @@ public class PdfRendererService {
         String rowBg = textFromStringObjectMap(rowMap, String.valueOf(row));
         if (rowBg != null && !rowBg.isBlank()) {
             return rowBg;
+        }
+        // Element-level "table fill" — last-resort fallback mirroring the
+        // canvas precedence in tableCellEffectiveBackground() on the frontend.
+        // Without this, a solid background set on the TABLE element itself
+        // (the Properties-panel "Fill" picker) only showed on the editor
+        // canvas and vanished in the generated PDF.
+        JsonNode style = el.path("style");
+        if (style != null && style.isObject()) {
+            JsonNode bg = style.get("backgroundColor");
+            if (bg != null && bg.isTextual()) {
+                String v = bg.asText("").trim();
+                if (!v.isBlank()) return v;
+            }
         }
         return null;
     }
@@ -1125,8 +1213,7 @@ public class PdfRendererService {
             int groupIndex = groupCountByIndent.getOrDefault(level, 0);
             groupCountByIndent.put(level, groupIndex + 1);
 
-            final String effectiveBulletStyle = effectiveBulletStyleFor(listStyleStr, level);
-            String textMarker = textMarkerFor(listStyleStr, level, groupIndex, startNumber);
+            String textMarker = markerGlyphFor(listStyleStr, level, groupIndex, startNumber);
             String itemText = substitute(row.text, data, null);
 
             float rowLeftIndent = level * indent;
@@ -1136,29 +1223,43 @@ public class PdfRendererService {
 
             Table rowTable = new Table(UnitValue.createPointArray(new float[]{ markerColWidth, textColWidth }));
             rowTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
-            rowTable.setMarginTop(i == 0 ? 0 : itemSpacing);
+            // Canvas CSS `line-height` includes descender — row N ends exactly
+            // where row N+1's leading starts. iText renders each line then
+            // leaves a trailing descender gap (~fontSize × 0.25 for most Latin
+            // fonts) BELOW the line box, so two iText rows stacked are further
+            // apart than two canvas rows. Compensate by shortening the
+            // inter-row margin under parity so row-to-row distance matches
+            // canvas's `lineHeight + marginTop`.
+            float descenderBuffer = parityOn() ? fontSize * 0.25f : 0f;
+            float effectiveMarginTop = i == 0
+                    ? 0f
+                    : Math.max(0f, itemSpacing - descenderBuffer);
+            rowTable.setMarginTop(effectiveMarginTop);
             rowTable.setMarginBottom(0);
             rowTable.setMarginLeft(rowLeftIndent);
             rowTable.setWidth(UnitValue.createPointValue(rowLeftIndent + markerColWidth + textColWidth));
 
             // ── Marker cell ────────────────────────────────────────────
+            // NOTE: do NOT `setHeight(fontSize × lineHeight)` here — iText's
+            // BlockRenderer drops ALL cell content when the laid-out line-box
+            // exceeds the set height by even 1pt (same cliff that broke the
+            // TEXT Div+setHeight approach earlier). The graphics-state clip
+            // at the list bbox handles overflow containment; row-to-row
+            // spacing is governed by the rowTable margin below.
             Cell markerCell = new Cell();
             markerCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
             markerCell.setPadding(0);
             markerCell.setPaddingRight(2);
             markerCell.setVerticalAlignment(VerticalAlignment.TOP);
 
-            if (effectiveBulletStyle != null) {
-                // Shape marker — custom renderer draws a circle/square/dash
-                // on PdfCanvas after the cell's final position is known.
-                final float markerFontSize = fontSize;
-                final float markerLineHeight = lineHeight;
-                final Color markerColor = textColor;
-                markerCell.setNextRenderer(new ShapeMarkerCellRenderer(
-                        markerCell, effectiveBulletStyle, markerFontSize, markerLineHeight, markerColor));
-            } else if (!textMarker.isEmpty()) {
-                // Ordered marker — plain Paragraph in the cell. Right-aligned
-                // so "1.", "10.", "100." all terminate at the same column.
+            if (!textMarker.isEmpty()) {
+                // Single Paragraph path for BOTH bullet styles (Unicode glyphs
+                // •, ○, ■, –) and ordered styles ("1.", "a.", "i."). Using a
+                // text glyph instead of a vector-drawn shape lets iText's line
+                // layout handle baseline alignment — the canvas does the same
+                // thing, so the glyph sits at the x-height mid-line in both
+                // renderers for free. Right-aligned so "1.", "10.", "100." all
+                // terminate at the same column.
                 Paragraph mp = new Paragraph(textMarker);
                 applyTextStyle(mp, style);
                 mp.setTextAlignment(TextAlignment.RIGHT);
@@ -1220,12 +1321,19 @@ public class PdfRendererService {
             super.draw(drawContext);
             Rectangle bbox = getOccupiedAreaBBox();
             PdfCanvas canvas = drawContext.getCanvas();
-            // The marker aligns with the FIRST line of the row. Optical centre
-            // of lowercase text sits ≈ linePadTop + fontSize × 0.47 below the
-            // line box top; the first line box sits at the cell's top edge.
-            float rowH = fontSize * lineHeight;
-            float linePadTop = (rowH - fontSize) * 0.5f;
-            float cy = bbox.getTop() - linePadTop - fontSize * 0.47f;
+            // Align the bullet centre with the FIRST line's x-height middle
+            // (where a Unicode `•` naturally centres in CSS flow). Math:
+            //   baseline_y ≈ top − ascender − halfLeading
+            //              ≈ top − 0.93 × fontSize − (lh − 1.17) × fontSize / 2
+            //   x-height mid ≈ baseline + xHeight / 2
+            //                ≈ baseline + 0.25 × fontSize
+            //
+            // For Latin fonts at lineHeight 1.4 this simplifies to roughly
+            // `top − 0.78 × fontSize`. Using `fontSize × 0.78` instead of the
+            // old `rowH × 0.5` shifts the bullet ~1pt lower — off the caps'
+            // midline and onto the x-height midline, where the user expects
+            // it to sit beside lowercase characters.
+            float cy = bbox.getTop() - fontSize * 0.78f;
             float cx = bbox.getLeft() + bbox.getWidth() * 0.5f;
             PdfRendererService.drawShapeMarkerStatic(canvas, style, cx, cy, fontSize, color);
         }
@@ -1263,6 +1371,33 @@ public class PdfRendererService {
             }
         }
         canvas.restoreState();
+    }
+
+    /**
+     * Unified marker resolver used by the list renderer. Returns the glyph (or
+     * an empty string for {@code none}) that should sit in the marker cell for
+     * a given row — a Unicode bullet character for unordered styles, or the
+     * formatted number text (e.g. {@code "1."}, {@code "a."}, {@code "i."}) for
+     * ordered styles. The codepoints match the canvas ({@code ListElementCanvas}):
+     * disc → U+2022, circle → U+25CB, square → U+25A0, dash → U+2013. Using text
+     * glyphs instead of vector shapes means iText positions the bullet at the
+     * first line's x-height mid-line automatically, matching CSS.
+     */
+    private String markerGlyphFor(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
+        if ("none".equals(baseStyle)) return "";
+        boolean isOrdered = "number".equals(baseStyle)
+                || "alpha".equals(baseStyle)
+                || "roman".equals(baseStyle);
+        if (isOrdered) return textMarkerFor(baseStyle, indentLevel, groupIndex, startNumber);
+        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
+        String effective = BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+        return switch (effective) {
+            case "disc" -> "\u2022";
+            case "circle" -> "\u25CB";
+            case "square" -> "\u25A0";
+            case "dash" -> "\u2013";
+            default -> "\u2022";
+        };
     }
 
     /**
@@ -1456,20 +1591,42 @@ public class PdfRendererService {
             }
             Image img = new Image(data);
             img.scaleToFit(w, h);
+            // Canvas renders images with CSS `object-contain` inside a
+            // `flex items-center justify-center` box — the image sits in the
+            // middle of the element, empty space symmetric on each axis when
+            // the aspect ratio doesn't match. iText's `scaleToFit` preserves
+            // the aspect ratio too, but {@code setFixedPosition} anchors the
+            // bottom-left, so any mismatch stacks all the empty space at the
+            // top + right. Compute the rendered dimensions ourselves and
+            // offset the anchor so the image centers in the box.
+            float renderedW = w;
+            float renderedH = h;
+            if (parityOn()) {
+                float intrinsicW = data.getWidth();
+                float intrinsicH = data.getHeight();
+                if (intrinsicW > 0f && intrinsicH > 0f) {
+                    float scale = Math.min(w / intrinsicW, h / intrinsicH);
+                    renderedW = intrinsicW * scale;
+                    renderedH = intrinsicH * scale;
+                }
+            }
+            float anchorX = parityOn() ? x + (w - renderedW) / 2f : x;
+            float anchorY = parityOn() ? bottom + (h - renderedH) / 2f : bottom;
+
             // Phase 4.7 — IMAGE rotation around the element center. iText's
             // Image.setRotationAngle rotates around the image's bottom-left by
-            // default; we offset setFixedPosition to keep the rotated bbox
-            // centered on the original element center (same math as addText).
-            float anchorX = x;
-            float anchorY = bottom;
+            // default; we offset setFixedPosition to keep the rotated bbox's
+            // center on the element box center. The rotation math uses the
+            // RENDERED image dimensions (post-scaleToFit), not the authored
+            // element w/h — those only matter for the centering offset above.
             if (parityOn()) {
                 double rotationDeg = style.path("rotation").asDouble(0);
                 if (rotationDeg != 0) {
                     double theta = Math.toRadians(-rotationDeg);
                     float cos = (float) Math.cos(theta);
                     float sin = (float) Math.sin(theta);
-                    anchorX += w / 2f * (1f - cos) + h / 2f * sin;
-                    anchorY += h / 2f * (1f - cos) - w / 2f * sin;
+                    anchorX += renderedW / 2f * (1f - cos) + renderedH / 2f * sin;
+                    anchorY += renderedH / 2f * (1f - cos) - renderedW / 2f * sin;
                     img.setRotationAngle(theta);
                 }
             }
@@ -2106,6 +2263,17 @@ public class PdfRendererService {
         Color fontColor = parseCssColorToItext(style.path("color").asText(""));
         if (fontColor != null) {
             p.setFontColor(fontColor);
+        }
+        // Element-level underline / strikethrough. iText's Paragraph.setUnderline
+        // lays a stroke UNDER every text run the paragraph holds (whether
+        // plain content or rich-run Text children). Negative y-offset draws
+        // below the baseline (underline); a positive y-offset drawn at
+        // ~fontSize × 0.27 lands on the x-height midline (strikethrough).
+        if (style.path("underline").asBoolean(false)) {
+            p.setUnderline(0.75f, -2f);
+        }
+        if (style.path("strikethrough").asBoolean(false)) {
+            p.setUnderline(0.75f, fontSize * 0.27f);
         }
         String align = style.path("align").asText("left").toLowerCase();
         p.setTextAlignment(switch (align) {

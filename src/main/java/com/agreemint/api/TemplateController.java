@@ -14,8 +14,11 @@ import com.agreemint.service.TemplateDraftService;
 import com.agreemint.service.TemplateService;
 import com.agreemint.service.TemplateVersionService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +35,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/templates")
 public class TemplateController {
+
+    private static final Logger log = LoggerFactory.getLogger(TemplateController.class);
 
     private final TemplateService templateService;
     private final TemplateVersionService templateVersionService;
@@ -97,6 +102,31 @@ public class TemplateController {
         return templateVersionService.createVersion(templateId, request);
     }
 
+    /**
+     * Hard-delete a template and every row that references it (versions,
+     * drafts, reviews, shares — see the {@code ON DELETE CASCADE} in the
+     * schema migrations). Marketplace listings sourced from the template
+     * survive with a null {@code source_template_id}.
+     *
+     * <p>Gated to {@code ADMIN} and {@code DESIGNER}. Viewers and reviewers
+     * cannot remove templates from an org.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable("id") UUID templateId,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null || principal.userId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED,
+                    "Authentication required");
+        }
+        log.info("DELETE /api/templates/{} user={}", templateId, principal.userId());
+        orgAuthz.assertTemplateAccess(principal.userId(), templateId,
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+        templateService.delete(templateId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/versions")
     public List<TemplateVersionResponse> listVersions(@PathVariable("id") UUID templateId) {
         return templateVersionService.listVersions(templateId);
@@ -121,6 +151,21 @@ public class TemplateController {
             @PathVariable("id") UUID templateId,
             @RequestBody UpsertDraftRequest body) {
         return templateDraftService.upsertDraft(templateId, body);
+    }
+
+    /**
+     * Persists only the draft {@code variables}, leaving {@code layoutJson}
+     * untouched. Used for body-cell / variable-value edits that originate
+     * outside the collab-op stream (which carries layout ops + variable
+     * definitions, but not variable VALUES). Prevents a full PUT /draft from
+     * racing the {@code CollabFlushJob}'s latest layout write.
+     */
+    @PutMapping("/{id}/draft/variables")
+    public ResponseEntity<Void> putDraftVariables(
+            @PathVariable("id") UUID templateId,
+            @RequestBody com.fasterxml.jackson.databind.JsonNode variables) {
+        templateDraftService.upsertDraftVariables(templateId, variables);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/draft/commit")
