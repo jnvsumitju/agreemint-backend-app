@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
@@ -63,6 +64,16 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // ASYNC dispatches (Spring re-runs the filter chain after an
+                // SseEmitter completes / DeferredResult resolves). The
+                // original REQUEST was already authenticated; without this,
+                // OncePerRequestFilter skips JWT auth on the dispatch back,
+                // the security context is empty, and AuthorizationFilter
+                // returns 403 *after* the response body has been committed —
+                // visible as "Access Denied" stack traces with the cryptic
+                // "response is already committed" follow-up. Affects every
+                // SSE endpoint (notably /api/templates/{id}/ai-generate).
+                .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                 // WebSocket endpoint (auth handled by STOMP interceptor)
                 .requestMatchers("/ws", "/ws/**").permitAll()
                 // Public endpoints
