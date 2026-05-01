@@ -5,6 +5,8 @@ import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.MeasureRequest;
 import com.agreemint.api.dto.MeasureResponse;
 import com.agreemint.api.dto.PreviewPdfRequest;
+import com.agreemint.api.dto.TextReflowRequest;
+import com.agreemint.api.dto.TextReflowResponse;
 import com.agreemint.pdf.LayoutMeasurementService;
 import com.agreemint.security.UserPrincipal;
 import com.agreemint.service.DocumentGenerationService;
@@ -55,5 +57,16 @@ public class GenerateController {
     @PostMapping("/generate/measure")
     public MeasureResponse measure(@RequestBody MeasureRequest request) {
         return layoutMeasurementService.measure(request.layout(), request.data(), request.elementIds());
+    }
+
+    /**
+     * Decide where a TEXT element's content should split into linked frames,
+     * using iText so the editor preview matches the eventual PDF. The canvas
+     * runs its own DOM-based reflow as an instant approximation on paste,
+     * then calls this endpoint to overwrite with the authoritative split.
+     */
+    @PostMapping("/generate/measure/reflow")
+    public TextReflowResponse reflowText(@RequestBody TextReflowRequest request) {
+        return layoutMeasurementService.reflow(request.headElement(), request.pageSpec(), request.data());
     }
 }

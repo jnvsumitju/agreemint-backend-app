@@ -453,10 +453,25 @@ public class PdfRendererService {
          * Paint the frame fill on the canvas to match the canvas (full width × height).
          */
         Color frameBg = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Rotation is applied to the paragraph below (when non-zero); the
+        // background fill must rotate the same way around the box centre,
+        // otherwise the unrotated rectangle appears behind the rotated text
+        // and the result looks like "text rotated, box not".
+        double bgRotationDeg = style.path("rotation").asDouble(0);
         if (frameBg != null) {
             PdfCanvas bgCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
             bgCanvas.saveState();
             bgCanvas.setFillColor(frameBg);
+            if (bgRotationDeg != 0) {
+                double bgTheta = Math.toRadians(-bgRotationDeg);
+                float cosA = (float) Math.cos(bgTheta);
+                float sinA = (float) Math.sin(bgTheta);
+                float cx = x + w / 2f;
+                float cy = bottom + h / 2f;
+                bgCanvas.concatMatrix(cosA, sinA, -sinA, cosA,
+                        cx * (1f - cosA) + sinA * cy,
+                        -sinA * cx + cy * (1f - cosA));
+            }
             bgCanvas.rectangle(x, bottom, w, h);
             bgCanvas.fill();
             bgCanvas.restoreState();
@@ -486,6 +501,10 @@ public class PdfRendererService {
             float rotatedAnchorX = x;
             float rotatedAnchorY = anchorBottom;
             double rotationDeg = style.path("rotation").asDouble(0);
+            float clipX = x;
+            float clipBottom = bottom;
+            float clipW = w;
+            float clipH = h;
             if (rotationDeg != 0) {
                 double theta = Math.toRadians(-rotationDeg);
                 float cos = (float) Math.cos(theta);
@@ -494,7 +513,24 @@ public class PdfRendererService {
                 float centerShiftY = h / 2f * (1f - cos) - w / 2f * sin;
                 rotatedAnchorX += centerShiftX;
                 rotatedAnchorY += centerShiftY;
-                p.setProperty(Property.ROTATION_ANGLE, theta);
+                // iText 7.2.5's BlockRenderer casts ROTATION_ANGLE to Float
+                // directly, so passing a Double auto-boxed from `theta`
+                // throws ClassCastException at render time. Cast explicitly.
+                p.setProperty(Property.ROTATION_ANGLE, (float) theta);
+                // Expand the clip rectangle to the rotated visible AABB so a
+                // rotated box's content isn't cut off by the (now-irrelevant)
+                // unrotated edges. Without this, a 400×20 bar at 67° gets
+                // clipped to a thin 20pt strip and the rotated text vanishes
+                // — even though iText laid it out correctly inside the
+                // rotated bbox.
+                float aabbW = w * Math.abs(cos) + h * Math.abs(sin);
+                float aabbH = w * Math.abs(sin) + h * Math.abs(cos);
+                float cx = x + w / 2f;
+                float cyPdf = bottom + h / 2f;
+                clipX = cx - aabbW / 2f;
+                clipBottom = cyPdf - aabbH / 2f;
+                clipW = aabbW;
+                clipH = aabbH;
             }
             applyOpacityToElement(p, style);
 
@@ -504,7 +540,7 @@ public class PdfRendererService {
             // masked. Pop the clip after.
             PdfCanvas clipCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
             clipCanvas.saveState();
-            clipCanvas.rectangle(x, bottom, w, h);
+            clipCanvas.rectangle(clipX, clipBottom, clipW, clipH);
             clipCanvas.clip();
             clipCanvas.endPath();
             p.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
@@ -519,7 +555,23 @@ public class PdfRendererService {
         // Legacy bottom-anchor path (flag off). Paragraph grows upward from the
         // element bottom — the historical behaviour that predates phase 1.
         applyOpacityToElement(p, style);
-        p.setFixedPosition(pageNumber, x, bottom, w);
+        // Apply rotation here too so a rotated text element renders rotated
+        // even when pixel-parity is off (e.g. fonts not yet loaded). Same
+        // centre-pivot offset as the parity path; without this the legacy
+        // path drew the rotated element flat at its unrotated position.
+        float legacyAnchorX = x;
+        float legacyAnchorY = bottom;
+        double legacyRotationDeg = style.path("rotation").asDouble(0);
+        if (legacyRotationDeg != 0) {
+            double theta = Math.toRadians(-legacyRotationDeg);
+            float cos = (float) Math.cos(theta);
+            float sin = (float) Math.sin(theta);
+            legacyAnchorX += w / 2f * (1f - cos) + h / 2f * sin;
+            legacyAnchorY += h / 2f * (1f - cos) - w / 2f * sin;
+            // Cast to float — iText 7.2.5 casts the property to Float directly.
+            p.setProperty(Property.ROTATION_ANGLE, (float) theta);
+        }
+        p.setFixedPosition(pageNumber, legacyAnchorX, legacyAnchorY, w);
         document.add(p);
     }
 

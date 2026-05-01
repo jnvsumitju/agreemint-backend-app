@@ -79,6 +79,21 @@ agreemint:
     secret: ${JWT_SECRET:change-this-to-a-secure-256-bit-key-in-production-at-least-32-chars}
     access-token-expiry-minutes: 60
     refresh-token-expiry-days: 30
+  # DeepSeek-driven template generation. The frontend's "magic wand" tool
+  # opens a modal that POSTs an instruction here; the backend proxies to
+  # DeepSeek and streams the response back as SSE so the editor never
+  # touches the API key. Set DEEPSEEK_API_KEY in the env to enable; with
+  # an empty key the endpoint returns 503.
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      # deepseek-v4-flash is the current default model (1M-token context,
+      # 384K max output). Switch to deepseek-v4-pro for highest-quality
+      # long-doc generation. The legacy deepseek-chat / deepseek-reasoner
+      # names retire July 2026 and now route to V4-Flash compatibility.
+      model: ${DEEPSEEK_MODEL:deepseek-v4-flash}
+      timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:300}
   oauth:
     google-enabled: ${OAUTH_GOOGLE_ENABLED:false}
     google-client-id: ${GOOGLE_CLIENT_ID:}
