@@ -231,9 +231,13 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
         }
 
-        // Rotate: delete old, issue new
-        refreshTokenRepo.delete(stored);
-
+        // No rotation: reuse the same refresh token until it expires. Rotating
+        // on every refresh used to race across tabs / WebSocket reconnect / a
+        // burst of concurrent requests after idle, where one request would
+        // arrive with the just-rotated-away token and trigger a forced logout.
+        // For a SPA holding the RT in localStorage, rotation isn't a real
+        // security gain (XSS would grab the token regardless), so the UX cost
+        // outweighed the benefit.
         User user = stored.getUser();
         OrgMembership membership = membershipRepo.findFirstByUserIdOrderByCreatedAtAsc(user.getId())
                 .orElse(null);
@@ -241,7 +245,15 @@ public class AuthService {
         Organization org = membership != null ? membership.getOrganization() : null;
         OrgRole role = membership != null ? membership.getRole() : null;
 
-        return buildAuthResponse(user, org, role);
+        UUID orgId = org != null ? org.getId() : null;
+        String accessToken = jwtService.generateAccessToken(user, orgId, role);
+        return new AuthResponse(
+                accessToken,
+                rawRefreshToken,
+                UserResponse.from(user),
+                org != null ? OrgResponse.from(org) : null,
+                role != null ? role.name() : null
+        );
     }
 
     /**

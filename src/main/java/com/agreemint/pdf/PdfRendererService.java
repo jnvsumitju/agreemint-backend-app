@@ -55,6 +55,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -218,18 +219,78 @@ public class PdfRendererService {
             return List.of();
         }
         JsonNode pageEls = perPageElements.get(pageIndex);
+        List<JsonNode> base;
         if (perPageElements.size() <= 1 || pageIndex == 0) {
-            return jsonArrayToList(pageEls);
+            base = jsonArrayToList(pageEls);
+        } else {
+            List<JsonNode> bands = headerFooterNodesFromPageElements(perPageElements.get(0));
+            List<JsonNode> body = filterOutHeaderFooter(jsonArrayToList(pageEls));
+            if (bands.isEmpty()) {
+                base = body;
+            } else {
+                base = new ArrayList<>(bands.size() + body.size());
+                base.addAll(bands);
+                base.addAll(body);
+            }
         }
-        List<JsonNode> bands = headerFooterNodesFromPageElements(perPageElements.get(0));
-        List<JsonNode> body = filterOutHeaderFooter(jsonArrayToList(pageEls));
-        if (bands.isEmpty()) {
-            return body;
+        return appendFloatingRepeats(base, perPageElements, pageIndex);
+    }
+
+    /**
+     * Append cross-page FLOATING repeats to {@code base}: any FLOATING element
+     * on another page whose {@code pageVisibility} matches the current page
+     * gets cloned in. Mirrors the editor merge in {@code documentPageMerge.ts}.
+     */
+    private static List<JsonNode> appendFloatingRepeats(
+            List<JsonNode> base, List<JsonNode> perPageElements, int pageIndex) {
+        if (perPageElements.size() <= 1) {
+            return base;
         }
-        List<JsonNode> merged = new ArrayList<>(bands.size() + body.size());
-        merged.addAll(bands);
-        merged.addAll(body);
-        return merged;
+        Set<String> seen = new HashSet<>();
+        for (JsonNode el : base) {
+            String id = el.path("id").asText(null);
+            if (id != null) seen.add(id);
+        }
+        List<JsonNode> repeats = null;
+        int pageNumber = pageIndex + 1;
+        for (int i = 0; i < perPageElements.size(); i++) {
+            if (i == pageIndex) continue;
+            JsonNode arr = perPageElements.get(i);
+            if (arr == null || !arr.isArray()) continue;
+            for (JsonNode el : arr) {
+                String type = el.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+                if (!"FLOATING".equals(type)) continue;
+                String id = el.path("id").asText(null);
+                if (id != null && seen.contains(id)) continue;
+                if (!shouldRepeatFloatingOnPage(el, pageNumber)) continue;
+                if (repeats == null) repeats = new ArrayList<>();
+                repeats.add(el);
+                if (id != null) seen.add(id);
+            }
+        }
+        if (repeats == null) return base;
+        List<JsonNode> out = new ArrayList<>(base.size() + repeats.size());
+        out.addAll(base);
+        out.addAll(repeats);
+        return out;
+    }
+
+    private static boolean shouldRepeatFloatingOnPage(JsonNode el, int pageNumber) {
+        String visibility = el.path("pageVisibility").asText("current");
+        return switch (visibility) {
+            case "all" -> true;
+            case "odd" -> pageNumber % 2 == 1;
+            case "even" -> pageNumber % 2 == 0;
+            case "specific" -> {
+                JsonNode list = el.path("pageVisibilitySpecific");
+                if (!list.isArray()) yield false;
+                for (JsonNode n : list) {
+                    if (n.isNumber() && n.asInt() == pageNumber) yield true;
+                }
+                yield false;
+            }
+            default -> false;
+        };
     }
 
     private static List<JsonNode> jsonArrayToList(JsonNode arr) {
@@ -338,7 +399,7 @@ public class PdfRendererService {
                     drawEl.path("height").asDouble(0),
                     parityOn());
             switch (type) {
-                case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" ->
+                case "TEXT", "PARAGRAPH", "HEADER", "FOOTER", "FLOATING" ->
                         addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
                 case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
                 case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
@@ -2691,7 +2752,7 @@ public class PdfRendererService {
     static boolean isTextLikeType(String type) {
         if (type == null) return true; // default dispatch is TEXT
         return switch (type) {
-            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" -> true;
+            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER", "FLOATING" -> true;
             default -> false;
         };
     }

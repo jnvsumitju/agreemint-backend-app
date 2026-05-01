@@ -77,8 +77,8 @@ agreemint:
     ttl-minutes: 10
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-256-bit-key-in-production-at-least-32-chars}
-    access-token-expiry-minutes: 15
-    refresh-token-expiry-days: 7
+    access-token-expiry-minutes: 60
+    refresh-token-expiry-days: 30
   oauth:
     google-enabled: ${OAUTH_GOOGLE_ENABLED:false}
     google-client-id: ${GOOGLE_CLIENT_ID:}
