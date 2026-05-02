@@ -51,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
@@ -123,6 +124,7 @@ public class PdfRendererService {
         long startNanos = System.nanoTime();
         PageSpec pageSpec = readPage(layoutJson);
         List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
+        List<JsonNode> perPageBackgrounds = pageBackgroundNodesFromLayout(layoutJson);
         int totalElements = perPageElements.stream().mapToInt(p -> p.isArray() ? p.size() : 0).sum();
         log.info("render start parity={} pages={} elements={}",
                 parityOn(), perPageElements.size(), totalElements);
@@ -151,6 +153,14 @@ public class PdfRendererService {
             if (pageIdx > 0) {
                 pdfDoc.addNewPage(pageSize);
             }
+            // Page-level background fill (colour or gradient). Drawn before
+            // any element so the elements paint over it. Skipped silently
+            // when the page has no `background` field — keeps the default
+            // "white paper" look untouched.
+            JsonNode pageBg = pageIdx < perPageBackgrounds.size()
+                    ? perPageBackgrounds.get(pageIdx)
+                    : NullNode.getInstance();
+            paintPageBackground(pdfDoc, pageBg, pageSize, pageNumber);
             JsonNode pageData = dataWithBuiltinPageVars(data, pageNumber, totalPages);
             List<JsonNode> elements = mergedElementsForPdfPage(perPageElements, pageIdx);
             for (JsonNode el : elements) {
@@ -208,6 +218,25 @@ public class PdfRendererService {
             return List.of(JsonNodeFactory.instance.arrayNode());
         }
         return List.of(elements);
+    }
+
+    /**
+     * Pull the per-page {@code background} JSON nodes (colour / gradient)
+     * aligned with {@link #pageElementArraysFromLayout(JsonNode)}. Missing
+     * entries become {@link NullNode} so the render loop can index by page
+     * without a bounds check. Legacy single-page layouts return one entry.
+     */
+    static List<JsonNode> pageBackgroundNodesFromLayout(JsonNode layoutJson) {
+        JsonNode pages = layoutJson.path("pages");
+        if (pages.isArray() && !pages.isEmpty()) {
+            List<JsonNode> out = new ArrayList<>(pages.size());
+            for (JsonNode p : pages) {
+                JsonNode bg = p.path("background");
+                out.add(bg.isObject() ? bg : NullNode.getInstance());
+            }
+            return out;
+        }
+        return List.of(NullNode.getInstance());
     }
 
     /**
@@ -1986,6 +2015,36 @@ public class PdfRendererService {
                     com.itextpdf.kernel.colors.gradients.GradientColorStop.OffsetType.RELATIVE));
         }
         return builder;
+    }
+
+    /**
+     * Paint the page-level background (colour or gradient) over the entire
+     * page rectangle, beneath every element. Skips silently when the
+     * {@code background} node is null/empty so legacy templates render as
+     * before. Gradient takes precedence over solid colour, mirroring the
+     * BOX element semantics (see addBox at lines ~1791-1870).
+     */
+    private void paintPageBackground(PdfDocument pdfDoc, JsonNode background, PageSize pageSize, int pageNumber) {
+        if (background == null || background.isMissingNode() || background.isNull() || !background.isObject()) {
+            return;
+        }
+        float w = pageSize.getWidth();
+        float h = pageSize.getHeight();
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder grad =
+                parseLinearGradientToItext(background.path("gradient"), 0f, 0f, w, h);
+        Color solid = parseCssColorToItext(background.path("color").asText(""));
+        if (grad == null && solid == null) return;
+        com.itextpdf.kernel.geom.Rectangle rect = new com.itextpdf.kernel.geom.Rectangle(0, 0, w, h);
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        if (grad != null) {
+            canvas.setFillColor(grad.buildColor(rect, null, pdfDoc));
+        } else {
+            canvas.setFillColor(solid);
+        }
+        canvas.rectangle(rect);
+        canvas.fill();
+        canvas.restoreState();
     }
 
     /**

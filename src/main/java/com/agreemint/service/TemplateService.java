@@ -3,6 +3,7 @@ package com.agreemint.service;
 import com.agreemint.api.BadRequestException;
 import com.agreemint.api.NotFoundException;
 import com.agreemint.api.dto.CreateTemplateRequest;
+import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateResponse;
 import com.agreemint.domain.Product;
 import com.agreemint.domain.Template;
@@ -29,13 +30,16 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
     private final ProductService productService;
     private final ProductRepository productRepository;
+    private final TemplateVersionService templateVersionService;
 
     public TemplateService(TemplateRepository templateRepository,
                            ProductService productService,
-                           ProductRepository productRepository) {
+                           ProductRepository productRepository,
+                           TemplateVersionService templateVersionService) {
         this.templateRepository = templateRepository;
         this.productService = productService;
         this.productRepository = productRepository;
+        this.templateVersionService = templateVersionService;
     }
 
     /**
@@ -82,6 +86,14 @@ public class TemplateService {
         t.setOwnerId(ownerId);
         t.setProductId(request.productId());
         templateRepository.save(t);
+
+        // Seed v1 with the empty default layout. Reviewers/Viewers default to
+        // the latest committed version, so a freshly-created template needs
+        // *something* committed or they'd see an empty-state forever until a
+        // designer hits Commit. Same transaction as the template insert so a
+        // version-write failure rolls the whole creation back.
+        templateVersionService.createVersion(t.getId(), new CreateVersionRequest(null, null));
+
         return toResponse(t);
     }
 
