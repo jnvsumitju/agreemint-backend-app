@@ -60,7 +60,11 @@ public class AiClarifyController {
             return ResponseEntity.ok(MAPPER.createObjectNode().put("ready", true));
         }
         try {
-            String raw = deepSeek.chatCompletion(systemPrompt, userInstruction);
+            // 4K covers ~1.5K reasoning + ~200 token JSON answer with
+            // headroom. V4-Pro on reasoning_effort=low still spends
+            // 800–1500 tokens thinking; the default 1K cap left zero
+            // budget for the actual answer (finish_reason=length).
+            String raw = deepSeek.chatCompletion(systemPrompt, userInstruction, 4096);
             JsonNode parsed = MAPPER.readTree(raw);
             // Defensive: the model occasionally returns just the questions
             // array without the wrapper. Coerce to {questions: [...]}.

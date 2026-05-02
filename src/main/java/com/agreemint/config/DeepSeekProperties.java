@@ -16,7 +16,7 @@ public class DeepSeekProperties {
 
     private String apiKey = "";
     private String baseUrl = "https://api.deepseek.com";
-    private String model = "deepseek-v4-flash";
+    private String model = "deepseek-v4-pro";
     private int timeoutSeconds = 300;
 
     public boolean isConfigured() {

@@ -56,7 +56,10 @@ public class AiOutlineController {
             return ResponseEntity.ok(MAPPER.createObjectNode().putArray("sections").arrayNode());
         }
         try {
-            String raw = deepSeek.chatCompletion(systemPrompt, userInstruction);
+            // 6K covers ~2K reasoning + a 15-section outline (~25 tokens
+            // per section + structural overhead). V4-Pro reasoning eats
+            // most of the smaller budget and leaves no room for output.
+            String raw = deepSeek.chatCompletion(systemPrompt, userInstruction, 6144);
             JsonNode parsed = MAPPER.readTree(raw);
             // Accept either {sections: [...]} or a bare [...]
             if (parsed.isArray()) {

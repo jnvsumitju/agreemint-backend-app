@@ -51,10 +51,16 @@ public class AiGenerateController {
     public SseEmitter generate(@PathVariable String templateId,
                                @AuthenticationPrincipal UserPrincipal principal,
                                @RequestBody AiGenerateRequest request) {
-        // 10-minute SSE timeout. A 25-page handbook on V4-Flash takes
-        // 2-4 minutes; the legacy 180s cap was choking long-doc requests
-        // before the stream finished even though DeepSeek itself was fine.
-        SseEmitter emitter = new SseEmitter(600_000L);
+        // 30-minute SSE timeout. V4-Pro on a single chunk of dense legal
+        // prose can stream 40K+ chars at ~70 tokens/sec, which crosses
+        // the 10-min mark. The 600s cap was killing chunk-3-of-3 calls
+        // even though DeepSeek was still actively producing output.
+        // Must be ≥ DEEPSEEK_TIMEOUT_SECONDS (currently 1200s = 20 min)
+        // plus margin so the upstream call has room to finish before
+        // SSE tears down. Spring's outer async-request-timeout is set to
+        // 0 (= unset) in application.yml so this per-emitter cap is the
+        // authoritative one.
+        SseEmitter emitter = new SseEmitter(1_800_000L);
 
         Thread worker = new Thread(() -> {
             try {

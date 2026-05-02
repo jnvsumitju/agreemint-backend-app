@@ -157,6 +157,87 @@ public class AiTemplatePromptBuilder {
      * Output contract: {@code {"sections": [{"id": "snake_case",
      * "title": "...", "summary": "...", "estimatedPages": N}]}}.
      */
+    /**
+     * Build a system prompt for the per-page layout-fix flow. The user
+     * message will contain a single page's JSON plus a list of detected
+     * issues; the model is told to emit a minimally-corrected page (NOT
+     * the whole layout, NOT new content). Used by
+     * {@code POST /api/templates/{id}/ai-fix-layout}.
+     */
+    public String buildFixLayoutSystemPrompt(JsonNode pageSpec, JsonNode variables) {
+        String pageSpecJson;
+        try {
+            pageSpecJson = pageSpec == null || pageSpec.isNull()
+                    ? "{}"
+                    : MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(pageSpec);
+        } catch (Exception e) {
+            pageSpecJson = "{}";
+        }
+        String variableContext;
+        try {
+            variableContext = variables == null || variables.isNull()
+                    ? "[]"
+                    : MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(variables);
+        } catch (Exception e) {
+            variableContext = "[]";
+        }
+        return """
+                You are correcting a single page of a document layout. The user
+                message contains the page's JSON object and a numbered list of
+                geometry / text issues that the editor's client-side checker
+                detected. Your job is to emit a MINIMALLY-CORRECTED version of
+                the same page object — no new content, no rewrites, no
+                stylistic changes beyond what's needed to fix the listed issues.
+
+                ====== HARD RULES ======
+                - Output is ONE JSON object: the corrected page. Same shape as
+                  input ({"id":"...", "name":"...", "elements":[...], ...}).
+                  No prose, no markdown fences, no explanations.
+                - Preserve every element's id. Don't add, remove, or reorder
+                  elements unless an issue explicitly forces it (e.g. an
+                  off-page element that can't be nudged back must be split or
+                  shrunk; never just delete it).
+                - Preserve all content text VERBATIM unless the issue is
+                  "glued_text", in which case insert ASCII spaces at the
+                  appropriate word boundaries inside the offending run.
+                - Preserve every style property and rich-content run unless
+                  the issue requires a change.
+
+                ====== ISSUE-SPECIFIC GUIDANCE ======
+                - "overlap": move the LATER element (higher y, or larger id)
+                  DOWN by enough to clear the earlier one's bottom edge plus
+                  16pt spacing. Use the {@code data.overlapPt} value as a
+                  lower bound. If pushing it down would put it past the
+                  bottom margin, prefer reducing the previous element's
+                  height OR splitting the overlapping element across pages.
+                - "overflow_bottom": move the element UP if there's room
+                  above without creating a new overlap, OR shrink its height
+                  if it's a fixed-size element (LINE / BOX / IMAGE), OR
+                  split its content if it's a TEXT element. Don't just
+                  delete.
+                - "overflow_horizontal": clamp x or width so the element
+                  sits inside the printable area:
+                  x ∈ [margins.left, pageWidth - margins.right - width].
+                - "height_drift": update the element's height field to
+                  match the measured rendered height (data.measuredHeight).
+                  Then re-check whether the new height creates an overlap
+                  or bottom overflow with siblings; nudge as needed.
+                - "glued_text": find the run whose text contains the
+                  glued sample (data.sample) and insert spaces at the
+                  natural English word boundaries — e.g. "DISBURSEMENTTERMS"
+                  → "DISBURSEMENT TERMS", "borroweronlyupon" → "borrower
+                  only upon". Don't rewrite surrounding text.
+
+                ====== PAGE GEOMETRY ======
+                """ + pageSpecJson + """
+
+                ====== VARIABLES (page-local + global, for context only) ======
+                """ + variableContext + """
+
+                Reply with the corrected page JSON object now.
+                """;
+    }
+
     public String buildOutlineSystemPrompt(JsonNode currentLayout, JsonNode variables) {
         String layoutContext;
         try {
@@ -375,6 +456,48 @@ public class AiTemplatePromptBuilder {
                   the last element of an object or array.
                 - Numbers stay unquoted (use 12.5 not "12.5"). Booleans are
                   lowercase true/false. Use null, never omit the key.
+
+                ====== CRITICAL: NON-ASCII CHARACTERS — emit literal, never escape ======
+                For non-ASCII characters (Hindi/Devanagari, Chinese, Japanese,
+                Korean, Arabic, accented Latin like é/ñ/ü, emoji, anything
+                outside the ASCII range), write the literal UTF-8 character
+                directly in the JSON string. JSON allows arbitrary Unicode
+                in string values. NEVER use \\uXXXX escape sequences for these
+                characters — under load you mangle them ("\\u 0905", "\\x\\u 094 d",
+                "\\u 092 c") and the result fails to parse as JSON.
+
+                ✗ WRONG: "text": "\\u0905\\u0928\\u0941\\u092c\\u0902\\u0927"
+                ✗ WRONG: "text": "\\u 0905\\u 092 c\\u 094 d"          ← broken escape syntax
+                ✗ WRONG: "text": "\\x\\u0915\\u0930"                ← stray \\x prefix
+
+                ✓ RIGHT: "text": "अनुबंध"
+                ✓ RIGHT: "text": "贷款协议"
+                ✓ RIGHT: "text": "Café résumé"
+                ✓ RIGHT: "text": "📄 Important"
+
+                The ONLY characters that need escaping inside a JSON string
+                are: \\" (double quote), \\\\ (backslash), \\n (newline),
+                \\t (tab), \\r (carriage return). Everything else — including
+                every Devanagari / CJK / Arabic / accented character — must
+                appear as itself.
+
+                ====== CRITICAL: SPACES BETWEEN WORDS — every script ======
+                Insert a single ASCII space (U+0020) between every two adjacent
+                words, in EVERY language. This includes Hindi, Bengali,
+                Tamil, Telugu, etc. — these scripts use ASCII space-separated
+                words just like English. Do NOT glue words together because
+                they "look like one block in Devanagari".
+
+                ✗ WRONG: "text": "ऋणकीशर्तेंकोलोनकेरूपमें"
+                ✓ RIGHT: "text": "ऋण की शर्तें को लोन के रूप में"
+
+                ✗ WRONG: "text": "यहसमझौताऋणदाताऔरऋणीकेबीचहै"
+                ✓ RIGHT: "text": "यह समझौता ऋणदाता और ऋणी के बीच है"
+
+                Chinese, Japanese, and Thai DO NOT use ASCII spaces between
+                words — leave those scripts un-spaced. But every Indic
+                script, every European language, every Arabic and Hebrew
+                text needs the spaces.
 
                 ====== CRITICAL: "content" IS A STRING, NOT AN OBJECT ======
                 The "content" field on TEXT/HEADER/FOOTER/FLOATING elements

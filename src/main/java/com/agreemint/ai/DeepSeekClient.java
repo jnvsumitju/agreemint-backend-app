@@ -47,14 +47,33 @@ public class DeepSeekClient {
     }
 
     /**
-     * Non-streaming chat completion. Used by the clarifier endpoint where the
-     * response is a tiny JSON object (questions list or {"ready":true}) and
-     * we don't want to spool an SSE pipe for it. Returns the full
-     * {@code choices[0].message.content} string. Throws
-     * {@link ResponseStatusException} on the same failure modes as the
-     * streaming variant.
+     * Backwards-compatible non-streaming chat completion. Defaults to a 4K
+     * cap. NB: {@code max_tokens} on V4-Pro is the COMBINED budget for
+     * reasoning + output. With {@code reasoning_effort=low} the model
+     * still spends 800–1500 tokens thinking before it starts emitting,
+     * so a small cap (e.g. 1K) leaves zero room for the answer and the
+     * call comes back as empty content with {@code finish_reason=length}.
+     * Always size the cap as {@code expected_reasoning + expected_output},
+     * not just {@code expected_output}.
      */
     public String chatCompletion(String systemPrompt, String userInstruction) {
+        return chatCompletion(systemPrompt, userInstruction, 4096);
+    }
+
+    /**
+     * Non-streaming chat completion with an explicit output budget. Returns
+     * the full {@code choices[0].message.content} string. Throws
+     * {@link ResponseStatusException} on the same failure modes as the
+     * streaming variant.
+     *
+     * <p>{@code maxTokens} should be sized to the expected response. If it
+     * undershoots, V4's thinking budget consumes the cap and {@code content}
+     * comes back blank — observable as "DeepSeek returned empty content"
+     * with a {@code finish_reason} of {@code length}. The fix-layout
+     * endpoint, for example, needs ≥8K because a corrected page of dense
+     * legal prose runs ~3–6K output tokens AFTER the model's thinking.
+     */
+    public String chatCompletion(String systemPrompt, String userInstruction, int maxTokens) {
         if (!props.isConfigured()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "DeepSeek API key not configured (set DEEPSEEK_API_KEY)");
@@ -62,9 +81,16 @@ public class DeepSeekClient {
         ObjectNode body = MAPPER.createObjectNode();
         body.put("model", props.getModel());
         body.put("stream", false);
-        // Clarifier output is small (<2K). Cap conservatively.
-        body.put("max_tokens", 1024);
+        body.put("max_tokens", maxTokens);
         body.put("temperature", 0.2);
+        // V4 thinking mode burns 10–30% of max_tokens on internal reasoning
+        // before producing output. For straight JSON-emission tasks (layout
+        // generation, fix-layout, clarifier, outline) thinking adds nothing
+        // and starves the actual content budget — visible as dropped
+        // spaces, truncated JSON, and "empty content" 502s. DeepSeek's
+        // accepted values are low / medium / high / max / xhigh; "low" is
+        // the smallest budget they expose.
+        body.put("reasoning_effort", "low");
         ObjectNode responseFormat = body.putObject("response_format");
         responseFormat.put("type", "json_object");
         ArrayNode messages = body.putArray("messages");
@@ -81,7 +107,10 @@ public class DeepSeekClient {
         try {
             req = HttpRequest.newBuilder()
                     .uri(URI.create(props.getBaseUrl() + "/v1/chat/completions"))
-                    .timeout(Duration.ofSeconds(60))
+                    // Larger responses can run 60–120s on V4-Flash with
+                    // thinking enabled; the conservative 60s cap was timing
+                    // out fix-layout calls.
+                    .timeout(Duration.ofSeconds(180))
                     .header("Authorization", "Bearer " + props.getApiKey())
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -107,10 +136,23 @@ public class DeepSeekClient {
         }
         try {
             JsonNode root = MAPPER.readTree(resp.body());
-            JsonNode content = root.path("choices").path(0).path("message").path("content");
+            JsonNode choice = root.path("choices").path(0);
+            JsonNode content = choice.path("message").path("content");
             if (!content.isTextual() || content.asText().isBlank()) {
-                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
-                        "DeepSeek returned empty content");
+                // Log everything we know about the empty response — finish
+                // reason, reasoning-content length, usage tokens — so we
+                // can tell whether we hit the token cap, the content
+                // filter, or something stranger upstream.
+                String finishReason = choice.path("finish_reason").asText("?");
+                int reasoningLen = choice.path("message").path("reasoning_content").asText("").length();
+                JsonNode usage = root.path("usage");
+                log.error("DeepSeek empty content: finish_reason={} reasoning_chars={} usage={} body={}",
+                        finishReason, reasoningLen, usage,
+                        resp.body().length() > 2000 ? resp.body().substring(0, 2000) + "…" : resp.body());
+                String hint = "length".equals(finishReason)
+                        ? "DeepSeek hit the max_tokens cap before producing output (finish_reason=length). Increase max_tokens for this endpoint."
+                        : "DeepSeek returned empty content (finish_reason=" + finishReason + ").";
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, hint);
             }
             return content.asText();
         } catch (ResponseStatusException rse) {
@@ -147,6 +189,10 @@ public class DeepSeekClient {
         // sticks to the schema rather than improvising free-form prose.
         body.put("max_tokens", 32768);
         body.put("temperature", 0.2);
+        // Disable thinking budget — we're doing structured JSON emission,
+        // not problem-solving. Thinking tokens compete with content tokens
+        // and produce dropped spaces / glued words on long outputs.
+        body.put("reasoning_effort", "low");
         // Force JSON-only output — without this DeepSeek tends to wrap the
         // layout in markdown fences (```json ... ```) which we'd have to
         // strip client-side.
@@ -205,20 +251,34 @@ public class DeepSeekClient {
                 String payload = line.substring(5).trim();
                 if (payload.isEmpty()) continue;
                 if ("[DONE]".equals(payload)) break;
+                JsonNode evt;
                 try {
-                    JsonNode evt = MAPPER.readTree(payload);
-                    JsonNode delta = evt.path("choices").path(0).path("delta").path("content");
-                    if (delta.isTextual()) {
-                        String chunk = delta.asText();
-                        if (!chunk.isEmpty()) onContentDelta.accept(chunk);
-                    }
+                    evt = MAPPER.readTree(payload);
                 } catch (Exception parseErr) {
-                    // A malformed event mid-stream shouldn't kill the whole
-                    // generation — log + skip. Most often this is a stray
-                    // ping line or an upstream burp.
-                    log.warn("Skipping malformed DeepSeek SSE chunk: {}", payload);
+                    // True parse failure — a malformed event mid-stream
+                    // shouldn't kill the whole generation. Usually a stray
+                    // ping line or upstream burp.
+                    log.warn("Skipping unparseable DeepSeek SSE chunk: {}", payload);
+                    continue;
+                }
+                JsonNode delta = evt.path("choices").path(0).path("delta").path("content");
+                if (!delta.isTextual()) continue;
+                String chunk = delta.asText();
+                if (chunk.isEmpty()) continue;
+                try {
+                    onContentDelta.accept(chunk);
+                } catch (RuntimeException callbackErr) {
+                    // The callback writes to the SSE emitter; if it throws
+                    // (client disconnect, async-timeout) the request is over
+                    // and continuing to read from DeepSeek is wasted work.
+                    // Log once, abort the loop, propagate so the caller can
+                    // close the upstream cleanly.
+                    log.info("DeepSeek stream aborted — client gone ({})", callbackErr.getMessage());
+                    throw callbackErr;
                 }
             }
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "DeepSeek stream interrupted: " + e.getMessage(), e);

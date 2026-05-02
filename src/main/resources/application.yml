@@ -53,6 +53,17 @@ spring:
       # enforced ceiling per upload and matches the validation in AvatarController.
       max-file-size: 3MB
       max-request-size: 3MB
+  mvc:
+    async:
+      # Spring's async-request-timeout is what tears down our SseEmitter
+      # mid-stream — when it fires, the worker thread keeps trying to
+      # emitter.send() and crashes with "ResponseBodyEmitter has already
+      # completed". The AI generate flow can run 5–10 minutes on V4-Pro
+      # for long documents; allow the SseEmitter's own 600s cap (set in
+      # AiGenerateController) to be the authoritative timeout instead.
+      # 0 disables Spring's outer timer; the per-emitter timeout still
+      # protects against truly hung streams.
+      request-timeout: 0
 
 agreemint:
   storage:
@@ -88,12 +99,16 @@ agreemint:
     deepseek:
       api-key: ${DEEPSEEK_API_KEY:}
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
-      # deepseek-v4-flash is the current default model (1M-token context,
-      # 384K max output). Switch to deepseek-v4-pro for highest-quality
-      # long-doc generation. The legacy deepseek-chat / deepseek-reasoner
-      # names retire July 2026 and now route to V4-Flash compatibility.
-      model: ${DEEPSEEK_MODEL:deepseek-v4-flash}
-      timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:300}
+      # deepseek-v4-pro is the highest-quality model (1M-token context,
+      # 384K max output, ~5× cost vs Flash). We default to Pro because
+      # template generation on Flash kept emitting glued words and broken
+      # Unicode escapes on long documents — Pro's tighter
+      # instruction-following pays for itself in fewer Fix-Layout passes.
+      # Override to deepseek-v4-flash via env if cost matters more than
+      # quality. Legacy deepseek-chat / deepseek-reasoner names retire
+      # July 2026 and now route to V4-Flash compatibility.
+      model: ${DEEPSEEK_MODEL:deepseek-v4-pro}
+      timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:1200}
   oauth:
     google-enabled: ${OAUTH_GOOGLE_ENABLED:false}
     google-client-id: ${GOOGLE_CLIENT_ID:}
