@@ -433,6 +433,11 @@ public class PdfRendererService {
                 case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
                 case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
                 case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "POLYGON" -> addPolygonShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                // Legacy shape types — kept as fallbacks for any element
+                // that escaped the parse-time migration to POLYGON. Persisted
+                // layouts only ever surface as POLYGON now, but ad-hoc /
+                // test-injected legacy elements still render correctly.
                 case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
                 case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
                 case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
@@ -472,8 +477,9 @@ public class PdfRendererService {
         JsonNode shadowNode = style.path("shadow");
         if (parityOn() && shadowNode.isObject()) {
             paintShadowUnder(pdfDoc, shadowNode,
-                    ShadowRasterizer.Shape.RECTANGLE,
-                    0f, x, bottom, w, h, pageNumber);
+                    ShadowRasterizer.rectangleSilhouette(w, h),
+                    "rect",
+                    x, bottom, w, h, pageNumber);
         }
 
         /*
@@ -1802,19 +1808,73 @@ public class PdfRendererService {
         if (strokeColor == null) {
             strokeColor = ColorConstants.BLACK;
         }
+        boolean arrowStart = style.path("arrowStart").asBoolean(false);
+        boolean arrowEnd = style.path("arrowEnd").asBoolean(false);
+        // Stroke gradient takes precedence over solid colour, mirroring BOX
+        // bgGradient. The gradient's "bbox" for axis interpolation is the
+        // line's bounding box (length × elH) — same convention as element
+        // bbox elsewhere so a 90° gradient runs along the shaft.
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder strokeGradient =
+                parseLinearGradientToItext(style.path("colorGradient"), x1, pageHeight - elY - elH, length, elH);
 
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
         applyOpacityIfAny(canvas, style);
         applyRotationIfAny(canvas, style, x1 + length / 2f, yPdf);
-        canvas.setStrokeColor(strokeColor);
+        Color effectiveStrokeColor;
+        if (strokeGradient != null) {
+            com.itextpdf.kernel.geom.Rectangle gradRect =
+                    new com.itextpdf.kernel.geom.Rectangle(x1, pageHeight - elY - elH, length, elH);
+            effectiveStrokeColor = strokeGradient.buildColor(gradRect, null, pdfDoc);
+        } else {
+            effectiveStrokeColor = strokeColor;
+        }
+        canvas.setStrokeColor(effectiveStrokeColor);
+        // Arrowheads inherit the same fill so the marker tip matches the
+        // shaft (gradient interpolation preserved).
+        canvas.setFillColor(effectiveStrokeColor);
         float effectiveStroke = Math.max(0.25f, stroke);
         canvas.setLineWidth(effectiveStroke);
         applyLineStyleIfAny(canvas, style, effectiveStroke);
-        canvas.moveTo(x1, yPdf);
-        canvas.lineTo(x2, yPdf);
-        canvas.stroke();
+        // Pull the line's endpoints inwards by the arrow length when an
+        // arrowhead is present, so the dashed / dotted shaft doesn't peek
+        // through the filled triangle. arrowSize scales with stroke so a
+        // thicker line gets a proportionally larger head.
+        float arrowSize = effectiveStroke * 6f;
+        float xStart = arrowStart ? x1 + arrowSize : x1;
+        float xEnd = arrowEnd ? x2 - arrowSize : x2;
+        if (xEnd > xStart) {
+            canvas.moveTo(xStart, yPdf);
+            canvas.lineTo(xEnd, yPdf);
+            canvas.stroke();
+        }
+        // Reset the dash for the arrow heads — solid filled triangles
+        // regardless of the shaft's lineStyle.
+        canvas.setLineDash(new float[]{}, 0);
+        if (arrowStart) {
+            drawArrowhead(canvas, x1, yPdf, arrowSize, /* pointsLeft= */ true);
+        }
+        if (arrowEnd) {
+            drawArrowhead(canvas, x2, yPdf, arrowSize, /* pointsLeft= */ false);
+        }
         canvas.restoreState();
+    }
+
+    /**
+     * Draw a filled triangular arrowhead with its tip at ({@code tipX},
+     * {@code tipY}). When {@code pointsLeft} is true the triangle opens
+     * to the right (tip pointing left, used at the start of a left-to-right
+     * line); otherwise it opens to the left (tip pointing right, end of
+     * line).
+     */
+    private static void drawArrowhead(PdfCanvas canvas, float tipX, float tipY, float size, boolean pointsLeft) {
+        float baseX = pointsLeft ? tipX + size : tipX - size;
+        float halfBase = size * 0.5f;
+        canvas.moveTo(tipX, tipY);
+        canvas.lineTo(baseX, tipY + halfBase);
+        canvas.lineTo(baseX, tipY - halfBase);
+        canvas.closePath();
+        canvas.fill();
     }
 
     private void addBox(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
@@ -1826,42 +1886,40 @@ public class PdfRendererService {
         Rectangle rect = new Rectangle(x, bottom, w, h);
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Honor explicit "no border colour" — when the user clears the
+        // colour swatch we render no stroke at all (vs the legacy fallback
+        // to GRAY which made every cleared border still visible). The
+        // stroke draw is gated on `stroke != null` further down.
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.GRAY;
-        }
 
-        // Parity-aware: honor borderWidth + lineStyle. Legacy rendering used a
-        // hardcoded 2pt dashed (3/2) stroke regardless of author intent — that
-        // still kicks in when the author hasn't supplied explicit values so
-        // legacy layouts don't shift.
-        float borderWidth = parityOn()
-                ? (float) style.path("borderWidth").asDouble(2)
-                : 2f;
-        String lineStyle = parityOn()
-                ? style.path("lineStyle").asText("dashed")
-                : "dashed";
+        // BOX honors author-set borderWidth + lineStyle unconditionally.
+        // The defaults (2pt + dashed) match the legacy hardcoded values so
+        // older layouts that never set these fields keep their look.
+        float borderWidth = (float) style.path("borderWidth").asDouble(2);
+        // Solid border by default — matches the canvas fallback. Older
+        // layouts that don't set lineStyle now render with a solid box
+        // outline instead of the legacy dashed look.
+        String lineStyle = style.path("lineStyle").asText("solid");
 
-        // Phase 6a — BOX borderRadius. `roundRectangle` requires radius
-        // clamped to half the shorter side; over-large authored values are
-        // silently clamped so iText doesn't throw. Off the parity flag we
-        // keep square corners (legacy behaviour).
+        // BOX borderRadius. `roundRectangle` requires radius clamped to
+        // half the shorter side; over-large authored values are silently
+        // clamped so iText doesn't throw.
         float radius = 0f;
-        if (parityOn()) {
-            double authored = style.path("borderRadius").asDouble(0);
-            if (authored > 0) {
-                radius = (float) Math.min(authored, Math.min(w, h) / 2f);
-            }
+        double authoredRadius = style.path("borderRadius").asDouble(0);
+        if (authoredRadius > 0) {
+            radius = (float) Math.min(authoredRadius, Math.min(w, h) / 2f);
         }
 
-        // Phase 6c — drop shadow rendered as a rasterised PNG overlay UNDER
-        // the element. Runs before the main draw so the shadow lives
-        // beneath; offset + blur + color read from style.shadow.
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the
+        // element. Runs before the main draw so the shadow lives beneath;
+        // offset + blur + color read from style.shadow.
         JsonNode shadowNode = style.path("shadow");
-        if (parityOn() && shadowNode.isObject()) {
-            paintShadowUnder(pdfDoc, shadowNode,
-                    radius > 0f ? ShadowRasterizer.Shape.ROUNDED_RECTANGLE : ShadowRasterizer.Shape.RECTANGLE,
-                    radius, x, bottom, w, h, pageNumber);
+        if (shadowNode.isObject()) {
+            java.awt.Shape silhouette = radius > 0f
+                    ? ShadowRasterizer.roundedRectangleSilhouette(w, h, radius)
+                    : ShadowRasterizer.rectangleSilhouette(w, h);
+            String shapeKey = radius > 0f ? "rrect-" + radius : "rect";
+            paintShadowUnder(pdfDoc, shadowNode, silhouette, shapeKey, x, bottom, w, h, pageNumber);
         }
 
         // Phase 6d — gradient fill takes precedence over solid `fill` when
@@ -1889,12 +1947,17 @@ public class PdfRendererService {
             else canvas.rectangle(rect);
             canvas.fill();
         }
-        canvas.setStrokeColor(stroke);
-        canvas.setLineWidth(borderWidth);
-        applyLineDashForStyle(canvas, lineStyle, borderWidth);
-        if (radius > 0f) canvas.roundRectangle(x, bottom, w, h, radius);
-        else canvas.rectangle(rect);
-        canvas.stroke();
+        // Stroke only when the author actually set a border colour. Cleared
+        // swatch → no border drawn (visual parity with the canvas
+        // implementation that suppresses the border in the same case).
+        if (stroke != null) {
+            canvas.setStrokeColor(stroke);
+            canvas.setLineWidth(borderWidth);
+            applyLineDashForStyle(canvas, lineStyle, borderWidth);
+            if (radius > 0f) canvas.roundRectangle(x, bottom, w, h, radius);
+            else canvas.rectangle(rect);
+            canvas.stroke();
+        }
         canvas.restoreState();
     }
 
@@ -1911,7 +1974,10 @@ public class PdfRendererService {
      * legacy renders stay axis-aligned.
      */
     private void applyRotationIfAny(PdfCanvas canvas, JsonNode style, float pivotX, float pivotY) {
-        if (!parityOn()) return;
+        // Authors set rotation expecting it to take effect on every shape;
+        // gating on the pixel-parity flag silently dropped the value on
+        // legacy renders. The function is already a no-op when rotation
+        // is 0 or missing, so unconditional execution is safe.
         double rotationDeg = style.path("rotation").asDouble(0);
         if (rotationDeg == 0) return;
         // Canvas rotation is clockwise-positive; PDF matrix is counter-clockwise.
@@ -1935,9 +2001,9 @@ public class PdfRendererService {
      * the right spot.
      */
     private void paintShadowUnder(PdfDocument pdfDoc, JsonNode shadowNode,
-                                  ShadowRasterizer.Shape shape, float cornerRadiusPt,
+                                  java.awt.Shape silhouette, String shapeKey,
                                   float x, float bottom, float w, float h, int pageNumber) {
-        byte[] png = ShadowRasterizer.rasterize(w, h, shadowNode, shape, cornerRadiusPt);
+        byte[] png = ShadowRasterizer.rasterize(w, h, shadowNode, silhouette, shapeKey);
         if (png == null) return;
         try {
             com.itextpdf.io.image.ImageData shadowData =
@@ -2055,7 +2121,9 @@ public class PdfRendererService {
      * the next element's draw.
      */
     private void applyOpacityIfAny(PdfCanvas canvas, JsonNode style) {
-        if (!parityOn()) return;
+        // No-op when opacity is unset or 1.0, so safe to run unconditionally
+        // — the parity gate previously prevented authors' opacity choice
+        // from reaching the PDF renderer in legacy mode.
         double opacity = style.path("opacity").asDouble(1);
         if (opacity >= 1.0 || opacity < 0) return;
         float a = (float) opacity;
@@ -2078,7 +2146,10 @@ public class PdfRendererService {
 
     /** Read {@code style.lineStyle} (solid/dashed/dotted) and apply the matching dash pattern. */
     private void applyLineStyleIfAny(PdfCanvas canvas, JsonNode style, float strokeWidth) {
-        if (!parityOn()) return;
+        // Authors set lineStyle expecting it to take effect; gating on the
+        // pixel-parity flag silently dropped their choice on legacy renders.
+        // Apply unconditionally — `solid` is the natural default and
+        // {@link #applyLineDashForStyle} clears any prior dash for it.
         String lineStyle = style.path("lineStyle").asText("solid");
         applyLineDashForStyle(canvas, lineStyle, strokeWidth);
     }
@@ -2090,7 +2161,6 @@ public class PdfRendererService {
      * {@code style.rotation} field rotates the whole primitive uniformly.
      */
     private void applyShapeRotationIfAny(PdfCanvas canvas, JsonNode el, float pageHeight) {
-        if (!parityOn()) return;
         JsonNode style = el.path("style");
         double rotationDeg = style.path("rotation").asDouble(0);
         if (rotationDeg == 0) return;
@@ -2150,23 +2220,39 @@ public class PdfRendererService {
         float h = (float) el.path("height").asDouble(80);
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Honor "no stroke colour" — if the author cleared the swatch
+        // we must not silently fall back to BLACK or the cleared border
+        // would still show in PDF (canvas already suppresses).
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
-        int seg = parityOn() ? 64 : 40;
+        int seg = 64;
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the
+        // ellipse. Painted before saveState so the shadow doesn't pick up
+        // the element's rotation transform — the shadow lives in page
+        // space, not element space.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.ellipseSilhouette(w, h),
+                    "ellipse",
+                    x, pageHeight - elY - h, w, h, pageNumber);
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
         applyShapeRotationIfAny(canvas, el, pageHeight);
         applyLineStyleIfAny(canvas, style, sw);
         ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
-        canvas.setStrokeColor(stroke);
         canvas.setLineWidth(Math.max(0.25f, sw));
-        if (fill != null) {
+        if (fill != null && stroke != null) {
             canvas.setFillColor(fill);
+            canvas.setStrokeColor(stroke);
             canvas.fillStroke();
-        } else {
+        } else if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fill();
+        } else if (stroke != null) {
+            canvas.setStrokeColor(stroke);
             canvas.stroke();
         }
         canvas.restoreState();
@@ -2187,13 +2273,20 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
-        int seg = parityOn() ? 64 : 36;
+        int seg = 64;
+        // Annular shadow — outer ellipse minus inner ellipse so the
+        // shadow has the same hole-in-the-middle shape as the ring.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.ringSilhouette(w, h, ratio),
+                    "ring-" + ratio,
+                    x, pageHeight - elY - h, w, h, pageNumber);
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
         applyShapeRotationIfAny(canvas, el, pageHeight);
         if (fill != null) {
             ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
@@ -2201,7 +2294,10 @@ public class PdfRendererService {
             canvas.setFillColor(fill);
             canvas.eoFill();
         }
-        if (sw >= 0.25f) {
+        // Honor "no stroke colour" — only stroke when the author actually
+        // set one. Combined with the strokeWidth gate so a 0-width ring
+        // doesn't cost a useless graphics-state push either.
+        if (stroke != null && sw >= 0.25f) {
             applyLineStyleIfAny(canvas, style, sw);
             canvas.setStrokeColor(stroke);
             canvas.setLineWidth(Math.max(0.25f, sw));
@@ -2268,25 +2364,127 @@ public class PdfRendererService {
         float h = (float) el.path("height").asDouble(48);
         float t = Math.min(h * 0.35f, w * 0.18f);
         float mid = elY + h / 2f;
-        float x0 = x;
-        float xShaft = x + w * 0.68f;
-        float xTip = x + w;
-        strokeFilledPolygon(
-                pdfDoc,
-                pageHeight,
-                pageNumber,
-                el,
-                new float[] {x0, xShaft, xShaft, xTip, xShaft, xShaft, x0, x0},
-                new float[] {
-                    mid - t / 2f,
-                    mid - t / 2f,
-                    elY,
-                    mid,
-                    elY + h,
-                    mid + t / 2f,
-                    mid + t / 2f,
-                    mid - t / 2f
-                });
+        // Direction control via shared arrowStart/arrowEnd flags. Legacy
+        // ARROW elements (no flags) keep their right-pointing look — we
+        // only branch geometry when the author opts in. Mirrors the
+        // canvas LINE/ARROW logic exactly so editor and PDF agree.
+        JsonNode style = el.path("style");
+        boolean arrowStart = style.path("arrowStart").asBoolean(false);
+        boolean explicitEnd = style.path("arrowEnd").asBoolean(false);
+        boolean noEndFlag = style.path("arrowEnd").isMissingNode() || style.path("arrowEnd").isNull();
+        boolean arrowEnd = explicitEnd || (!arrowStart && noEndFlag);
+        float headLen = w * 0.32f;
+        float xLeftHead = arrowStart ? x + headLen : x;
+        float xRightHead = arrowEnd ? x + w - headLen : x + w;
+        float[] xs;
+        float[] ys;
+        if (arrowStart && arrowEnd) {
+            // Bidirectional — head on both ends, shaft in the middle.
+            xs = new float[] {
+                    xLeftHead, xRightHead, xRightHead, x + w, xRightHead, xRightHead,
+                    xLeftHead, xLeftHead, x, xLeftHead
+            };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f,
+                    mid + t / 2f, elY + h, mid, elY
+            };
+        } else if (arrowStart) {
+            // Left-pointing — head at start, shaft to the right.
+            xs = new float[] { x + w, xLeftHead, xLeftHead, x, xLeftHead, xLeftHead, x + w };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f, mid + t / 2f
+            };
+        } else {
+            // Right-pointing (legacy).
+            xs = new float[] { x, xRightHead, xRightHead, x + w, xRightHead, xRightHead, x };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f, mid + t / 2f
+            };
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
+    }
+
+    /**
+     * Unified entry point for the POLYGON element type. Reads
+     * {@code el.polygonKind} and dispatches to the existing per-kind
+     * renderer — keeps the rendering logic in one place per shape while
+     * giving the frontend a single canonical type to send. The kind
+     * defaults to {@code 'rect'} so a malformed polygon node still
+     * renders as a recognisable shape.
+     */
+    private void addPolygonShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        String kind = el.path("polygonKind").asText("rect");
+        switch (kind) {
+            case "rect" -> addBox(pdfDoc, el, pageHeight, pageNumber);
+            case "regular" -> addRegularPolygon(pdfDoc, el, pageHeight, pageNumber);
+            case "triangle" -> addTriangleShape(pdfDoc, el, pageHeight, pageNumber);
+            case "diamond" -> addDiamondShape(pdfDoc, el, pageHeight, pageNumber);
+            case "star" -> addStarShape(pdfDoc, el, pageHeight, pageNumber);
+            case "arrow" -> addArrowShape(pdfDoc, el, pageHeight, pageNumber);
+            case "custom" -> addCustomPolygon(pdfDoc, el, pageHeight, pageNumber);
+            default -> addBox(pdfDoc, el, pageHeight, pageNumber);
+        }
+    }
+
+    /**
+     * POLYGON 'regular': regular n-gon centred in the bbox with the first
+     * vertex pointing up. Mirrors the frontend's
+     * {@code resolvePolygonPoints} 'regular' case so editor and PDF agree
+     * on geometry. {@code sides} is clamped to {@code [3, 20]}; an
+     * out-of-range value defaults to 5 (pentagon).
+     */
+    private void addRegularPolygon(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(100);
+        if (w <= 0 || h <= 0) return;
+        int requested = el.path("sides").asInt(5);
+        int sides = Math.max(3, Math.min(20, requested));
+        float cx = x + w / 2f;
+        float cyTop = elY + h / 2f;
+        float rx = w / 2f;
+        float ry = h / 2f;
+        float[] xs = new float[sides];
+        float[] ys = new float[sides];
+        for (int i = 0; i < sides; i++) {
+            double angle = -Math.PI / 2.0 + (i * 2.0 * Math.PI) / sides;
+            xs[i] = cx + rx * (float) Math.cos(angle);
+            ys[i] = cyTop + ry * (float) Math.sin(angle);
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
+    }
+
+    /**
+     * POLYGON 'custom': vertices come from {@code el.points} as
+     * {@code [u, v]} pairs in {@code [0, 1]} relative to the bbox. The
+     * frontend's {@code resolvePolygonPoints} produces the same point
+     * list — we mirror its custom branch here so PDF and editor stay in
+     * lockstep. Falls back to a rect when {@code points} is missing.
+     */
+    private void addCustomPolygon(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        JsonNode pts = el.path("points");
+        if (!pts.isArray() || pts.size() < 3) {
+            addBox(pdfDoc, el, pageHeight, pageNumber);
+            return;
+        }
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(0);
+        float h = (float) el.path("height").asDouble(0);
+        if (w <= 0 || h <= 0) return;
+        float[] xs = new float[pts.size()];
+        float[] ys = new float[pts.size()];
+        for (int i = 0; i < pts.size(); i++) {
+            JsonNode pt = pts.get(i);
+            if (!pt.isArray() || pt.size() < 2) {
+                addBox(pdfDoc, el, pageHeight, pageNumber);
+                return;
+            }
+            xs[i] = x + (float) pt.get(0).asDouble(0) * w;
+            ys[i] = elY + (float) pt.get(1).asDouble(0) * h;
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
     }
 
     private void strokeFilledPolygon(
@@ -2297,12 +2495,37 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
+        // Polygon shadow — convert the absolute-coord points into the
+        // shape's local (0..w, 0..h) frame so the rasteriser can hash a
+        // stable cache key across positions and the silhouette lines up
+        // with the element's bbox. Painted before saveState so the
+        // rotation transform doesn't carry into the page-space shadow.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            float elX = (float) el.path("x").asDouble(0);
+            float elY = (float) el.path("y").asDouble(0);
+            float elW = (float) el.path("width").asDouble(0);
+            float elH = (float) el.path("height").asDouble(0);
+            if (elW > 0 && elH > 0) {
+                float[] normXs = new float[xsTop.length];
+                float[] normYs = new float[ysTop.length];
+                for (int i = 0; i < xsTop.length; i++) {
+                    normXs[i] = xsTop[i] - elX;
+                    normYs[i] = ysTop[i] - elY;
+                }
+                java.awt.Shape silhouette = ShadowRasterizer.polygonSilhouette(normXs, normYs);
+                if (silhouette != null) {
+                    String shapeKey = "poly-" + java.util.Arrays.hashCode(normXs)
+                            + "-" + java.util.Arrays.hashCode(normYs);
+                    paintShadowUnder(pdfDoc, shadowNode, silhouette, shapeKey,
+                            elX, pageHeight - elY - elH, elW, elH, pageNumber);
+                }
+            }
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
         applyShapeRotationIfAny(canvas, el, pageHeight);
         float py0 = layoutYToPdf(pageHeight, ysTop[0]);
         canvas.moveTo(xsTop[0], py0);
@@ -2311,12 +2534,20 @@ public class PdfRendererService {
         }
         canvas.closePath();
         applyLineStyleIfAny(canvas, style, sw);
-        canvas.setStrokeColor(stroke);
         canvas.setLineWidth(Math.max(0.25f, sw));
-        if (fill != null) {
+        // Branch on the author's actual fill/stroke choices. "No stroke"
+        // and "no fill" are now first-class options for shapes — the
+        // legacy GRAY/BLACK fallbacks would silently override the user's
+        // cleared colour swatch.
+        if (fill != null && stroke != null) {
             canvas.setFillColor(fill);
+            canvas.setStrokeColor(stroke);
             canvas.fillStroke();
-        } else {
+        } else if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fill();
+        } else if (stroke != null) {
+            canvas.setStrokeColor(stroke);
             canvas.stroke();
         }
         canvas.restoreState();
@@ -2362,12 +2593,41 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
+        // Drop shadow built from the union of all rings using even-odd
+        // winding — handles boolean-difference shapes (e.g. star ring
+        // with a hole) correctly. Polys are stored in normalised local
+        // coords already (relative to el.x / el.y), so we can hash them
+        // for the cache directly.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            float w = (float) el.path("width").asDouble(0);
+            float h = (float) el.path("height").asDouble(0);
+            if (w > 0 && h > 0) {
+                java.awt.geom.Path2D combined = new java.awt.geom.Path2D.Float(java.awt.geom.Path2D.WIND_EVEN_ODD);
+                for (JsonNode poly : polys) {
+                    if (!poly.isArray()) continue;
+                    for (JsonNode ring : poly) {
+                        if (!ring.isArray() || ring.size() < 2) continue;
+                        boolean first = true;
+                        for (JsonNode pt : ring) {
+                            if (!pt.isArray() || pt.size() < 2) continue;
+                            float lx = (float) pt.get(0).asDouble();
+                            float ly = (float) pt.get(1).asDouble();
+                            if (first) { combined.moveTo(lx, ly); first = false; }
+                            else { combined.lineTo(lx, ly); }
+                        }
+                        combined.closePath();
+                    }
+                }
+                paintShadowUnder(pdfDoc, shadowNode, combined,
+                        "merged-" + polys.toString().hashCode(),
+                        x0, pageHeight - elY - h, w, h, pageNumber);
+            }
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
         applyShapeRotationIfAny(canvas, el, pageHeight);
         if (fill != null) {
             canvas.setFillColor(fill);
@@ -2381,7 +2641,9 @@ public class PdfRendererService {
                 canvas.eoFill();
             }
         }
-        if (sw >= 0.25f) {
+        // Skip the stroke pass entirely when the author cleared the colour
+        // swatch — preserves "no border" intent on union/divide outputs.
+        if (stroke != null && sw >= 0.25f) {
             applyLineStyleIfAny(canvas, style, sw);
             canvas.setStrokeColor(stroke);
             canvas.setLineWidth(Math.max(0.25f, sw));

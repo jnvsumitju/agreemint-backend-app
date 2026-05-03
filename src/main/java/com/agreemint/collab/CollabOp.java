@@ -27,6 +27,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = CollabOp.SetGlobalVariables.class, name = "setGlobalVariables"),
         @JsonSubTypes.Type(value = CollabOp.SetPageVariables.class, name = "setPageVariables"),
         @JsonSubTypes.Type(value = CollabOp.SetPageSpec.class, name = "setPageSpec"),
+        @JsonSubTypes.Type(value = CollabOp.RenameGlobalVariable.class, name = "renameGlobalVariable"),
 })
 public sealed interface CollabOp permits
         CollabOp.AddElement,
@@ -39,7 +40,8 @@ public sealed interface CollabOp permits
         CollabOp.UpdatePage,
         CollabOp.SetGlobalVariables,
         CollabOp.SetPageVariables,
-        CollabOp.SetPageSpec {
+        CollabOp.SetPageSpec,
+        CollabOp.RenameGlobalVariable {
 
     record AddElement(int pageIndex, JsonNode element) implements CollabOp {}
 
@@ -69,4 +71,16 @@ public sealed interface CollabOp permits
      * not inside {@code pages[i]}.
      */
     record SetPageSpec(JsonNode pageSpec) implements CollabOp {}
+
+    /**
+     * Atomic global-variable rename. Pairs the variables-array key change
+     * with a walk of every element's {@code dataKey} field to update the
+     * binding in the same op so a peer's concurrent UpdateElement
+     * carrying the old key cannot land between the rename and the binding
+     * fix. Server applies the rename idempotently — if {@code oldKey}
+     * isn't found in the variables array (e.g. because per-keystroke
+     * SetGlobalVariables ops already replaced it), the dataKey walk
+     * still runs so any straggler bindings get repointed.
+     */
+    record RenameGlobalVariable(String oldKey, String newKey) implements CollabOp {}
 }

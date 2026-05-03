@@ -42,6 +42,15 @@ public class ActivityService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ActivityLogResponse> listRecentForTemplate(UUID orgId, UUID templateId, int limit) {
+        return activityLogRepository
+                .findByOrgIdAndTemplateIdOrderByCreatedAtDesc(orgId, templateId, PageRequest.of(0, limit))
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private ActivityLogResponse toResponse(ActivityLog a) {
         return new ActivityLogResponse(
                 a.getId(),
