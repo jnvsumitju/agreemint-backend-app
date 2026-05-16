@@ -53,6 +53,17 @@ spring:
       # enforced ceiling per upload and matches the validation in AvatarController.
       max-file-size: 3MB
       max-request-size: 3MB
+  mvc:
+    async:
+      # Spring's async-request-timeout is what tears down our SseEmitter
+      # mid-stream — when it fires, the worker thread keeps trying to
+      # emitter.send() and crashes with "ResponseBodyEmitter has already
+      # completed". The AI generate flow can run 5–10 minutes on V4-Pro
+      # for long documents; allow the SseEmitter's own 600s cap (set in
+      # AiGenerateController) to be the authoritative timeout instead.
+      # 0 disables Spring's outer timer; the per-emitter timeout still
+      # protects against truly hung streams.
+      request-timeout: 0
 
 agreemint:
   storage:
@@ -61,16 +72,43 @@ agreemint:
     origins: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   email:
     from-address: ${EMAIL_FROM:noreply@agreemint.com}
-    from-name: ${EMAIL_FROM_NAME:Agreemint}
+    from-name: ${EMAIL_FROM_NAME:Crixaa}
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  features:
+    # Pixel-parity renderer — on by default since phase 5. Kept as an env-var
+    # kill-switch for 6 months post-launch per the risk register; set
+    # FEATURE_PIXEL_PARITY=false to fall back to the legacy path without a
+    # deploy. Legacy code paths stay in place until the kill-switch window
+    # expires; only then can the flag + legacy branches be removed.
+    pixel-parity:
+      enabled: ${FEATURE_PIXEL_PARITY:true}
   otp:
     length: 6
     ttl-minutes: 10
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-256-bit-key-in-production-at-least-32-chars}
-    access-token-expiry-minutes: 15
-    refresh-token-expiry-days: 7
+    access-token-expiry-minutes: 60
+    refresh-token-expiry-days: 30
+  # DeepSeek-driven template generation. The frontend's "magic wand" tool
+  # opens a modal that POSTs an instruction here; the backend proxies to
+  # DeepSeek and streams the response back as SSE so the editor never
+  # touches the API key. Set DEEPSEEK_API_KEY in the env to enable; with
+  # an empty key the endpoint returns 503.
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      # deepseek-v4-pro is the highest-quality model (1M-token context,
+      # 384K max output, ~5× cost vs Flash). We default to Pro because
+      # template generation on Flash kept emitting glued words and broken
+      # Unicode escapes on long documents — Pro's tighter
+      # instruction-following pays for itself in fewer Fix-Layout passes.
+      # Override to deepseek-v4-flash via env if cost matters more than
+      # quality. Legacy deepseek-chat / deepseek-reasoner names retire
+      # July 2026 and now route to V4-Flash compatibility.
+      model: ${DEEPSEEK_MODEL:deepseek-v4-pro}
+      timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:1200}
   oauth:
     google-enabled: ${OAUTH_GOOGLE_ENABLED:false}
     google-client-id: ${GOOGLE_CLIENT_ID:}

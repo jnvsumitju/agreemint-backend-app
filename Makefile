@@ -53,6 +53,7 @@ run: build
 		-e R2_BUCKET_DOCUMENTS=$(R2_BUCKET_DOCUMENTS) \
 		-e R2_BUCKET_PUBLIC=$(R2_BUCKET_PUBLIC) \
 		-e R2_PUBLIC_BASE_URL=$(R2_PUBLIC_BASE_URL) \
+		-e DEEPSEEK_API_KEY=$(DEEPSEEK_API_KEY) \
 		$(APP_NAME)
 	@echo ""
 	@echo "  ✓ $(APP_NAME) running on http://localhost:$(APP_PORT)"

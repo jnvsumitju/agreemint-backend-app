@@ -412,6 +412,14 @@ public class CollabService {
             // The patch may include any page-level field (pageSpec, name, guides, …) except elements.
             // If it does include elements, we still allow it — caller is responsible.
             deepMerge(page, e.patch());
+            // Sticky background: if the toggle is ON and this patch touched
+            // `background`, mirror the post-merge bg to every other page.
+            // Without this, a concurrent UpdatePage from another user could
+            // land between the toggle's ON event and a flood of per-page
+            // mirror ops, leaving one page with a different bg.
+            if (e.patch().has("background") && isApplyBackgroundToAllPagesOn(root)) {
+                propagateBackgroundToAllPages(root, e.pageIndex(), page.get("background"));
+            }
 
         } else if (op instanceof CollabOp.SetGlobalVariables e) {
             root.set("globalVariables", e.variables() == null ? JsonNodeFactory.instance.arrayNode() : e.variables());
@@ -424,7 +432,109 @@ public class CollabService {
         } else if (op instanceof CollabOp.SetPageSpec e) {
             // Template-wide page spec lives at root as the `page` field.
             if (e.pageSpec() != null) {
+                boolean wasOn = isApplyBackgroundToAllPagesOn(root);
                 root.set("page", e.pageSpec());
+                boolean nowOn = isApplyBackgroundToAllPagesOn(root);
+                // Toggle just went OFF → ON. Pick the first non-empty page
+                // background and mirror it to every page so all clients
+                // (including this one's snapshot consumers) see consistent
+                // state immediately, regardless of how the per-page mirror
+                // ops interleaved with this toggle event.
+                if (!wasOn && nowOn) {
+                    propagateBackgroundToAllPages(root, -1, firstPageBackground(root));
+                }
+            }
+
+        } else if (op instanceof CollabOp.RenameGlobalVariable e) {
+            String oldKey = e.oldKey();
+            String newKey = e.newKey();
+            if (oldKey == null || newKey == null || oldKey.isEmpty() || newKey.isEmpty() || oldKey.equals(newKey)) {
+                return;
+            }
+            // 1. Variables array — rename in place. If oldKey is already
+            //    gone (per-keystroke SetGlobalVariables ops may have
+            //    landed first), this is a no-op for the variables array
+            //    while the dataKey walk below still corrects any straggler
+            //    element bindings.
+            JsonNode globals = root.get("globalVariables");
+            if (globals instanceof ArrayNode globalArr) {
+                for (int i = 0; i < globalArr.size(); i++) {
+                    JsonNode def = globalArr.get(i);
+                    if (def instanceof ObjectNode defObj && oldKey.equals(defObj.path("key").asText(null))) {
+                        defObj.put("key", newKey);
+                    }
+                }
+            }
+            // 2. Walk every element on every page (including band-nested
+            //    HEADER/FOOTER children) and repoint dataKey if it matches.
+            JsonNode pages = root.get("pages");
+            if (pages instanceof ArrayNode pageArr) {
+                for (JsonNode page : pageArr) {
+                    JsonNode els = page.path("elements");
+                    if (els instanceof ArrayNode elArr) {
+                        renameDataKeyInElements(elArr, oldKey, newKey);
+                    }
+                }
+            }
+            // 3. Legacy single-page elements at root (older layout JSON).
+            JsonNode rootEls = root.get("elements");
+            if (rootEls instanceof ArrayNode rootElArr) {
+                renameDataKeyInElements(rootElArr, oldKey, newKey);
+            }
+        }
+    }
+
+    /** Walk an elements array (incl. band-nested children) and repoint
+     *  every {@code dataKey === oldKey} to {@code newKey}. */
+    private static void renameDataKeyInElements(ArrayNode elements, String oldKey, String newKey) {
+        for (JsonNode el : elements) {
+            if (!(el instanceof ObjectNode elObj)) continue;
+            if (oldKey.equals(elObj.path("dataKey").asText(null))) {
+                elObj.put("dataKey", newKey);
+            }
+            JsonNode bandEls = elObj.get("bandElements");
+            if (bandEls instanceof ArrayNode bandArr) {
+                renameDataKeyInElements(bandArr, oldKey, newKey);
+            }
+        }
+    }
+
+    /** True when the layout's pageSpec has the sticky bg toggle on. */
+    private static boolean isApplyBackgroundToAllPagesOn(ObjectNode root) {
+        return root.path("page").path("applyBackgroundToAllPages").asBoolean(false);
+    }
+
+    /** First page with a non-empty {@code background} object, or null. */
+    private static JsonNode firstPageBackground(ObjectNode root) {
+        JsonNode pages = root.get("pages");
+        if (!(pages instanceof ArrayNode arr)) return null;
+        for (JsonNode p : arr) {
+            JsonNode bg = p.path("background");
+            if (bg != null && bg.isObject() && bg.size() > 0) return bg;
+        }
+        return null;
+    }
+
+    /**
+     * Set every page's {@code background} to {@code bg}, leaving page
+     * {@code skipPageIndex} alone (used when the source-of-truth page was
+     * already mutated by the caller's deepMerge). Pass {@code skipPageIndex
+     * = -1} to mirror to every page including the source. A null/missing
+     * {@code bg} clears the field on every target page so "remove bg from
+     * one page" propagates to all when the toggle is on.
+     */
+    private static void propagateBackgroundToAllPages(ObjectNode root, int skipPageIndex, JsonNode bg) {
+        JsonNode pages = root.get("pages");
+        if (!(pages instanceof ArrayNode arr)) return;
+        boolean clearAll = bg == null || bg.isMissingNode() || bg.isNull() || !bg.isObject();
+        for (int i = 0; i < arr.size(); i++) {
+            if (i == skipPageIndex) continue;
+            JsonNode page = arr.get(i);
+            if (!(page instanceof ObjectNode pageObj)) continue;
+            if (clearAll) {
+                pageObj.remove("background");
+            } else {
+                pageObj.set("background", bg.deepCopy());
             }
         }
     }
@@ -459,6 +569,7 @@ public class CollabService {
         if (op instanceof CollabOp.SetGlobalVariables) return "setGlobalVariables";
         if (op instanceof CollabOp.SetPageVariables) return "setPageVariables";
         if (op instanceof CollabOp.SetPageSpec) return "setPageSpec";
+        if (op instanceof CollabOp.RenameGlobalVariable) return "renameGlobalVariable";
         return "unknown";
     }
 

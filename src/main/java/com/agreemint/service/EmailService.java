@@ -41,7 +41,7 @@ public class EmailService {
         ctx.setVariable("expiryMinutes", 60);
 
         String html = templateEngine.process("email/password-reset", ctx);
-        send(to, "Reset your Agreemint password", html);
+        send(to, "Reset your Crixaa password", html);
     }
 
     /** Send email verification link after registration. */
@@ -62,7 +62,7 @@ public class EmailService {
         ctx.setVariable("ttlMinutes", ttlMinutes);
 
         String html = templateEngine.process("email/otp-code", ctx);
-        send(to, "Your Agreemint login code: " + otpCode, html);
+        send(to, "Your Crixaa login code: " + otpCode, html);
     }
 
     /** Notify an approver they have a pending approval step. */
@@ -118,7 +118,7 @@ public class EmailService {
         ctx.setVariable("inviteLink", inviteLink);
 
         String html = templateEngine.process("email/org-invite", ctx);
-        send(to, "You've been invited to join " + orgName + " on Agreemint", html);
+        send(to, "You've been invited to join " + orgName + " on Crixaa", html);
     }
 
     /**

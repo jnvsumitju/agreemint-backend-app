@@ -3,11 +3,14 @@ package com.agreemint.service;
 import com.agreemint.api.BadRequestException;
 import com.agreemint.api.NotFoundException;
 import com.agreemint.api.dto.CreateTemplateRequest;
+import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateResponse;
 import com.agreemint.domain.Product;
 import com.agreemint.domain.Template;
 import com.agreemint.repository.ProductRepository;
 import com.agreemint.repository.TemplateRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,16 +25,21 @@ import java.util.UUID;
 @Service
 public class TemplateService {
 
+    private static final Logger log = LoggerFactory.getLogger(TemplateService.class);
+
     private final TemplateRepository templateRepository;
     private final ProductService productService;
     private final ProductRepository productRepository;
+    private final TemplateVersionService templateVersionService;
 
     public TemplateService(TemplateRepository templateRepository,
                            ProductService productService,
-                           ProductRepository productRepository) {
+                           ProductRepository productRepository,
+                           TemplateVersionService templateVersionService) {
         this.templateRepository = templateRepository;
         this.productService = productService;
         this.productRepository = productRepository;
+        this.templateVersionService = templateVersionService;
     }
 
     /**
@@ -78,6 +86,14 @@ public class TemplateService {
         t.setOwnerId(ownerId);
         t.setProductId(request.productId());
         templateRepository.save(t);
+
+        // Seed v1 with the empty default layout. Reviewers/Viewers default to
+        // the latest committed version, so a freshly-created template needs
+        // *something* committed or they'd see an empty-state forever until a
+        // designer hits Commit. Same transaction as the template insert so a
+        // version-write failure rolls the whole creation back.
+        templateVersionService.createVersion(t.getId(), new CreateVersionRequest(null, null));
+
         return toResponse(t);
     }
 
@@ -123,6 +139,27 @@ public class TemplateService {
     @Transactional(readOnly = true)
     public TemplateResponse getResponse(UUID id) {
         return toResponse(getById(id));
+    }
+
+    /**
+     * Hard-delete a template along with every row that references it. The
+     * schema has {@code ON DELETE CASCADE} on template_versions, template_drafts,
+     * template_reviews, and template_shares (see V1/V2/V7/V13 migrations), so a
+     * single repository {@code deleteById} cleans up the fan-out automatically.
+     * {@code marketplace_listings.source_template_id} is {@code ON DELETE SET NULL}
+     * so listings survive the delete with a null source reference.
+     *
+     * <p>Authorization is the caller's responsibility — this method trusts that
+     * the controller has already gated on the actor's org role (ADMIN/DESIGNER).
+     */
+    @Transactional
+    public void delete(UUID templateId) {
+        if (!templateRepository.existsById(templateId)) {
+            log.info("template.delete noop id={} (already gone)", templateId);
+            throw new NotFoundException("Template not found");
+        }
+        templateRepository.deleteById(templateId);
+        log.info("template.delete ok id={}", templateId);
     }
 
     // ── helpers ─────────────────────────────────────────────────────────────

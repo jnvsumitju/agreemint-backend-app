@@ -1,5 +1,6 @@
 target/
 .idea/
+logs/
 .vscode/
 .DS_Store
 .env
@@ -16,3 +17,4 @@ target/
 .env.development.example
 .env.test.example
 .env.production.example
+logs

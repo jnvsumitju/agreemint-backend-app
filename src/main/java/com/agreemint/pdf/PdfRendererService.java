@@ -1,5 +1,7 @@
 package com.agreemint.pdf;
 
+import com.agreemint.api.dto.MeasureResponse;
+import com.agreemint.config.PixelParityProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.io.image.ImageData;
@@ -7,6 +9,7 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -16,19 +19,27 @@ import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.kernel.pdf.annot.PdfLinkAnnotation;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.extgstate.PdfExtGState;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.OverflowPropertyValue;
+import com.itextpdf.layout.properties.Property;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
+import com.itextpdf.layout.layout.LayoutArea;
+import com.itextpdf.layout.layout.LayoutContext;
+import com.itextpdf.layout.layout.LayoutResult;
 import com.itextpdf.layout.renderer.CellRenderer;
 import com.itextpdf.layout.renderer.DrawContext;
+import com.itextpdf.layout.renderer.IRenderer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
@@ -40,10 +51,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -63,18 +76,58 @@ public class PdfRendererService {
     /** Built-in merge keys; overlay per PDF page so headers/footers can show page x of y. */
     private static final String DATA_KEY_TOTAL_PAGES = "totalPages";
     private static final String DATA_KEY_PAGE_NUMBER = "pageNumber";
+    private static final String DATA_KEY_CURRENT_DATE = "currentDate";
+
+    /** Canvas default — matches {@code RichTextBlockPreview.tsx:63} (`lineHeight: lineHeight ?? 1.4`). */
+    static final float DEFAULT_LINE_HEIGHT = 1.4f;
+
+    /** Default sans family used when the parity flag is on and the element/run doesn't set one. */
+    private static final String DEFAULT_PARITY_FAMILY = PdfFontRegistry.FAMILY_SANS;
 
     private final ObjectMapper objectMapper;
     private final LayoutBehaviourResolver behaviourResolver;
+    private final PdfFontRegistry fontRegistry;
+    private final PixelParityProperties pixelParity;
 
-    public PdfRendererService(ObjectMapper objectMapper, LayoutBehaviourResolver behaviourResolver) {
+    public PdfRendererService(ObjectMapper objectMapper,
+                              LayoutBehaviourResolver behaviourResolver,
+                              PdfFontRegistry fontRegistry,
+                              PixelParityProperties pixelParity) {
         this.objectMapper = objectMapper;
         this.behaviourResolver = behaviourResolver;
+        this.fontRegistry = fontRegistry;
+        this.pixelParity = pixelParity;
+    }
+
+    /** True when pixel-parity rendering should be used for this render pass. */
+    private boolean parityOn() {
+        return pixelParity != null && pixelParity.isEnabled() && fontRegistry != null && fontRegistry.isFullyLoaded();
+    }
+
+    /**
+     * Resolve the font for an element's style plus optional run override. Returns
+     * null when parity is off or the registry can't satisfy the request — callers
+     * then fall back to iText's default Helvetica and the legacy
+     * {@code setBold()}/{@code setItalic()} synthetic pair.
+     */
+    private PdfFont resolveParityFont(JsonNode elementStyle, boolean bold, boolean italic) {
+        if (!parityOn()) return null;
+        String family = elementStyle == null ? null : elementStyle.path("fontFamily").asText("");
+        if (family == null || family.isBlank()) family = DEFAULT_PARITY_FAMILY;
+        // Legacy layouts may carry a non-parity family ("Arial", "Roboto"). The
+        // registry falls back to Inter for those — matching the coercion the
+        // frontend does via `coerceToSupportedFamily` so canvas and PDF agree.
+        return fontRegistry.createFont(family, bold, italic);
     }
 
     public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
+        long startNanos = System.nanoTime();
         PageSpec pageSpec = readPage(layoutJson);
         List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
+        List<JsonNode> perPageBackgrounds = pageBackgroundNodesFromLayout(layoutJson);
+        int totalElements = perPageElements.stream().mapToInt(p -> p.isArray() ? p.size() : 0).sum();
+        log.info("render start parity={} pages={} elements={}",
+                parityOn(), perPageElements.size(), totalElements);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
@@ -100,6 +153,14 @@ public class PdfRendererService {
             if (pageIdx > 0) {
                 pdfDoc.addNewPage(pageSize);
             }
+            // Page-level background fill (colour or gradient). Drawn before
+            // any element so the elements paint over it. Skipped silently
+            // when the page has no `background` field — keeps the default
+            // "white paper" look untouched.
+            JsonNode pageBg = pageIdx < perPageBackgrounds.size()
+                    ? perPageBackgrounds.get(pageIdx)
+                    : NullNode.getInstance();
+            paintPageBackground(pdfDoc, pageBg, pageSize, pageNumber);
             JsonNode pageData = dataWithBuiltinPageVars(data, pageNumber, totalPages);
             List<JsonNode> elements = mergedElementsForPdfPage(perPageElements, pageIdx);
             for (JsonNode el : elements) {
@@ -131,7 +192,11 @@ public class PdfRendererService {
         }
 
         document.close();
-        return baos.toByteArray();
+        byte[] bytes = baos.toByteArray();
+        long ms = (System.nanoTime() - startNanos) / 1_000_000L;
+        log.info("render done pages={} bytes={} elapsedMs={}",
+                perPageElements.size(), bytes.length, ms);
+        return bytes;
     }
 
     /**
@@ -156,6 +221,25 @@ public class PdfRendererService {
     }
 
     /**
+     * Pull the per-page {@code background} JSON nodes (colour / gradient)
+     * aligned with {@link #pageElementArraysFromLayout(JsonNode)}. Missing
+     * entries become {@link NullNode} so the render loop can index by page
+     * without a bounds check. Legacy single-page layouts return one entry.
+     */
+    static List<JsonNode> pageBackgroundNodesFromLayout(JsonNode layoutJson) {
+        JsonNode pages = layoutJson.path("pages");
+        if (pages.isArray() && !pages.isEmpty()) {
+            List<JsonNode> out = new ArrayList<>(pages.size());
+            for (JsonNode p : pages) {
+                JsonNode bg = p.path("background");
+                out.add(bg.isObject() ? bg : NullNode.getInstance());
+            }
+            return out;
+        }
+        return List.of(NullNode.getInstance());
+    }
+
+    /**
      * Multi-page layouts: repeat page 0's HEADER/FOOTER on every physical page (same as editor merge).
      * Strips HEADER/FOOTER from pages after the first so bands are not duplicated if present in JSON.
      */
@@ -164,18 +248,78 @@ public class PdfRendererService {
             return List.of();
         }
         JsonNode pageEls = perPageElements.get(pageIndex);
+        List<JsonNode> base;
         if (perPageElements.size() <= 1 || pageIndex == 0) {
-            return jsonArrayToList(pageEls);
+            base = jsonArrayToList(pageEls);
+        } else {
+            List<JsonNode> bands = headerFooterNodesFromPageElements(perPageElements.get(0));
+            List<JsonNode> body = filterOutHeaderFooter(jsonArrayToList(pageEls));
+            if (bands.isEmpty()) {
+                base = body;
+            } else {
+                base = new ArrayList<>(bands.size() + body.size());
+                base.addAll(bands);
+                base.addAll(body);
+            }
         }
-        List<JsonNode> bands = headerFooterNodesFromPageElements(perPageElements.get(0));
-        List<JsonNode> body = filterOutHeaderFooter(jsonArrayToList(pageEls));
-        if (bands.isEmpty()) {
-            return body;
+        return appendFloatingRepeats(base, perPageElements, pageIndex);
+    }
+
+    /**
+     * Append cross-page FLOATING repeats to {@code base}: any FLOATING element
+     * on another page whose {@code pageVisibility} matches the current page
+     * gets cloned in. Mirrors the editor merge in {@code documentPageMerge.ts}.
+     */
+    private static List<JsonNode> appendFloatingRepeats(
+            List<JsonNode> base, List<JsonNode> perPageElements, int pageIndex) {
+        if (perPageElements.size() <= 1) {
+            return base;
         }
-        List<JsonNode> merged = new ArrayList<>(bands.size() + body.size());
-        merged.addAll(bands);
-        merged.addAll(body);
-        return merged;
+        Set<String> seen = new HashSet<>();
+        for (JsonNode el : base) {
+            String id = el.path("id").asText(null);
+            if (id != null) seen.add(id);
+        }
+        List<JsonNode> repeats = null;
+        int pageNumber = pageIndex + 1;
+        for (int i = 0; i < perPageElements.size(); i++) {
+            if (i == pageIndex) continue;
+            JsonNode arr = perPageElements.get(i);
+            if (arr == null || !arr.isArray()) continue;
+            for (JsonNode el : arr) {
+                String type = el.path("type").asText("TEXT").toUpperCase(Locale.ROOT);
+                if (!"FLOATING".equals(type)) continue;
+                String id = el.path("id").asText(null);
+                if (id != null && seen.contains(id)) continue;
+                if (!shouldRepeatFloatingOnPage(el, pageNumber)) continue;
+                if (repeats == null) repeats = new ArrayList<>();
+                repeats.add(el);
+                if (id != null) seen.add(id);
+            }
+        }
+        if (repeats == null) return base;
+        List<JsonNode> out = new ArrayList<>(base.size() + repeats.size());
+        out.addAll(base);
+        out.addAll(repeats);
+        return out;
+    }
+
+    private static boolean shouldRepeatFloatingOnPage(JsonNode el, int pageNumber) {
+        String visibility = el.path("pageVisibility").asText("current");
+        return switch (visibility) {
+            case "all" -> true;
+            case "odd" -> pageNumber % 2 == 1;
+            case "even" -> pageNumber % 2 == 0;
+            case "specific" -> {
+                JsonNode list = el.path("pageVisibilitySpecific");
+                if (!list.isArray()) yield false;
+                for (JsonNode n : list) {
+                    if (n.isNumber() && n.asInt() == pageNumber) yield true;
+                }
+                yield false;
+            }
+            default -> false;
+        };
     }
 
     private static List<JsonNode> jsonArrayToList(JsonNode arr) {
@@ -230,6 +374,15 @@ public class PdfRendererService {
         }
         base.put(DATA_KEY_TOTAL_PAGES, Integer.toString(totalPages));
         base.put(DATA_KEY_PAGE_NUMBER, Integer.toString(pageNumber1Based));
+        // Auto-populate `currentDate` (ISO `YYYY-MM-DD`). The frontend strips
+        // this key from the payload on its way out (it's a system variable
+        // the comment said "backend computes"), but nothing actually did —
+        // so a TEXT element with a {{currentDate}} chip rendered empty in
+        // the generated PDF. Seed only if the caller didn't already provide
+        // one (API callers may want to override with their own date).
+        if (!base.has(DATA_KEY_CURRENT_DATE)) {
+            base.put(DATA_KEY_CURRENT_DATE, java.time.LocalDate.now().toString());
+        }
         return base;
     }
 
@@ -265,22 +418,44 @@ public class PdfRendererService {
             JsonNode pageData,
             float pageHeight,
             int pageNumber) throws IOException {
-        switch (type) {
-            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER" ->
-                    addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
-            case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
-            case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
-            case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "TRIANGLE" -> addTriangleShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "DIAMOND" -> addDiamondShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
-            case "LIST" -> addList(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
-            default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+        String id = drawEl.path("id").asText("?");
+        try {
+            log.debug("render page={} type={} id={} box=({},{},{}×{}) parity={}",
+                    pageNumber, type, id,
+                    drawEl.path("x").asDouble(0),
+                    drawEl.path("y").asDouble(0),
+                    drawEl.path("width").asDouble(0),
+                    drawEl.path("height").asDouble(0),
+                    parityOn());
+            switch (type) {
+                case "TEXT", "PARAGRAPH", "HEADER", "FOOTER", "FLOATING" ->
+                        addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                case "TABLE" -> addTable(document, drawEl, pageData, pageHeight, pageNumber);
+                case "IMAGE" -> addImage(pdfDoc, document, drawEl, pageHeight, pageNumber);
+                case "LINE", "DIVIDER" -> addLine(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "POLYGON" -> addPolygonShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                // Legacy shape types — kept as fallbacks for any element
+                // that escaped the parse-time migration to POLYGON. Persisted
+                // layouts only ever surface as POLYGON now, but ad-hoc /
+                // test-injected legacy elements still render correctly.
+                case "BOX" -> addBox(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "ELLIPSE" -> addEllipseShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "RING" -> addRingShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "TRIANGLE" -> addTriangleShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "DIAMOND" -> addDiamondShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "STAR" -> addStarShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "ARROW" -> addArrowShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "MERGED_SHAPE" -> addMergedShape(pdfDoc, drawEl, pageHeight, pageNumber);
+                case "LIST" -> addList(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+                default -> addText(pdfDoc, document, drawEl, pageData, pageHeight, pageNumber);
+            }
+        } catch (RuntimeException e) {
+            // Log the failing element's context then rethrow so the exception
+            // handler still maps to 500 with its generic message — but ops now
+            // sees WHICH element crashed, not just the stack trace.
+            log.error("dispatchElementByType failed — type={} id={} page={}: {}",
+                    type, id, pageNumber, e.toString(), e);
+            throw e;
         }
     }
 
@@ -293,16 +468,45 @@ public class PdfRendererService {
         float bottom = yTop - h;
 
         JsonNode style = el.path("style");
+
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the element,
+        // matching {@link #addBox}. Runs before the frame fill + text draw so
+        // the shadow lives beneath the textbox. Without this the canvas
+        // showed a shadow (CSS drop-shadow on the wrapper) that silently
+        // vanished in the generated PDF.
+        JsonNode shadowNode = style.path("shadow");
+        if (parityOn() && shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.rectangleSilhouette(w, h),
+                    "rect",
+                    x, bottom, w, h, pageNumber);
+        }
+
         /*
          * Paragraph backgrounds in iText only cover the laid-out text height, which is usually
          * smaller than the editor's element height — leaving empty space at the top of the box.
          * Paint the frame fill on the canvas to match the canvas (full width × height).
          */
         Color frameBg = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Rotation is applied to the paragraph below (when non-zero); the
+        // background fill must rotate the same way around the box centre,
+        // otherwise the unrotated rectangle appears behind the rotated text
+        // and the result looks like "text rotated, box not".
+        double bgRotationDeg = style.path("rotation").asDouble(0);
         if (frameBg != null) {
             PdfCanvas bgCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
             bgCanvas.saveState();
             bgCanvas.setFillColor(frameBg);
+            if (bgRotationDeg != 0) {
+                double bgTheta = Math.toRadians(-bgRotationDeg);
+                float cosA = (float) Math.cos(bgTheta);
+                float sinA = (float) Math.sin(bgTheta);
+                float cx = x + w / 2f;
+                float cy = bottom + h / 2f;
+                bgCanvas.concatMatrix(cosA, sinA, -sinA, cosA,
+                        cx * (1f - cosA) + sinA * cy,
+                        -sinA * cx + cy * (1f - cosA));
+            }
             bgCanvas.rectangle(x, bottom, w, h);
             bgCanvas.fill();
             bgCanvas.restoreState();
@@ -311,24 +515,118 @@ public class PdfRendererService {
         Paragraph p = buildParagraphFromContent(el.get("content"), data, null, style);
         p.setPadding(0);
         p.setMargin(0);
-        // NOTE: we used to call `p.setHeight(UnitValue.createPointValue(h))`
-        // to pin the paragraph to the element's canvas-designed height.
-        // That caused short elements to silently clip their content — iText
-        // wouldn't render a single line of text if the rendered line box
-        // (font ascender + descender + leading) was even 1pt taller than
-        // the stored `h`. Symptom: a one-line text element rendered fine
-        // on canvas, disappeared entirely from the PDF.
-        // Let the paragraph auto-size instead; `setFixedPosition(x, bottom, w)`
-        // still anchors the bottom-left so the element starts at the same
-        // screen position as the canvas.
-        p.setFixedPosition(pageNumber, x, bottom, w);
+
+        if (parityOn()) {
+            // Pixel-parity path. Top-anchor the paragraph via its measured
+            // height, then apply a graphics-state clip at the authored box so
+            // overflow is hidden on both sides (matches canvas
+            // `overflow-hidden`). We DELIBERATELY avoid `Div.setHeight(h)` +
+            // `OVERFLOW_HIDDEN` here: iText's BlockRenderer drops ENTIRE
+            // content (not just the overflowing portion) when the rendered
+            // line-box is even 1pt taller than the configured height, logging
+            // "Element content was clipped because some height properties are
+            // set" and emitting an empty PDF. The graphics-state clip avoids
+            // that cliff — short text renders fully, long text is clipped at
+            // the box edge.
+            float measured = measureParagraphLayout(p, w, null).height();
+            float anchorBottom = measured > 0f ? yTop - measured : bottom;
+
+            // Phase 4.7 — TEXT rotation around the element center. Offset the
+            // anchor so the rotated bbox's center stays at the element center.
+            float rotatedAnchorX = x;
+            float rotatedAnchorY = anchorBottom;
+            double rotationDeg = style.path("rotation").asDouble(0);
+            float clipX = x;
+            float clipBottom = bottom;
+            float clipW = w;
+            float clipH = h;
+            if (rotationDeg != 0) {
+                double theta = Math.toRadians(-rotationDeg);
+                float cos = (float) Math.cos(theta);
+                float sin = (float) Math.sin(theta);
+                float centerShiftX = w / 2f * (1f - cos) + h / 2f * sin;
+                float centerShiftY = h / 2f * (1f - cos) - w / 2f * sin;
+                rotatedAnchorX += centerShiftX;
+                rotatedAnchorY += centerShiftY;
+                // iText 7.2.5's BlockRenderer casts ROTATION_ANGLE to Float
+                // directly, so passing a Double auto-boxed from `theta`
+                // throws ClassCastException at render time. Cast explicitly.
+                p.setProperty(Property.ROTATION_ANGLE, (float) theta);
+                // Expand the clip rectangle to the rotated visible AABB so a
+                // rotated box's content isn't cut off by the (now-irrelevant)
+                // unrotated edges. Without this, a 400×20 bar at 67° gets
+                // clipped to a thin 20pt strip and the rotated text vanishes
+                // — even though iText laid it out correctly inside the
+                // rotated bbox.
+                float aabbW = w * Math.abs(cos) + h * Math.abs(sin);
+                float aabbH = w * Math.abs(sin) + h * Math.abs(cos);
+                float cx = x + w / 2f;
+                float cyPdf = bottom + h / 2f;
+                clipX = cx - aabbW / 2f;
+                clipBottom = cyPdf - aabbH / 2f;
+                clipW = aabbW;
+                clipH = aabbH;
+            }
+            applyOpacityToElement(p, style);
+
+            // Push the clip onto the page graphics state BEFORE `document.add`
+            // so the paragraph renders through it. Paragraph overflow below
+            // `bottom` (or above `yTop`, if rotation swings it) is invisibly
+            // masked. Pop the clip after.
+            PdfCanvas clipCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            clipCanvas.saveState();
+            clipCanvas.rectangle(clipX, clipBottom, clipW, clipH);
+            clipCanvas.clip();
+            clipCanvas.endPath();
+            p.setFixedPosition(pageNumber, rotatedAnchorX, rotatedAnchorY, w);
+            document.add(p);
+            clipCanvas.restoreState();
+
+            log.debug("addText parity id={} box=({}, {}, {}×{}) measured={} clipped={}",
+                    el.path("id").asText("?"), x, elY, w, h, measured, measured > h);
+            return;
+        }
+
+        // Legacy bottom-anchor path (flag off). Paragraph grows upward from the
+        // element bottom — the historical behaviour that predates phase 1.
+        applyOpacityToElement(p, style);
+        // Apply rotation here too so a rotated text element renders rotated
+        // even when pixel-parity is off (e.g. fonts not yet loaded). Same
+        // centre-pivot offset as the parity path; without this the legacy
+        // path drew the rotated element flat at its unrotated position.
+        float legacyAnchorX = x;
+        float legacyAnchorY = bottom;
+        double legacyRotationDeg = style.path("rotation").asDouble(0);
+        if (legacyRotationDeg != 0) {
+            double theta = Math.toRadians(-legacyRotationDeg);
+            float cos = (float) Math.cos(theta);
+            float sin = (float) Math.sin(theta);
+            legacyAnchorX += w / 2f * (1f - cos) + h / 2f * sin;
+            legacyAnchorY += h / 2f * (1f - cos) - w / 2f * sin;
+            // Cast to float — iText 7.2.5 casts the property to Float directly.
+            p.setProperty(Property.ROTATION_ANGLE, (float) theta);
+        }
+        p.setFixedPosition(pageNumber, legacyAnchorX, legacyAnchorY, w);
         document.add(p);
     }
 
     private Paragraph buildParagraphFromContent(JsonNode contentField, JsonNode data, JsonNode rowContext, JsonNode elementStyle) {
+        return buildParagraphFromContent(contentField, data, rowContext, elementStyle, null);
+    }
+
+    /**
+     * Variant used by the measurement pass. When {@code runIndexOut} is non-null
+     * we record every {@link Text} (and its {@link Link} subclass) created for
+     * a rich-run paragraph, keyed by identity, so the per-line walker can
+     * recover authored run ordinals from the rendered tree. Non-rich plain
+     * strings have no runs to record — the map stays empty for those.
+     */
+    private Paragraph buildParagraphFromContent(JsonNode contentField, JsonNode data, JsonNode rowContext,
+                                                JsonNode elementStyle,
+                                                java.util.Map<Text, Integer> runIndexOut) {
         JsonNode runs = resolveRichRuns(contentField);
         if (runs != null) {
-            return paragraphFromRuns(runs, data, rowContext, elementStyle);
+            return paragraphFromRuns(runs, data, rowContext, elementStyle, runIndexOut);
         }
         String raw = contentField == null || contentField.isNull() ? "" : contentField.asText("");
         Paragraph p = new Paragraph(substitute(raw, data, rowContext));
@@ -362,6 +660,11 @@ public class PdfRendererService {
     }
 
     private Paragraph paragraphFromRuns(JsonNode runs, JsonNode data, JsonNode rowContext, JsonNode elementStyle) {
+        return paragraphFromRuns(runs, data, rowContext, elementStyle, null);
+    }
+
+    private Paragraph paragraphFromRuns(JsonNode runs, JsonNode data, JsonNode rowContext, JsonNode elementStyle,
+                                        java.util.Map<Text, Integer> runIndexOut) {
         Paragraph p = new Paragraph();
         if (elementStyle != null && !elementStyle.isNull()) {
             float fs = (float) elementStyle.path("fontSize").asDouble(12);
@@ -371,7 +674,9 @@ public class PdfRendererService {
                 p.setFontColor(baseColor);
             }
         }
+        int runOrdinal = -1;
         for (JsonNode run : runs) {
+            runOrdinal++;
             String type = run.path("type").asText("text");
             // Resolve the hyperlink href for this run, if any. `{{var}}`
             // placeholders in the stored href (e.g.
@@ -430,6 +735,13 @@ public class PdfRendererService {
                 applyRunTextStyle(t, run, elementStyle);
             }
             p.add(t);
+            if (runIndexOut != null) {
+                // Identity-keyed: iText shards long Text objects into multiple
+                // TextRenderer children on wrap, but every shard shares the
+                // same model-element reference. Looking up by identity resolves
+                // every shard to the authored run ordinal.
+                runIndexOut.put(t, runOrdinal);
+            }
         }
         applyParagraphAlignmentOnly(p, elementStyle);
         return p;
@@ -477,11 +789,17 @@ public class PdfRendererService {
         boolean italic = run.has("italic")
                 ? run.path("italic").asBoolean()
                 : base.path("italic").asBoolean(false);
-        if (bold) {
-            t.setBold();
-        }
-        if (italic) {
-            t.setItalic();
+        if (parityOn()) {
+            PdfFont font = resolveParityFont(base, bold, italic);
+            if (font != null) {
+                t.setFont(font);
+            } else {
+                if (bold) t.setBold();
+                if (italic) t.setItalic();
+            }
+        } else {
+            if (bold) t.setBold();
+            if (italic) t.setItalic();
         }
         if (run.path("underline").asBoolean(false)) {
             t.setUnderline(0.75f, -2f);
@@ -556,18 +874,39 @@ public class PdfRendererService {
             }
             rows = resolved.isArray() ? resolved : JsonNodeFactory.instance.arrayNode();
         } else {
-            // Static mode — synthesize N empty row objects so every column's
-            // body cell still gets a Paragraph (keeps cell heights, borders,
-            // and alternating backgrounds consistent with the canvas).
+            // Static mode — build row objects from `tableStaticCells`, the
+            // frontend's per-cell storage for loop-off tables. Keys are
+            // `"row,col"` (same coordinate convention as the backgrounds
+            // maps); values are serialized rich-run JSON that
+            // buildParagraphFromContent() already knows how to parse.
+            //
+            // When no cell is set at (row,col) we leave the field absent so
+            // the body cell renders empty — identical to the prior behaviour
+            // that synthesised empty rows.
             int previewRows = 3;
             JsonNode prNode = el.get("tablePreviewBodyRows");
             if (prNode != null && prNode.isNumber()) {
                 int parsed = prNode.asInt(3);
                 if (parsed > 0) previewRows = Math.min(30, parsed);
             }
+            JsonNode staticCells = el.path("tableStaticCells");
             com.fasterxml.jackson.databind.node.ArrayNode synth = JsonNodeFactory.instance.arrayNode();
             for (int i = 0; i < previewRows; i++) {
-                synth.add(JsonNodeFactory.instance.objectNode());
+                ObjectNode rowObj = JsonNodeFactory.instance.objectNode();
+                if (staticCells != null && staticCells.isObject()) {
+                    int colIdx = 0;
+                    for (JsonNode col : columns) {
+                        String colKey = col.path("key").asText("");
+                        if (!colKey.isEmpty()) {
+                            JsonNode cellVal = staticCells.get(i + "," + colIdx);
+                            if (cellVal != null && cellVal.isTextual()) {
+                                rowObj.set(colKey, cellVal);
+                            }
+                        }
+                        colIdx++;
+                    }
+                }
+                synth.add(rowObj);
             }
             rows = synth;
         }
@@ -629,14 +968,28 @@ public class PdfRendererService {
             for (int i = 0; i < bodyRowCountForHeight; i++) bodyRowHeights[i] = 0f;
         }
 
-        JsonNode headerStyle = objectMapper.createObjectNode().put("bold", true);
+        // Header paragraphs inherit the element's style (font, size, leading,
+        // color) and force `bold`. In parity mode we also keep the font-family
+        // consistent with body cells by starting from the element style and
+        // overriding bold rather than constructing a bare {bold:true} node
+        // that loses every other attribute.
+        ObjectNode headerStyle;
+        JsonNode elementStyle = el.path("style");
+        if (elementStyle == null || elementStyle.isMissingNode() || elementStyle.isNull()) {
+            headerStyle = objectMapper.createObjectNode();
+        } else {
+            headerStyle = objectMapper.createObjectNode();
+            headerStyle.setAll((ObjectNode) elementStyle);
+        }
+        headerStyle.put("bold", true);
+
         int headerColIndex = 0;
         for (JsonNode col : columns) {
             Paragraph headerParagraph = buildParagraphFromContent(col.get("header"), data, null, headerStyle);
-            Cell headerCell = new Cell()
+            Cell headerCell = applyCellPadding(new Cell()
                     .add(headerParagraph)
-                    .setVerticalAlignment(VerticalAlignment.MIDDLE)
-                    .setPadding(4);
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE));
+            applyCellBorderForParity(headerCell);
             if (headerRowHeight > 0f) {
                 headerCell.setHeight(UnitValue.createPointValue(headerRowHeight));
             }
@@ -657,8 +1010,17 @@ public class PdfRendererService {
             int bodyColIndex = 0;
             for (JsonNode col : columns) {
                 String key = col.path("key").asText("");
-                String cellText = cellValue(row, key, data);
-                Paragraph para = new Paragraph(cellText);
+                // Route through buildParagraphFromContent so rich runs (bold /
+                // italic / color / link / inline variable) survive end-to-end.
+                // Legacy `new Paragraph(cellValue(row, key, data))` stripped
+                // every per-run attribute — the canvas showed a bold word in a
+                // cell, the PDF rendered it plain. buildParagraphFromContent
+                // handles both plain strings (legacy data) and rich-content
+                // nodes (editor output), and applies the element's style so
+                // fontSize / fontFamily / leading / alignment / color all come
+                // from the same place as TEXT element rendering.
+                JsonNode cellContent = row != null && row.has(key) ? row.get(key) : null;
+                Paragraph para = buildParagraphFromContent(cellContent, data, row, elementStyle);
                 LayoutBehaviourResolver.CellStyleDelta delta =
                         behaviourResolver.tableCellStyle(behaviour, row, data, bodyColIndex);
                 if (delta.textColor() != null && !delta.textColor().isBlank()) {
@@ -667,10 +1029,10 @@ public class PdfRendererService {
                         para.setFontColor(tc);
                     }
                 }
-                Cell bodyCell = new Cell()
+                Cell bodyCell = applyCellPadding(new Cell()
                         .add(para)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE)
-                        .setPadding(4);
+                        .setVerticalAlignment(VerticalAlignment.MIDDLE));
+                applyCellBorderForParity(bodyCell);
                 // Pin the cell height so the visible body row matches the
                 // canvas row. Without this, an empty cell (static-mode
                 // preview) would collapse to line-height + padding and the
@@ -763,7 +1125,7 @@ public class PdfRendererService {
         return n != null && n.isTextual() ? n.asText() : null;
     }
 
-    /** Fill precedence: cell > column > row (matches frontend). Keys: cell="row,col", col="0"…, row="-1","0"… */
+    /** Fill precedence: cell > column > row > element.style.backgroundColor (matches frontend). */
     private String effectiveTableCellBackground(JsonNode el, int row, int col) {
         JsonNode cellMap = el.path("tableCellBackgrounds");
         String cellBg = textFromStringObjectMap(cellMap, row + "," + col);
@@ -779,6 +1141,19 @@ public class PdfRendererService {
         String rowBg = textFromStringObjectMap(rowMap, String.valueOf(row));
         if (rowBg != null && !rowBg.isBlank()) {
             return rowBg;
+        }
+        // Element-level "table fill" — last-resort fallback mirroring the
+        // canvas precedence in tableCellEffectiveBackground() on the frontend.
+        // Without this, a solid background set on the TABLE element itself
+        // (the Properties-panel "Fill" picker) only showed on the editor
+        // canvas and vanished in the generated PDF.
+        JsonNode style = el.path("style");
+        if (style != null && style.isObject()) {
+            JsonNode bg = style.get("backgroundColor");
+            if (bg != null && bg.isTextual()) {
+                String v = bg.asText("").trim();
+                if (!v.isBlank()) return v;
+            }
         }
         return null;
     }
@@ -941,8 +1316,36 @@ public class PdfRendererService {
         // cell out — at that point `getOccupiedAreaBBox()` tells us exactly
         // where the cell's first line sits, so the bullet aligns perfectly.
         // Ordered markers (1./a./ii.) are plain text in the marker cell.
-        Canvas listCanvas = new Canvas(new PdfCanvas(pdfDoc.getPage(pageNumber)),
-                new Rectangle(x, bottom, w, h));
+        // Pixel-parity LIST clip. iText's Canvas silently drops items that
+        // don't fit vertically in its Rectangle — for CSS-flow-style parity
+        // we need the renderer to ATTEMPT to draw every item, then let a
+        // graphics-state clip at the element bbox hide any overflow. Without
+        // this, canvas + PDF disagree on which items are visible when the
+        // list sum-height exceeds the authored box (canvas shows more
+        // because CSS flow is slightly tighter than iText's line metrics).
+        //
+        // Legacy path keeps the tight rectangle so pre-parity output is
+        // bit-identical.
+        PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        boolean listClipPushed = false;
+        Rectangle canvasRect;
+        if (parityOn()) {
+            pdfCanvas.saveState();
+            pdfCanvas.rectangle(x, bottom, w, h);
+            pdfCanvas.clip();
+            pdfCanvas.endPath();
+            listClipPushed = true;
+            // Extend the draw rectangle DOWNWARD so iText has room to lay out
+            // every item. The top stays at the element's top edge (where
+            // iText begins its flow); extra headroom below absorbs any items
+            // that don't fit visually — those pixels are then masked by the
+            // clip path above.
+            float extraHeadroom = Math.max(pageHeight, 1000f);
+            canvasRect = new Rectangle(x, bottom - extraHeadroom, w, h + extraHeadroom);
+        } else {
+            canvasRect = new Rectangle(x, bottom, w, h);
+        }
+        Canvas listCanvas = new Canvas(pdfCanvas, canvasRect);
 
         // Width reserved for the marker column INSIDE each row (after the
         // row's indent left-margin). Shape markers are drawn inside this
@@ -958,8 +1361,7 @@ public class PdfRendererService {
             int groupIndex = groupCountByIndent.getOrDefault(level, 0);
             groupCountByIndent.put(level, groupIndex + 1);
 
-            final String effectiveBulletStyle = effectiveBulletStyleFor(listStyleStr, level);
-            String textMarker = textMarkerFor(listStyleStr, level, groupIndex, startNumber);
+            String textMarker = markerGlyphFor(listStyleStr, level, groupIndex, startNumber);
             String itemText = substitute(row.text, data, null);
 
             float rowLeftIndent = level * indent;
@@ -969,29 +1371,43 @@ public class PdfRendererService {
 
             Table rowTable = new Table(UnitValue.createPointArray(new float[]{ markerColWidth, textColWidth }));
             rowTable.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
-            rowTable.setMarginTop(i == 0 ? 0 : itemSpacing);
+            // Canvas CSS `line-height` includes descender — row N ends exactly
+            // where row N+1's leading starts. iText renders each line then
+            // leaves a trailing descender gap (~fontSize × 0.25 for most Latin
+            // fonts) BELOW the line box, so two iText rows stacked are further
+            // apart than two canvas rows. Compensate by shortening the
+            // inter-row margin under parity so row-to-row distance matches
+            // canvas's `lineHeight + marginTop`.
+            float descenderBuffer = parityOn() ? fontSize * 0.25f : 0f;
+            float effectiveMarginTop = i == 0
+                    ? 0f
+                    : Math.max(0f, itemSpacing - descenderBuffer);
+            rowTable.setMarginTop(effectiveMarginTop);
             rowTable.setMarginBottom(0);
             rowTable.setMarginLeft(rowLeftIndent);
             rowTable.setWidth(UnitValue.createPointValue(rowLeftIndent + markerColWidth + textColWidth));
 
             // ── Marker cell ────────────────────────────────────────────
+            // NOTE: do NOT `setHeight(fontSize × lineHeight)` here — iText's
+            // BlockRenderer drops ALL cell content when the laid-out line-box
+            // exceeds the set height by even 1pt (same cliff that broke the
+            // TEXT Div+setHeight approach earlier). The graphics-state clip
+            // at the list bbox handles overflow containment; row-to-row
+            // spacing is governed by the rowTable margin below.
             Cell markerCell = new Cell();
             markerCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
             markerCell.setPadding(0);
             markerCell.setPaddingRight(2);
             markerCell.setVerticalAlignment(VerticalAlignment.TOP);
 
-            if (effectiveBulletStyle != null) {
-                // Shape marker — custom renderer draws a circle/square/dash
-                // on PdfCanvas after the cell's final position is known.
-                final float markerFontSize = fontSize;
-                final float markerLineHeight = lineHeight;
-                final Color markerColor = textColor;
-                markerCell.setNextRenderer(new ShapeMarkerCellRenderer(
-                        markerCell, effectiveBulletStyle, markerFontSize, markerLineHeight, markerColor));
-            } else if (!textMarker.isEmpty()) {
-                // Ordered marker — plain Paragraph in the cell. Right-aligned
-                // so "1.", "10.", "100." all terminate at the same column.
+            if (!textMarker.isEmpty()) {
+                // Single Paragraph path for BOTH bullet styles (Unicode glyphs
+                // •, ○, ■, –) and ordered styles ("1.", "a.", "i."). Using a
+                // text glyph instead of a vector-drawn shape lets iText's line
+                // layout handle baseline alignment — the canvas does the same
+                // thing, so the glyph sits at the x-height mid-line in both
+                // renderers for free. Right-aligned so "1.", "10.", "100." all
+                // terminate at the same column.
                 Paragraph mp = new Paragraph(textMarker);
                 applyTextStyle(mp, style);
                 mp.setTextAlignment(TextAlignment.RIGHT);
@@ -1017,6 +1433,9 @@ public class PdfRendererService {
         }
 
         listCanvas.close();
+        if (listClipPushed) {
+            pdfCanvas.restoreState();
+        }
     }
 
     /**
@@ -1050,12 +1469,19 @@ public class PdfRendererService {
             super.draw(drawContext);
             Rectangle bbox = getOccupiedAreaBBox();
             PdfCanvas canvas = drawContext.getCanvas();
-            // The marker aligns with the FIRST line of the row. Optical centre
-            // of lowercase text sits ≈ linePadTop + fontSize × 0.47 below the
-            // line box top; the first line box sits at the cell's top edge.
-            float rowH = fontSize * lineHeight;
-            float linePadTop = (rowH - fontSize) * 0.5f;
-            float cy = bbox.getTop() - linePadTop - fontSize * 0.47f;
+            // Align the bullet centre with the FIRST line's x-height middle
+            // (where a Unicode `•` naturally centres in CSS flow). Math:
+            //   baseline_y ≈ top − ascender − halfLeading
+            //              ≈ top − 0.93 × fontSize − (lh − 1.17) × fontSize / 2
+            //   x-height mid ≈ baseline + xHeight / 2
+            //                ≈ baseline + 0.25 × fontSize
+            //
+            // For Latin fonts at lineHeight 1.4 this simplifies to roughly
+            // `top − 0.78 × fontSize`. Using `fontSize × 0.78` instead of the
+            // old `rowH × 0.5` shifts the bullet ~1pt lower — off the caps'
+            // midline and onto the x-height midline, where the user expects
+            // it to sit beside lowercase characters.
+            float cy = bbox.getTop() - fontSize * 0.78f;
             float cx = bbox.getLeft() + bbox.getWidth() * 0.5f;
             PdfRendererService.drawShapeMarkerStatic(canvas, style, cx, cy, fontSize, color);
         }
@@ -1093,6 +1519,33 @@ public class PdfRendererService {
             }
         }
         canvas.restoreState();
+    }
+
+    /**
+     * Unified marker resolver used by the list renderer. Returns the glyph (or
+     * an empty string for {@code none}) that should sit in the marker cell for
+     * a given row — a Unicode bullet character for unordered styles, or the
+     * formatted number text (e.g. {@code "1."}, {@code "a."}, {@code "i."}) for
+     * ordered styles. The codepoints match the canvas ({@code ListElementCanvas}):
+     * disc → U+2022, circle → U+25CB, square → U+25A0, dash → U+2013. Using text
+     * glyphs instead of vector shapes means iText positions the bullet at the
+     * first line's x-height mid-line automatically, matching CSS.
+     */
+    private String markerGlyphFor(String baseStyle, int indentLevel, int groupIndex, int startNumber) {
+        if ("none".equals(baseStyle)) return "";
+        boolean isOrdered = "number".equals(baseStyle)
+                || "alpha".equals(baseStyle)
+                || "roman".equals(baseStyle);
+        if (isOrdered) return textMarkerFor(baseStyle, indentLevel, groupIndex, startNumber);
+        int baseIdx = Math.max(0, indexOf(BULLET_CYCLE, baseStyle));
+        String effective = BULLET_CYCLE[(baseIdx + indentLevel) % BULLET_CYCLE.length];
+        return switch (effective) {
+            case "disc" -> "\u2022";
+            case "circle" -> "\u25CB";
+            case "square" -> "\u25A0";
+            case "dash" -> "\u2013";
+            default -> "\u2022";
+        };
     }
 
     /**
@@ -1286,7 +1739,47 @@ public class PdfRendererService {
             }
             Image img = new Image(data);
             img.scaleToFit(w, h);
-            img.setFixedPosition(pageNumber, x, bottom);
+            // Canvas renders images with CSS `object-contain` inside a
+            // `flex items-center justify-center` box — the image sits in the
+            // middle of the element, empty space symmetric on each axis when
+            // the aspect ratio doesn't match. iText's `scaleToFit` preserves
+            // the aspect ratio too, but {@code setFixedPosition} anchors the
+            // bottom-left, so any mismatch stacks all the empty space at the
+            // top + right. Compute the rendered dimensions ourselves and
+            // offset the anchor so the image centers in the box.
+            float renderedW = w;
+            float renderedH = h;
+            if (parityOn()) {
+                float intrinsicW = data.getWidth();
+                float intrinsicH = data.getHeight();
+                if (intrinsicW > 0f && intrinsicH > 0f) {
+                    float scale = Math.min(w / intrinsicW, h / intrinsicH);
+                    renderedW = intrinsicW * scale;
+                    renderedH = intrinsicH * scale;
+                }
+            }
+            float anchorX = parityOn() ? x + (w - renderedW) / 2f : x;
+            float anchorY = parityOn() ? bottom + (h - renderedH) / 2f : bottom;
+
+            // Phase 4.7 — IMAGE rotation around the element center. iText's
+            // Image.setRotationAngle rotates around the image's bottom-left by
+            // default; we offset setFixedPosition to keep the rotated bbox's
+            // center on the element box center. The rotation math uses the
+            // RENDERED image dimensions (post-scaleToFit), not the authored
+            // element w/h — those only matter for the centering offset above.
+            if (parityOn()) {
+                double rotationDeg = style.path("rotation").asDouble(0);
+                if (rotationDeg != 0) {
+                    double theta = Math.toRadians(-rotationDeg);
+                    float cos = (float) Math.cos(theta);
+                    float sin = (float) Math.sin(theta);
+                    anchorX += renderedW / 2f * (1f - cos) + renderedH / 2f * sin;
+                    anchorY += renderedH / 2f * (1f - cos) - renderedW / 2f * sin;
+                    img.setRotationAngle(theta);
+                }
+            }
+            applyOpacityToElement(img, style);
+            img.setFixedPosition(pageNumber, anchorX, anchorY);
             document.add(img);
         } catch (MalformedURLException e) {
             log.warn("IMAGE MalformedURLException: {}", e.getMessage());
@@ -1310,19 +1803,78 @@ public class PdfRendererService {
         float yPdf = pageHeight - elY - elH / 2f;
         float x2 = x1 + length;
 
-        Color strokeColor = parseCssColorToItext(el.path("style").path("color").asText(""));
+        JsonNode style = el.path("style");
+        Color strokeColor = parseCssColorToItext(style.path("color").asText(""));
         if (strokeColor == null) {
             strokeColor = ColorConstants.BLACK;
         }
+        boolean arrowStart = style.path("arrowStart").asBoolean(false);
+        boolean arrowEnd = style.path("arrowEnd").asBoolean(false);
+        // Stroke gradient takes precedence over solid colour, mirroring BOX
+        // bgGradient. The gradient's "bbox" for axis interpolation is the
+        // line's bounding box (length × elH) — same convention as element
+        // bbox elsewhere so a 90° gradient runs along the shaft.
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder strokeGradient =
+                parseLinearGradientToItext(style.path("colorGradient"), x1, pageHeight - elY - elH, length, elH);
 
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
-        canvas.setStrokeColor(strokeColor);
-        canvas.setLineWidth(Math.max(0.25f, stroke));
-        canvas.moveTo(x1, yPdf);
-        canvas.lineTo(x2, yPdf);
-        canvas.stroke();
+        applyOpacityIfAny(canvas, style);
+        applyRotationIfAny(canvas, style, x1 + length / 2f, yPdf);
+        Color effectiveStrokeColor;
+        if (strokeGradient != null) {
+            com.itextpdf.kernel.geom.Rectangle gradRect =
+                    new com.itextpdf.kernel.geom.Rectangle(x1, pageHeight - elY - elH, length, elH);
+            effectiveStrokeColor = strokeGradient.buildColor(gradRect, null, pdfDoc);
+        } else {
+            effectiveStrokeColor = strokeColor;
+        }
+        canvas.setStrokeColor(effectiveStrokeColor);
+        // Arrowheads inherit the same fill so the marker tip matches the
+        // shaft (gradient interpolation preserved).
+        canvas.setFillColor(effectiveStrokeColor);
+        float effectiveStroke = Math.max(0.25f, stroke);
+        canvas.setLineWidth(effectiveStroke);
+        applyLineStyleIfAny(canvas, style, effectiveStroke);
+        // Pull the line's endpoints inwards by the arrow length when an
+        // arrowhead is present, so the dashed / dotted shaft doesn't peek
+        // through the filled triangle. arrowSize scales with stroke so a
+        // thicker line gets a proportionally larger head.
+        float arrowSize = effectiveStroke * 6f;
+        float xStart = arrowStart ? x1 + arrowSize : x1;
+        float xEnd = arrowEnd ? x2 - arrowSize : x2;
+        if (xEnd > xStart) {
+            canvas.moveTo(xStart, yPdf);
+            canvas.lineTo(xEnd, yPdf);
+            canvas.stroke();
+        }
+        // Reset the dash for the arrow heads — solid filled triangles
+        // regardless of the shaft's lineStyle.
+        canvas.setLineDash(new float[]{}, 0);
+        if (arrowStart) {
+            drawArrowhead(canvas, x1, yPdf, arrowSize, /* pointsLeft= */ true);
+        }
+        if (arrowEnd) {
+            drawArrowhead(canvas, x2, yPdf, arrowSize, /* pointsLeft= */ false);
+        }
         canvas.restoreState();
+    }
+
+    /**
+     * Draw a filled triangular arrowhead with its tip at ({@code tipX},
+     * {@code tipY}). When {@code pointsLeft} is true the triangle opens
+     * to the right (tip pointing left, used at the start of a left-to-right
+     * line); otherwise it opens to the left (tip pointing right, end of
+     * line).
+     */
+    private static void drawArrowhead(PdfCanvas canvas, float tipX, float tipY, float size, boolean pointsLeft) {
+        float baseX = pointsLeft ? tipX + size : tipX - size;
+        float halfBase = size * 0.5f;
+        canvas.moveTo(tipX, tipY);
+        canvas.lineTo(baseX, tipY + halfBase);
+        canvas.lineTo(baseX, tipY - halfBase);
+        canvas.closePath();
+        canvas.fill();
     }
 
     private void addBox(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
@@ -1334,29 +1886,310 @@ public class PdfRendererService {
         Rectangle rect = new Rectangle(x, bottom, w, h);
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Honor explicit "no border colour" — when the user clears the
+        // colour swatch we render no stroke at all (vs the legacy fallback
+        // to GRAY which made every cleared border still visible). The
+        // stroke draw is gated on `stroke != null` further down.
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.GRAY;
+
+        // BOX honors author-set borderWidth + lineStyle unconditionally.
+        // The defaults (2pt + dashed) match the legacy hardcoded values so
+        // older layouts that never set these fields keep their look.
+        float borderWidth = (float) style.path("borderWidth").asDouble(2);
+        // Solid border by default — matches the canvas fallback. Older
+        // layouts that don't set lineStyle now render with a solid box
+        // outline instead of the legacy dashed look.
+        String lineStyle = style.path("lineStyle").asText("solid");
+
+        // BOX borderRadius. `roundRectangle` requires radius clamped to
+        // half the shorter side; over-large authored values are silently
+        // clamped so iText doesn't throw.
+        float radius = 0f;
+        double authoredRadius = style.path("borderRadius").asDouble(0);
+        if (authoredRadius > 0) {
+            radius = (float) Math.min(authoredRadius, Math.min(w, h) / 2f);
         }
+
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the
+        // element. Runs before the main draw so the shadow lives beneath;
+        // offset + blur + color read from style.shadow.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            java.awt.Shape silhouette = radius > 0f
+                    ? ShadowRasterizer.roundedRectangleSilhouette(w, h, radius)
+                    : ShadowRasterizer.rectangleSilhouette(w, h);
+            String shapeKey = radius > 0f ? "rrect-" + radius : "rect";
+            paintShadowUnder(pdfDoc, shadowNode, silhouette, shapeKey, x, bottom, w, h, pageNumber);
+        }
+
+        // Phase 6d — gradient fill takes precedence over solid `fill` when
+        // `bgGradient` is set and parses successfully. iText's
+        // `setFillColorGradient` swaps the graphics-state fill for a gradient
+        // pattern spanning the element's bbox.
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder bgGradient =
+                parseLinearGradientToItext(style.path("bgGradient"), x, bottom, w, h);
 
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
-        if (fill != null) {
+        applyOpacityIfAny(canvas, style);
+        applyRotationIfAny(canvas, style, x + w / 2f, bottom + h / 2f);
+        if (bgGradient != null) {
+            // `buildColor(targetBBox, affineMatrix, document)` returns a
+            // gradient-backed Color we can pass to setFillColor like any solid.
+            Color gradientColor = bgGradient.buildColor(rect, null, pdfDoc);
+            canvas.setFillColor(gradientColor);
+            if (radius > 0f) canvas.roundRectangle(x, bottom, w, h, radius);
+            else canvas.rectangle(rect);
+            canvas.fill();
+        } else if (fill != null) {
             canvas.setFillColor(fill);
-            canvas.rectangle(rect);
+            if (radius > 0f) canvas.roundRectangle(x, bottom, w, h, radius);
+            else canvas.rectangle(rect);
             canvas.fill();
         }
-        canvas.setStrokeColor(stroke);
-        canvas.setLineWidth(2);
-        canvas.setLineDash(3f, 2f);
-        canvas.rectangle(rect);
-        canvas.stroke();
+        // Stroke only when the author actually set a border colour. Cleared
+        // swatch → no border drawn (visual parity with the canvas
+        // implementation that suppresses the border in the same case).
+        if (stroke != null) {
+            canvas.setStrokeColor(stroke);
+            canvas.setLineWidth(borderWidth);
+            applyLineDashForStyle(canvas, lineStyle, borderWidth);
+            if (radius > 0f) canvas.roundRectangle(x, bottom, w, h, radius);
+            else canvas.rectangle(rect);
+            canvas.stroke();
+        }
         canvas.restoreState();
     }
 
     /** Layout Y measured from top of page → iText PDF Y (bottom-origin). */
     private float layoutYToPdf(float pageHeight, float yFromTop) {
         return pageHeight - yFromTop;
+    }
+
+    /**
+     * Apply {@code style.rotation} (degrees clockwise) around the given
+     * pivot point by concatenating a rotation matrix onto the current
+     * canvas graphics state. Caller must have already pushed a saveState.
+     * Off the parity flag or when rotation is 0/missing, this is a no-op —
+     * legacy renders stay axis-aligned.
+     */
+    private void applyRotationIfAny(PdfCanvas canvas, JsonNode style, float pivotX, float pivotY) {
+        // Authors set rotation expecting it to take effect on every shape;
+        // gating on the pixel-parity flag silently dropped the value on
+        // legacy renders. The function is already a no-op when rotation
+        // is 0 or missing, so unconditional execution is safe.
+        double rotationDeg = style.path("rotation").asDouble(0);
+        if (rotationDeg == 0) return;
+        // Canvas rotation is clockwise-positive; PDF matrix is counter-clockwise.
+        double theta = Math.toRadians(-rotationDeg);
+        float cos = (float) Math.cos(theta);
+        float sin = (float) Math.sin(theta);
+        // Translate → rotate → translate back, composed into a single matrix.
+        canvas.concatMatrix(cos, sin, -sin, cos,
+                pivotX - cos * pivotX + sin * pivotY,
+                pivotY - sin * pivotX - cos * pivotY);
+    }
+
+    /**
+     * Phase 6c — paint a rasterised shadow directly onto the page's
+     * {@link PdfCanvas} at the right pt dimensions. Called from each element
+     * renderer before its own draw so the shadow lives underneath.
+     *
+     * <p>The rasteriser returns a PNG padded by {@code blur×2} on each side
+     * (for the edge fall-off); we position the bottom-left of the PNG at
+     * {@code (x - pad, bottom - pad)} so the element's visual origin lands in
+     * the right spot.
+     */
+    private void paintShadowUnder(PdfDocument pdfDoc, JsonNode shadowNode,
+                                  java.awt.Shape silhouette, String shapeKey,
+                                  float x, float bottom, float w, float h, int pageNumber) {
+        byte[] png = ShadowRasterizer.rasterize(w, h, shadowNode, silhouette, shapeKey);
+        if (png == null) return;
+        try {
+            com.itextpdf.io.image.ImageData shadowData =
+                    com.itextpdf.io.image.ImageDataFactory.create(png);
+            float blur = (float) shadowNode.path("blur").asDouble(4);
+            float padPt = blur * 2f;
+            // Draw via PdfCanvas.addImageFittedIntoRectangle — avoids the
+            // Document-level add() path which isn't available in pure
+            // PdfCanvas helpers like addBox.
+            PdfCanvas shadowCanvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+            shadowCanvas.saveState();
+            com.itextpdf.kernel.geom.Rectangle targetRect =
+                    new com.itextpdf.kernel.geom.Rectangle(
+                            x - padPt, bottom - padPt,
+                            w + padPt * 2f, h + padPt * 2f);
+            shadowCanvas.addImageFittedIntoRectangle(shadowData, targetRect, false);
+            shadowCanvas.restoreState();
+        } catch (Exception e) {
+            log.warn("Shadow embed failed: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Phase 6d — parse a {@code style.bgGradient} node into an iText
+     * {@link com.itextpdf.kernel.colors.gradients.AbstractLinearGradientBuilder}
+     * that paints over the given bounding box. Returns null when the gradient
+     * is missing, malformed, or parity is off (callers fall back to solid
+     * fill via {@code backgroundColor}).
+     *
+     * <p>CSS linear-gradient semantics: angle 0 = bottom→top, 90 = left→right
+     * (clockwise-positive). We build the PDF gradient vector in y-up PDF coords
+     * so iText paints identically to the browser; the length is the standard
+     * CSS "projects corners to 0 and 1" formula {@code |w·sin θ| + |h·cos θ|}.
+     */
+    private com.itextpdf.kernel.colors.gradients.LinearGradientBuilder
+            parseLinearGradientToItext(JsonNode gradient, float x, float bottom, float w, float h) {
+        if (!parityOn()) return null;
+        if (gradient == null || gradient.isMissingNode() || gradient.isNull()) return null;
+        String type = gradient.path("type").asText("linear");
+        if (!"linear".equals(type)) {
+            // Radial / text-gradient follow-on sub-phases; for now the
+            // backgrounds path only handles linear. Callers fall back to
+            // solid fill for other types.
+            return null;
+        }
+        JsonNode stops = gradient.path("stops");
+        if (!stops.isArray() || stops.size() < 2) return null;
+
+        double angleDeg = gradient.path("angle").asDouble(180); // 180 = top→bottom default
+        double theta = Math.toRadians(angleDeg);
+        float dx = (float) Math.sin(theta);
+        // CSS gradient angle 0 = "to top"; in PDF y-up, "to top" is +y. For
+        // angle=0 we want dy=+1. cos(0)=1, so dy = cos(theta) matches.
+        float dy = (float) Math.cos(theta);
+        float cx = x + w / 2f;
+        float cy = bottom + h / 2f;
+        float len = Math.abs(w * dx) + Math.abs(h * dy);
+        float x0 = cx - dx * len / 2f;
+        float y0 = cy - dy * len / 2f;
+        float x1 = cx + dx * len / 2f;
+        float y1 = cy + dy * len / 2f;
+
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder builder =
+                new com.itextpdf.kernel.colors.gradients.LinearGradientBuilder();
+        builder.setGradientVector(x0, y0, x1, y1);
+        builder.setSpreadMethod(com.itextpdf.kernel.colors.gradients.GradientSpreadMethod.PAD);
+        for (JsonNode stop : stops) {
+            String cssColor = stop.path("color").asText("");
+            Color c = parseCssColorToItext(cssColor);
+            if (c == null) c = ColorConstants.WHITE;
+            double offset = stop.path("position").asDouble(0);
+            float[] rgb = c.getColorValue();
+            builder.addColorStop(new com.itextpdf.kernel.colors.gradients.GradientColorStop(
+                    rgb, (float) offset,
+                    com.itextpdf.kernel.colors.gradients.GradientColorStop.OffsetType.RELATIVE));
+        }
+        return builder;
+    }
+
+    /**
+     * Paint the page-level background (colour or gradient) over the entire
+     * page rectangle, beneath every element. Skips silently when the
+     * {@code background} node is null/empty so legacy templates render as
+     * before. Gradient takes precedence over solid colour, mirroring the
+     * BOX element semantics (see addBox at lines ~1791-1870).
+     */
+    private void paintPageBackground(PdfDocument pdfDoc, JsonNode background, PageSize pageSize, int pageNumber) {
+        if (background == null || background.isMissingNode() || background.isNull() || !background.isObject()) {
+            return;
+        }
+        float w = pageSize.getWidth();
+        float h = pageSize.getHeight();
+        com.itextpdf.kernel.colors.gradients.LinearGradientBuilder grad =
+                parseLinearGradientToItext(background.path("gradient"), 0f, 0f, w, h);
+        Color solid = parseCssColorToItext(background.path("color").asText(""));
+        if (grad == null && solid == null) return;
+        com.itextpdf.kernel.geom.Rectangle rect = new com.itextpdf.kernel.geom.Rectangle(0, 0, w, h);
+        PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
+        canvas.saveState();
+        if (grad != null) {
+            canvas.setFillColor(grad.buildColor(rect, null, pdfDoc));
+        } else {
+            canvas.setFillColor(solid);
+        }
+        canvas.rectangle(rect);
+        canvas.fill();
+        canvas.restoreState();
+    }
+
+    /**
+     * Phase 6b — opacity. Reads {@code style.opacity} (0..1; default 1) and,
+     * when parity is on, pushes a {@link PdfExtGState} with matching fill +
+     * stroke alpha onto the canvas graphics state. Must be called INSIDE a
+     * {@code saveState / restoreState} scope so the opacity doesn't leak into
+     * the next element's draw.
+     */
+    private void applyOpacityIfAny(PdfCanvas canvas, JsonNode style) {
+        // No-op when opacity is unset or 1.0, so safe to run unconditionally
+        // — the parity gate previously prevented authors' opacity choice
+        // from reaching the PDF renderer in legacy mode.
+        double opacity = style.path("opacity").asDouble(1);
+        if (opacity >= 1.0 || opacity < 0) return;
+        float a = (float) opacity;
+        PdfExtGState gs = new PdfExtGState().setFillOpacity(a).setStrokeOpacity(a);
+        canvas.setExtGState(gs);
+    }
+
+    /**
+     * Propagate opacity to a Paragraph/Image/Table element-level draw. iText
+     * 7.2.5 exposes a single {@code Property.OPACITY} which applies to both
+     * fill and stroke of the laid-out element.
+     */
+    private <T extends com.itextpdf.layout.IPropertyContainer> T applyOpacityToElement(T element, JsonNode style) {
+        if (!parityOn()) return element;
+        double opacity = style.path("opacity").asDouble(1);
+        if (opacity >= 1.0 || opacity < 0) return element;
+        element.setProperty(Property.OPACITY, (float) opacity);
+        return element;
+    }
+
+    /** Read {@code style.lineStyle} (solid/dashed/dotted) and apply the matching dash pattern. */
+    private void applyLineStyleIfAny(PdfCanvas canvas, JsonNode style, float strokeWidth) {
+        // Authors set lineStyle expecting it to take effect; gating on the
+        // pixel-parity flag silently dropped their choice on legacy renders.
+        // Apply unconditionally — `solid` is the natural default and
+        // {@link #applyLineDashForStyle} clears any prior dash for it.
+        String lineStyle = style.path("lineStyle").asText("solid");
+        applyLineDashForStyle(canvas, lineStyle, strokeWidth);
+    }
+
+    /**
+     * Convenience wrapper that computes the element's bbox center (in PDF
+     * coords) from {@code el.x/y/width/height} and delegates to
+     * {@link #applyRotationIfAny}. Used by every shape renderer so one
+     * {@code style.rotation} field rotates the whole primitive uniformly.
+     */
+    private void applyShapeRotationIfAny(PdfCanvas canvas, JsonNode el, float pageHeight) {
+        JsonNode style = el.path("style");
+        double rotationDeg = style.path("rotation").asDouble(0);
+        if (rotationDeg == 0) return;
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(0);
+        float h = (float) el.path("height").asDouble(0);
+        if (w <= 0f || h <= 0f) return;
+        float cx = x + w / 2f;
+        float cy = pageHeight - elY - h / 2f;
+        applyRotationIfAny(canvas, style, cx, cy);
+    }
+
+    /**
+     * Apply the dash pattern for a given logical lineStyle. Values mirror
+     * the frontend {@code lineStyle} field.
+     * <ul>
+     *   <li>{@code solid}  — no dash (clears any previously-set pattern)</li>
+     *   <li>{@code dashed} — 3×stroke on / 2×stroke off</li>
+     *   <li>{@code dotted} — 1×stroke on / 1×stroke off</li>
+     * </ul>
+     */
+    private void applyLineDashForStyle(PdfCanvas canvas, String lineStyle, float strokeWidth) {
+        float w = Math.max(0.25f, strokeWidth);
+        switch (lineStyle) {
+            case "dashed" -> canvas.setLineDash(w * 3f, w * 2f);
+            case "dotted" -> canvas.setLineDash(w, w);
+            default -> canvas.setLineDash(new float[]{}, 0);
+        }
     }
 
     /** Closed elliptical path (polygon approximation), as one PDF subpath. */
@@ -1387,21 +2220,39 @@ public class PdfRendererService {
         float h = (float) el.path("height").asDouble(80);
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
+        // Honor "no stroke colour" — if the author cleared the swatch
+        // we must not silently fall back to BLACK or the cleared border
+        // would still show in PDF (canvas already suppresses).
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
-        int seg = 40;
+        int seg = 64;
+        // Drop shadow rendered as a rasterised PNG overlay UNDER the
+        // ellipse. Painted before saveState so the shadow doesn't pick up
+        // the element's rotation transform — the shadow lives in page
+        // space, not element space.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.ellipseSilhouette(w, h),
+                    "ellipse",
+                    x, pageHeight - elY - h, w, h, pageNumber);
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
+        applyShapeRotationIfAny(canvas, el, pageHeight);
+        applyLineStyleIfAny(canvas, style, sw);
         ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
-        canvas.setStrokeColor(stroke);
         canvas.setLineWidth(Math.max(0.25f, sw));
-        if (fill != null) {
+        if (fill != null && stroke != null) {
             canvas.setFillColor(fill);
+            canvas.setStrokeColor(stroke);
             canvas.fillStroke();
-        } else {
+        } else if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fill();
+        } else if (stroke != null) {
+            canvas.setStrokeColor(stroke);
             canvas.stroke();
         }
         canvas.restoreState();
@@ -1422,20 +2273,32 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
-        int seg = 36;
+        int seg = 64;
+        // Annular shadow — outer ellipse minus inner ellipse so the
+        // shadow has the same hole-in-the-middle shape as the ring.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            paintShadowUnder(pdfDoc, shadowNode,
+                    ShadowRasterizer.ringSilhouette(w, h, ratio),
+                    "ring-" + ratio,
+                    x, pageHeight - elY - h, w, h, pageNumber);
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
+        applyShapeRotationIfAny(canvas, el, pageHeight);
         if (fill != null) {
             ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
             ellipseRingPath(canvas, pageHeight, ox, oy, iw, ih, seg);
             canvas.setFillColor(fill);
             canvas.eoFill();
         }
-        if (sw >= 0.25f) {
+        // Honor "no stroke colour" — only stroke when the author actually
+        // set one. Combined with the strokeWidth gate so a 0-width ring
+        // doesn't cost a useless graphics-state push either.
+        if (stroke != null && sw >= 0.25f) {
+            applyLineStyleIfAny(canvas, style, sw);
             canvas.setStrokeColor(stroke);
             canvas.setLineWidth(Math.max(0.25f, sw));
             ellipseRingPath(canvas, pageHeight, x, elY, w, h, seg);
@@ -1501,25 +2364,127 @@ public class PdfRendererService {
         float h = (float) el.path("height").asDouble(48);
         float t = Math.min(h * 0.35f, w * 0.18f);
         float mid = elY + h / 2f;
-        float x0 = x;
-        float xShaft = x + w * 0.68f;
-        float xTip = x + w;
-        strokeFilledPolygon(
-                pdfDoc,
-                pageHeight,
-                pageNumber,
-                el,
-                new float[] {x0, xShaft, xShaft, xTip, xShaft, xShaft, x0, x0},
-                new float[] {
-                    mid - t / 2f,
-                    mid - t / 2f,
-                    elY,
-                    mid,
-                    elY + h,
-                    mid + t / 2f,
-                    mid + t / 2f,
-                    mid - t / 2f
-                });
+        // Direction control via shared arrowStart/arrowEnd flags. Legacy
+        // ARROW elements (no flags) keep their right-pointing look — we
+        // only branch geometry when the author opts in. Mirrors the
+        // canvas LINE/ARROW logic exactly so editor and PDF agree.
+        JsonNode style = el.path("style");
+        boolean arrowStart = style.path("arrowStart").asBoolean(false);
+        boolean explicitEnd = style.path("arrowEnd").asBoolean(false);
+        boolean noEndFlag = style.path("arrowEnd").isMissingNode() || style.path("arrowEnd").isNull();
+        boolean arrowEnd = explicitEnd || (!arrowStart && noEndFlag);
+        float headLen = w * 0.32f;
+        float xLeftHead = arrowStart ? x + headLen : x;
+        float xRightHead = arrowEnd ? x + w - headLen : x + w;
+        float[] xs;
+        float[] ys;
+        if (arrowStart && arrowEnd) {
+            // Bidirectional — head on both ends, shaft in the middle.
+            xs = new float[] {
+                    xLeftHead, xRightHead, xRightHead, x + w, xRightHead, xRightHead,
+                    xLeftHead, xLeftHead, x, xLeftHead
+            };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f,
+                    mid + t / 2f, elY + h, mid, elY
+            };
+        } else if (arrowStart) {
+            // Left-pointing — head at start, shaft to the right.
+            xs = new float[] { x + w, xLeftHead, xLeftHead, x, xLeftHead, xLeftHead, x + w };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f, mid + t / 2f
+            };
+        } else {
+            // Right-pointing (legacy).
+            xs = new float[] { x, xRightHead, xRightHead, x + w, xRightHead, xRightHead, x };
+            ys = new float[] {
+                    mid - t / 2f, mid - t / 2f, elY, mid, elY + h, mid + t / 2f, mid + t / 2f
+            };
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
+    }
+
+    /**
+     * Unified entry point for the POLYGON element type. Reads
+     * {@code el.polygonKind} and dispatches to the existing per-kind
+     * renderer — keeps the rendering logic in one place per shape while
+     * giving the frontend a single canonical type to send. The kind
+     * defaults to {@code 'rect'} so a malformed polygon node still
+     * renders as a recognisable shape.
+     */
+    private void addPolygonShape(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        String kind = el.path("polygonKind").asText("rect");
+        switch (kind) {
+            case "rect" -> addBox(pdfDoc, el, pageHeight, pageNumber);
+            case "regular" -> addRegularPolygon(pdfDoc, el, pageHeight, pageNumber);
+            case "triangle" -> addTriangleShape(pdfDoc, el, pageHeight, pageNumber);
+            case "diamond" -> addDiamondShape(pdfDoc, el, pageHeight, pageNumber);
+            case "star" -> addStarShape(pdfDoc, el, pageHeight, pageNumber);
+            case "arrow" -> addArrowShape(pdfDoc, el, pageHeight, pageNumber);
+            case "custom" -> addCustomPolygon(pdfDoc, el, pageHeight, pageNumber);
+            default -> addBox(pdfDoc, el, pageHeight, pageNumber);
+        }
+    }
+
+    /**
+     * POLYGON 'regular': regular n-gon centred in the bbox with the first
+     * vertex pointing up. Mirrors the frontend's
+     * {@code resolvePolygonPoints} 'regular' case so editor and PDF agree
+     * on geometry. {@code sides} is clamped to {@code [3, 20]}; an
+     * out-of-range value defaults to 5 (pentagon).
+     */
+    private void addRegularPolygon(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(100);
+        float h = (float) el.path("height").asDouble(100);
+        if (w <= 0 || h <= 0) return;
+        int requested = el.path("sides").asInt(5);
+        int sides = Math.max(3, Math.min(20, requested));
+        float cx = x + w / 2f;
+        float cyTop = elY + h / 2f;
+        float rx = w / 2f;
+        float ry = h / 2f;
+        float[] xs = new float[sides];
+        float[] ys = new float[sides];
+        for (int i = 0; i < sides; i++) {
+            double angle = -Math.PI / 2.0 + (i * 2.0 * Math.PI) / sides;
+            xs[i] = cx + rx * (float) Math.cos(angle);
+            ys[i] = cyTop + ry * (float) Math.sin(angle);
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
+    }
+
+    /**
+     * POLYGON 'custom': vertices come from {@code el.points} as
+     * {@code [u, v]} pairs in {@code [0, 1]} relative to the bbox. The
+     * frontend's {@code resolvePolygonPoints} produces the same point
+     * list — we mirror its custom branch here so PDF and editor stay in
+     * lockstep. Falls back to a rect when {@code points} is missing.
+     */
+    private void addCustomPolygon(PdfDocument pdfDoc, JsonNode el, float pageHeight, int pageNumber) {
+        JsonNode pts = el.path("points");
+        if (!pts.isArray() || pts.size() < 3) {
+            addBox(pdfDoc, el, pageHeight, pageNumber);
+            return;
+        }
+        float x = (float) el.path("x").asDouble(0);
+        float elY = (float) el.path("y").asDouble(0);
+        float w = (float) el.path("width").asDouble(0);
+        float h = (float) el.path("height").asDouble(0);
+        if (w <= 0 || h <= 0) return;
+        float[] xs = new float[pts.size()];
+        float[] ys = new float[pts.size()];
+        for (int i = 0; i < pts.size(); i++) {
+            JsonNode pt = pts.get(i);
+            if (!pt.isArray() || pt.size() < 2) {
+                addBox(pdfDoc, el, pageHeight, pageNumber);
+                return;
+            }
+            xs[i] = x + (float) pt.get(0).asDouble(0) * w;
+            ys[i] = elY + (float) pt.get(1).asDouble(0) * h;
+        }
+        strokeFilledPolygon(pdfDoc, pageHeight, pageNumber, el, xs, ys);
     }
 
     private void strokeFilledPolygon(
@@ -1530,24 +2495,59 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
+        // Polygon shadow — convert the absolute-coord points into the
+        // shape's local (0..w, 0..h) frame so the rasteriser can hash a
+        // stable cache key across positions and the silhouette lines up
+        // with the element's bbox. Painted before saveState so the
+        // rotation transform doesn't carry into the page-space shadow.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            float elX = (float) el.path("x").asDouble(0);
+            float elY = (float) el.path("y").asDouble(0);
+            float elW = (float) el.path("width").asDouble(0);
+            float elH = (float) el.path("height").asDouble(0);
+            if (elW > 0 && elH > 0) {
+                float[] normXs = new float[xsTop.length];
+                float[] normYs = new float[ysTop.length];
+                for (int i = 0; i < xsTop.length; i++) {
+                    normXs[i] = xsTop[i] - elX;
+                    normYs[i] = ysTop[i] - elY;
+                }
+                java.awt.Shape silhouette = ShadowRasterizer.polygonSilhouette(normXs, normYs);
+                if (silhouette != null) {
+                    String shapeKey = "poly-" + java.util.Arrays.hashCode(normXs)
+                            + "-" + java.util.Arrays.hashCode(normYs);
+                    paintShadowUnder(pdfDoc, shadowNode, silhouette, shapeKey,
+                            elX, pageHeight - elY - elH, elW, elH, pageNumber);
+                }
+            }
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
+        applyShapeRotationIfAny(canvas, el, pageHeight);
         float py0 = layoutYToPdf(pageHeight, ysTop[0]);
         canvas.moveTo(xsTop[0], py0);
         for (int i = 1; i < xsTop.length; i++) {
             canvas.lineTo(xsTop[i], layoutYToPdf(pageHeight, ysTop[i]));
         }
         canvas.closePath();
-        canvas.setStrokeColor(stroke);
+        applyLineStyleIfAny(canvas, style, sw);
         canvas.setLineWidth(Math.max(0.25f, sw));
-        if (fill != null) {
+        // Branch on the author's actual fill/stroke choices. "No stroke"
+        // and "no fill" are now first-class options for shapes — the
+        // legacy GRAY/BLACK fallbacks would silently override the user's
+        // cleared colour swatch.
+        if (fill != null && stroke != null) {
             canvas.setFillColor(fill);
+            canvas.setStrokeColor(stroke);
             canvas.fillStroke();
-        } else {
+        } else if (fill != null) {
+            canvas.setFillColor(fill);
+            canvas.fill();
+        } else if (stroke != null) {
+            canvas.setStrokeColor(stroke);
             canvas.stroke();
         }
         canvas.restoreState();
@@ -1593,12 +2593,42 @@ public class PdfRendererService {
         JsonNode style = el.path("style");
         Color fill = parseCssColorToItext(style.path("backgroundColor").asText(""));
         Color stroke = parseCssColorToItext(style.path("color").asText(""));
-        if (stroke == null) {
-            stroke = ColorConstants.BLACK;
-        }
         float sw = (float) el.path("strokeWidth").asDouble(2);
+        // Drop shadow built from the union of all rings using even-odd
+        // winding — handles boolean-difference shapes (e.g. star ring
+        // with a hole) correctly. Polys are stored in normalised local
+        // coords already (relative to el.x / el.y), so we can hash them
+        // for the cache directly.
+        JsonNode shadowNode = style.path("shadow");
+        if (shadowNode.isObject()) {
+            float w = (float) el.path("width").asDouble(0);
+            float h = (float) el.path("height").asDouble(0);
+            if (w > 0 && h > 0) {
+                java.awt.geom.Path2D combined = new java.awt.geom.Path2D.Float(java.awt.geom.Path2D.WIND_EVEN_ODD);
+                for (JsonNode poly : polys) {
+                    if (!poly.isArray()) continue;
+                    for (JsonNode ring : poly) {
+                        if (!ring.isArray() || ring.size() < 2) continue;
+                        boolean first = true;
+                        for (JsonNode pt : ring) {
+                            if (!pt.isArray() || pt.size() < 2) continue;
+                            float lx = (float) pt.get(0).asDouble();
+                            float ly = (float) pt.get(1).asDouble();
+                            if (first) { combined.moveTo(lx, ly); first = false; }
+                            else { combined.lineTo(lx, ly); }
+                        }
+                        combined.closePath();
+                    }
+                }
+                paintShadowUnder(pdfDoc, shadowNode, combined,
+                        "merged-" + polys.toString().hashCode(),
+                        x0, pageHeight - elY - h, w, h, pageNumber);
+            }
+        }
         PdfCanvas canvas = new PdfCanvas(pdfDoc.getPage(pageNumber));
         canvas.saveState();
+        applyOpacityIfAny(canvas, style);
+        applyShapeRotationIfAny(canvas, el, pageHeight);
         if (fill != null) {
             canvas.setFillColor(fill);
             for (JsonNode poly : polys) {
@@ -1611,7 +2641,10 @@ public class PdfRendererService {
                 canvas.eoFill();
             }
         }
-        if (sw >= 0.25f) {
+        // Skip the stroke pass entirely when the author cleared the colour
+        // swatch — preserves "no border" intent on union/divide outputs.
+        if (stroke != null && sw >= 0.25f) {
+            applyLineStyleIfAny(canvas, style, sw);
             canvas.setStrokeColor(stroke);
             canvas.setLineWidth(Math.max(0.25f, sw));
             for (JsonNode poly : polys) {
@@ -1629,19 +2662,52 @@ public class PdfRendererService {
 
     private void applyTextStyle(Paragraph p, JsonNode style) {
         if (style.isMissingNode() || style.isNull()) {
+            if (parityOn()) {
+                // Even without a style, under parity we want Inter + canvas default leading
+                // so the element matches the canvas's `RichTextBlockPreview` defaults.
+                PdfFont font = resolveParityFont(null, false, false);
+                if (font != null) p.setFont(font);
+                p.setMultipliedLeading(DEFAULT_LINE_HEIGHT);
+            }
             return;
         }
         float fontSize = (float) style.path("fontSize").asDouble(12);
         p.setFontSize(fontSize);
-        if (style.path("bold").asBoolean(false)) {
-            p.setBold();
-        }
-        if (style.path("italic").asBoolean(false)) {
-            p.setItalic();
+        boolean bold = style.path("bold").asBoolean(false);
+        boolean italic = style.path("italic").asBoolean(false);
+        if (parityOn()) {
+            // Real bold/italic TTFs via the registry — never fall back to iText's
+            // synthetic `setBold()`/`setItalic()` (double-stroke / 15° skew)
+            // because those produce glyph widths that disagree with the canvas.
+            PdfFont font = resolveParityFont(style, bold, italic);
+            if (font != null) {
+                p.setFont(font);
+            } else if (bold || italic) {
+                // Registry couldn't mint a font — degrade to the synthetic style so
+                // the bold/italic attribute isn't silently lost.
+                if (bold) p.setBold();
+                if (italic) p.setItalic();
+            }
+            float lineHeight = (float) style.path("lineHeight").asDouble(DEFAULT_LINE_HEIGHT);
+            p.setMultipliedLeading(lineHeight);
+        } else {
+            if (bold) p.setBold();
+            if (italic) p.setItalic();
         }
         Color fontColor = parseCssColorToItext(style.path("color").asText(""));
         if (fontColor != null) {
             p.setFontColor(fontColor);
+        }
+        // Element-level underline / strikethrough. iText's Paragraph.setUnderline
+        // lays a stroke UNDER every text run the paragraph holds (whether
+        // plain content or rich-run Text children). Negative y-offset draws
+        // below the baseline (underline); a positive y-offset drawn at
+        // ~fontSize × 0.27 lands on the x-height midline (strikethrough).
+        if (style.path("underline").asBoolean(false)) {
+            p.setUnderline(0.75f, -2f);
+        }
+        if (style.path("strikethrough").asBoolean(false)) {
+            p.setUnderline(0.75f, fontSize * 0.27f);
         }
         String align = style.path("align").asText("left").toLowerCase();
         p.setTextAlignment(switch (align) {
@@ -1729,5 +2795,338 @@ public class PdfRendererService {
     }
 
     private record PageSpec(PageSize pageSize, float marginTop, float marginRight, float marginBottom, float marginLeft) {
+    }
+
+    // ── Parity measurement hook ────────────────────────────────────────────
+    //
+    // {@link LayoutMeasurementService} calls into these package-private methods
+    // to get the exact height iText would consume for an element, before any
+    // bytes are written. The canvas then top-anchors text identically and the
+    // editor can soft-block save when content overflows its box.
+    //
+    // All measurement runs under the parity flag path so the font + leading
+    // the canvas observes matches what the PDF will emit.
+
+    /**
+     * Measure a TEXT-like element (TEXT / PARAGRAPH / HEADER / FOOTER body) and
+     * return the iText-laid-out total height in pt. Returns 0 when the element
+     * isn't measurable (missing content, zero width).
+     *
+     * <p>Thin wrapper over {@link #measureTextElementLayout} kept so the
+     * parity-mode top-anchor path in {@link #addText} stays compact when it
+     * only needs the height.
+     */
+    float measureTextElementHeight(JsonNode element, JsonNode data) {
+        return measureTextElementLayout(element, data).height();
+    }
+
+    /**
+     * Measure a TEXT-like element and return both the total height AND the
+     * per-line geometry iText laid out (one {@link MeasureResponse.TextLine}
+     * per rendered line, with per-run advance widths). The canvas's
+     * absolute-positioned line renderer consumes {@code lines}; the save-time
+     * overflow check uses {@code height}.
+     */
+    ParagraphLayout measureTextElementLayout(JsonNode element, JsonNode data) {
+        if (element == null || element.isNull()) return ParagraphLayout.empty();
+        float width = (float) element.path("width").asDouble(0);
+        if (width <= 0f) return ParagraphLayout.empty();
+
+        JsonNode style = element.path("style");
+        java.util.IdentityHashMap<Text, Integer> runIndex = new java.util.IdentityHashMap<>();
+        Paragraph paragraph = buildParagraphFromContent(element.get("content"), data, null, style, runIndex);
+        paragraph.setPadding(0);
+        paragraph.setMargin(0);
+        return measureParagraphLayout(paragraph, width, runIndex);
+    }
+
+    /**
+     * Internal: run iText's layout engine against a throwaway Document and
+     * return both the height AND per-line geometry for this paragraph at the
+     * given width. Shared by {@link #measureTextElementLayout} (for the
+     * frontend measurement endpoint) and the parity-mode {@code addText}
+     * top-anchor path (which only reads the height).
+     *
+     * <p>Per-line harvesting walks {@link com.itextpdf.layout.renderer.ParagraphRenderer#getChildRenderers()}
+     * — each child is a {@link com.itextpdf.layout.renderer.LineRenderer}.
+     * Inside each line the grandchildren are {@link com.itextpdf.layout.renderer.TextRenderer}s
+     * whose {@code getModelElement()} points back at the {@link Text} we
+     * created. The identity-keyed {@code runIndex} map recovers the authored
+     * run ordinal for each rendered shard.
+     */
+    private ParagraphLayout measureParagraphLayout(Paragraph paragraph, float width,
+                                                    java.util.Map<Text, Integer> runIndex) {
+        if (width <= 0f) return ParagraphLayout.empty();
+        ByteArrayOutputStream sink = new ByteArrayOutputStream();
+        try (PdfDocument throwawayDoc = new PdfDocument(new PdfWriter(sink))) {
+            // Tall page so text never hits the page boundary during layout.
+            throwawayDoc.addNewPage(new PageSize(Math.max(width, 1f), 100000f));
+            try (Document throwawayDocument = new Document(throwawayDoc)) {
+                IRenderer rootRenderer = throwawayDocument.getRenderer();
+                IRenderer paragraphRenderer = paragraph.createRendererSubTree().setParent(rootRenderer);
+                LayoutResult result = paragraphRenderer.layout(
+                        new LayoutContext(new LayoutArea(1, new Rectangle(width, 100000f))));
+                if (result.getStatus() != LayoutResult.FULL || result.getOccupiedArea() == null) {
+                    // PARTIAL / NOTHING: iText didn't finish layout (rare at
+                    // our 100000pt height). Fall back to height-only so the
+                    // caller still gets overflow info rather than 0.
+                    float h = result.getOccupiedArea() == null ? 0f : result.getOccupiedArea().getBBox().getHeight();
+                    return new ParagraphLayout(h, java.util.List.of());
+                }
+                float totalHeight = result.getOccupiedArea().getBBox().getHeight();
+                // Per iText 7.2.5: the laid-out tree lives on `splitRenderer`
+                // for status=FULL too — `paragraphRenderer` is pre-layout,
+                // without child line renderers. `getSplitRenderer()` returns
+                // the renderer whose children are the rendered LineRenderers.
+                IRenderer laidOut = result.getSplitRenderer() != null ? result.getSplitRenderer() : paragraphRenderer;
+                java.util.List<MeasureResponse.TextLine> lines = harvestLines(laidOut, totalHeight, runIndex);
+                return new ParagraphLayout(totalHeight, lines);
+            }
+        } catch (Exception e) {
+            log.warn("measureParagraphLayout failed: {}", e.getMessage());
+            return ParagraphLayout.empty();
+        }
+    }
+
+    /**
+     * Composite result of the throwaway layout pass — total consumed height +
+     * the per-line {@link MeasureResponse.TextLine} records the canvas's
+     * absolute-positioned line renderer replays.
+     */
+    record ParagraphLayout(float height, java.util.List<MeasureResponse.TextLine> lines) {
+        static ParagraphLayout empty() {
+            return new ParagraphLayout(0f, java.util.List.of());
+        }
+    }
+
+    /**
+     * Phase 2.5 — measure the row heights a TABLE element needs to render
+     * every cell without clipping. Returns a list starting with the header
+     * row followed by one entry per body row in the same order the PDF
+     * renderer emits. Values are in pt.
+     *
+     * <p>Cell width math: iText's {@code Table} uses percentage column widths
+     * within the table's {@code setWidth} pt value. We replicate the same
+     * normalisation so the paragraph measurement gets the exact width iText
+     * will hand the cell at render time. Horizontal padding (4pt each side,
+     * 8pt total) is subtracted; the measured paragraph height gets the
+     * vertical padding (2pt × 2 under parity, 4pt × 2 legacy) added back so
+     * the returned row heights already account for cell chrome.
+     *
+     * <p>Returns an empty list for malformed inputs (no columns, zero width,
+     * missing element) so callers can fall back to the weight-based layout.
+     */
+    java.util.List<Float> measureTableRowHeights(JsonNode element, JsonNode data) {
+        if (element == null || element.isNull()) return java.util.List.of();
+        float tableWidth = (float) element.path("width").asDouble(0);
+        if (tableWidth <= 0f) return java.util.List.of();
+        JsonNode columns = element.path("columns");
+        if (!columns.isArray() || columns.isEmpty()) return java.util.List.of();
+
+        // Column weights → pt widths (same normalisation as addTable).
+        JsonNode cwNode = element.path("columnWidths");
+        float[] weights = new float[columns.size()];
+        float sumW = 0f;
+        for (int i = 0; i < columns.size(); i++) {
+            float w = (cwNode.isArray() && i < cwNode.size())
+                    ? (float) cwNode.get(i).asDouble(1)
+                    : 1f;
+            if (w <= 0f) w = 1f;
+            weights[i] = w;
+            sumW += w;
+        }
+        if (sumW <= 0f) return java.util.List.of();
+        float[] colWidthPt = new float[columns.size()];
+        for (int i = 0; i < columns.size(); i++) {
+            colWidthPt[i] = tableWidth * (weights[i] / sumW);
+        }
+
+        // Resolve rows the same way addTable does: loop-mode pulls from data,
+        // static-mode synthesises N empty row objects for preview parity.
+        JsonNode rows;
+        JsonNode dataKeyNode = element.get("dataKey");
+        String dataKey = (dataKeyNode != null && dataKeyNode.isTextual()) ? dataKeyNode.asText("").trim() : "";
+        if (!dataKey.isEmpty()) {
+            JsonNode resolved = resolveDataPath(data, dataKey);
+            if (resolved == null || !resolved.isArray()) resolved = data.path(dataKey);
+            rows = resolved.isArray() ? resolved : JsonNodeFactory.instance.arrayNode();
+        } else {
+            int previewRows = 3;
+            JsonNode prNode = element.get("tablePreviewBodyRows");
+            if (prNode != null && prNode.isNumber()) {
+                int parsed = prNode.asInt(3);
+                if (parsed > 0) previewRows = Math.min(30, parsed);
+            }
+            com.fasterxml.jackson.databind.node.ArrayNode synth = JsonNodeFactory.instance.arrayNode();
+            for (int i = 0; i < previewRows; i++) synth.add(JsonNodeFactory.instance.objectNode());
+            rows = synth;
+        }
+
+        JsonNode elementStyle = element.path("style");
+        float horizPaddingPerSide = 4f;       // matches addTable both legacy and parity
+        float vertPadding = parityOn() ? 2f : 4f; // top + bottom match applyCellPadding
+
+        // Header row — bold paragraphs built the same way addTable does.
+        ObjectNode headerStyle = elementStyle.isObject()
+                ? ((ObjectNode) elementStyle).deepCopy()
+                : objectMapper.createObjectNode();
+        headerStyle.put("bold", true);
+        float headerMax = 0f;
+        for (int ci = 0; ci < columns.size(); ci++) {
+            JsonNode col = columns.get(ci);
+            Paragraph p = buildParagraphFromContent(col.get("header"), data, null, headerStyle);
+            p.setPadding(0);
+            p.setMargin(0);
+            float cellContentWidth = Math.max(1f, colWidthPt[ci] - 2f * horizPaddingPerSide);
+            float h = measureParagraphLayout(p, cellContentWidth, null).height();
+            headerMax = Math.max(headerMax, h);
+        }
+        java.util.List<Float> out = new java.util.ArrayList<>();
+        out.add(roundTo2(headerMax + 2f * vertPadding));
+
+        // Body rows.
+        for (JsonNode row : rows) {
+            if (row != null && row.isObject() && behaviourResolver.tableRowHidden(element.path("behaviour"), row, data)) {
+                continue;
+            }
+            float rowMax = 0f;
+            for (int ci = 0; ci < columns.size(); ci++) {
+                JsonNode col = columns.get(ci);
+                String key = col.path("key").asText("");
+                JsonNode cellContent = row != null && row.has(key) ? row.get(key) : null;
+                Paragraph p = buildParagraphFromContent(cellContent, data, row, elementStyle);
+                p.setPadding(0);
+                p.setMargin(0);
+                float cellContentWidth = Math.max(1f, colWidthPt[ci] - 2f * horizPaddingPerSide);
+                float h = measureParagraphLayout(p, cellContentWidth, null).height();
+                rowMax = Math.max(rowMax, h);
+            }
+            out.add(roundTo2(rowMax + 2f * vertPadding));
+        }
+        return out;
+    }
+
+    private static float roundTo2(float v) {
+        return Math.round(v * 100f) / 100f;
+    }
+
+    /**
+     * Walk the laid-out {@code ParagraphRenderer} tree and pull per-line +
+     * per-run geometry into the wire-format records the frontend consumes.
+     * Each paragraph child is a {@code LineRenderer}; each line grandchild is
+     * a {@code TextRenderer} whose model element is the {@link Text} we put
+     * in during {@code paragraphFromRuns}. The identity-keyed
+     * {@code runIndex} map gives us the authored run ordinal for every shard
+     * (wrap-split fragments share a model reference, so the lookup Just Works).
+     *
+     * <p>Coordinates: iText's occupied-area bbox is bottom-origin within the
+     * throwaway document. We flip to top-origin (y=0 at the paragraph's first
+     * line) so the canvas can absolute-position each line with CSS {@code top}.
+     */
+    private java.util.List<MeasureResponse.TextLine> harvestLines(
+            IRenderer paragraphRenderer,
+            float totalHeight,
+            java.util.Map<Text, Integer> runIndex) {
+        if (!(paragraphRenderer instanceof com.itextpdf.layout.renderer.ParagraphRenderer pr)) {
+            return java.util.List.of();
+        }
+        // iText 7.2.5's `ParagraphRenderer` holds the laid-out lines in a
+        // protected `lines` field, not exposed via `getChildRenderers()`
+        // (which returns the pre-layout TextRenderer children — a flat list).
+        // Reflection is the narrow gateway to per-line geometry until iText
+        // ships a public accessor. If reflection fails (future iText bump
+        // renaming the field, security manager), we fall back to empty and
+        // the canvas reverts to CSS flow.
+        java.util.List<com.itextpdf.layout.renderer.LineRenderer> lineRenderers;
+        try {
+            java.lang.reflect.Field linesField =
+                    com.itextpdf.layout.renderer.ParagraphRenderer.class.getDeclaredField("lines");
+            linesField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            java.util.List<com.itextpdf.layout.renderer.LineRenderer> raw =
+                    (java.util.List<com.itextpdf.layout.renderer.LineRenderer>) linesField.get(pr);
+            lineRenderers = raw;
+        } catch (ReflectiveOperationException e) {
+            log.warn("ParagraphRenderer.lines reflection failed — per-line harvest disabled: {}", e.getMessage());
+            return java.util.List.of();
+        }
+        if (lineRenderers == null || lineRenderers.isEmpty()) {
+            return java.util.List.of();
+        }
+
+        java.util.List<MeasureResponse.TextLine> out = new java.util.ArrayList<>();
+        // iText coordinates are bottom-origin; we normalise to top-origin
+        // relative to the paragraph start so the canvas can use CSS `top`.
+        Float paragraphTopY = null;
+        for (com.itextpdf.layout.renderer.LineRenderer lineRenderer : lineRenderers) {
+            com.itextpdf.kernel.geom.Rectangle lineBox = lineRenderer.getOccupiedArea() == null
+                    ? null
+                    : lineRenderer.getOccupiedArea().getBBox();
+            if (lineBox == null || lineBox.getHeight() <= 0f) continue;
+            if (paragraphTopY == null) paragraphTopY = lineBox.getTop();
+            float y = paragraphTopY - lineBox.getTop();
+            float h = lineBox.getHeight();
+
+            java.util.List<MeasureResponse.RunMeasurement> runs = new java.util.ArrayList<>();
+            for (IRenderer textRenderer : lineRenderer.getChildRenderers()) {
+                if (!(textRenderer instanceof com.itextpdf.layout.renderer.TextRenderer tr)) continue;
+                com.itextpdf.kernel.geom.Rectangle runBox = tr.getOccupiedArea() == null
+                        ? null
+                        : tr.getOccupiedArea().getBBox();
+                if (runBox == null) continue;
+                Object model = tr.getModelElement();
+                int ordinal = -1;
+                if (runIndex != null && model instanceof Text t) {
+                    Integer ord = runIndex.get(t);
+                    if (ord != null) ordinal = ord;
+                }
+                String rendered = tr.getText() == null ? "" : tr.getText().toString();
+                runs.add(new MeasureResponse.RunMeasurement(rendered, runBox.getWidth(), ordinal));
+            }
+            out.add(new MeasureResponse.TextLine(y, h, runs));
+        }
+        if (!out.isEmpty()) {
+            MeasureResponse.TextLine last = out.get(out.size() - 1);
+            if (last.y() + last.h() > totalHeight + 0.5f) {
+                return java.util.List.of();
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Parity-mode cell padding: matches the canvas {@code px-1 py-0.5} (4px
+     * horizontal, 2px vertical) rather than iText's default {@code .setPadding(4)}
+     * (4pt on all sides). Off the flag we keep the legacy uniform 4pt so
+     * existing layouts don't shift.
+     */
+    private Cell applyCellPadding(Cell cell) {
+        if (parityOn()) {
+            return cell.setPaddingTop(2f).setPaddingBottom(2f).setPaddingLeft(4f).setPaddingRight(4f);
+        }
+        return cell.setPadding(4);
+    }
+
+    /**
+     * Parity-mode cell border: 1pt solid zinc-400 (#a1a1aa) to match the
+     * canvas CSS. Off the flag we leave iText's default border in place
+     * (0.5pt black) so legacy renders don't change.
+     */
+    private Cell applyCellBorderForParity(Cell cell) {
+        if (!parityOn()) return cell;
+        Color zinc400 = new DeviceRgb(0xa1, 0xa1, 0xaa);
+        com.itextpdf.layout.borders.Border border =
+                new com.itextpdf.layout.borders.SolidBorder(zinc400, 1f);
+        cell.setBorder(border);
+        return cell;
+    }
+
+    /** True when an element type renders via the text path (addText / addList dispatch). */
+    static boolean isTextLikeType(String type) {
+        if (type == null) return true; // default dispatch is TEXT
+        return switch (type) {
+            case "TEXT", "PARAGRAPH", "HEADER", "FOOTER", "FLOATING" -> true;
+            default -> false;
+        };
     }
 }
