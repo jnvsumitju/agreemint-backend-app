@@ -16,13 +16,13 @@ public class OpenApiConfig {
     public OpenAPI agreemintOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Agreemint API")
+                        .title("Crixaa API")
                         .version("1.0.0")
                         .description("Multi-tenant agreement template management API. " +
                                 "Provides endpoints for authentication, template CRUD, " +
                                 "PDF generation, organization management, marketplace, and real-time collaboration.")
                         .contact(new Contact()
-                                .name("Agreemint")
+                                .name("Crixaa")
                                 .url("https://agreemint.com")))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
                 .components(new Components()

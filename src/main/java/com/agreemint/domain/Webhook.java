@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * <p>The raw secret is shown to the customer exactly once on creation; the
  * server also retains it (in the {@link #secret} column) because the
  * dispatcher needs it at delivery time to compute the
- * {@code X-Agreemint-Signature} header. Treat rows as sensitive.
+ * {@code X-Crixaa-Signature} header. Treat rows as sensitive.
  */
 @Entity
 @Table(name = "webhooks")
