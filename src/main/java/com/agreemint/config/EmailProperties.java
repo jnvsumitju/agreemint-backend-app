@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class EmailProperties {
 
     private String fromAddress = "noreply@agreemint.com";
-    private String fromName = "Agreemint";
+    private String fromName = "Crixaa";
 
     public String getFromAddress() { return fromAddress; }
     public void setFromAddress(String fromAddress) { this.fromAddress = fromAddress; }

@@ -72,7 +72,7 @@ agreemint:
     origins: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   email:
     from-address: ${EMAIL_FROM:noreply@agreemint.com}
-    from-name: ${EMAIL_FROM_NAME:Agreemint}
+    from-name: ${EMAIL_FROM_NAME:Crixaa}
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
   features:

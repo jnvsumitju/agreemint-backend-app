@@ -83,10 +83,10 @@ public class WebhookDispatchJob {
         HttpRequest req = HttpRequest.newBuilder(URI.create(hook.getUrl()))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
-                .header("User-Agent", "Agreemint-Webhooks/1.0")
-                .header("X-Agreemint-Event", d.getEvent())
-                .header("X-Agreemint-Delivery", d.getId().toString())
-                .header("X-Agreemint-Signature", signature)
+                .header("User-Agent", "Crixaa-Webhooks/1.0")
+                .header("X-Crixaa-Event", d.getEvent())
+                .header("X-Crixaa-Delivery", d.getId().toString())
+                .header("X-Crixaa-Signature", signature)
                 .POST(HttpRequest.BodyPublishers.ofString(d.getPayload(), StandardCharsets.UTF_8))
                 .build();
 
