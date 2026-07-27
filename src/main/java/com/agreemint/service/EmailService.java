@@ -1,36 +1,48 @@
 package com.agreemint.service;
 
 import com.agreemint.config.EmailProperties;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.agreemint.config.ResendProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+
 /**
- * Sends transactional emails using Thymeleaf templates.
- * All methods are @Async so they don't block the calling thread.
- * If mail is not configured (e.g. dev), failures are logged but not thrown.
+ * Sends transactional emails using Thymeleaf templates, delivered through the
+ * Resend HTTP API (https://resend.com) — no SMTP. All methods are @Async so
+ * they don't block the calling thread. If Resend is not configured (e.g. dev,
+ * empty RESEND_API_KEY) the email is logged and skipped; send failures are
+ * logged but never thrown, so a mail outage can't break the request flow.
  */
 @Service
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final EmailProperties emailProps;
+    private final ResendProperties resendProps;
+    private final HttpClient http;
 
-    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine, EmailProperties emailProps) {
-        this.mailSender = mailSender;
+    public EmailService(TemplateEngine templateEngine, EmailProperties emailProps, ResendProperties resendProps) {
         this.templateEngine = templateEngine;
         this.emailProps = emailProps;
+        this.resendProps = resendProps;
+        this.http = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(15))
+                .build();
     }
 
     /** Send password reset email with a clickable link. */
@@ -204,17 +216,58 @@ public class EmailService {
     // ── Internal ──
 
     private void send(String to, String subject, String htmlBody) {
+        if (!resendProps.isConfigured()) {
+            log.warn("Resend not configured (set RESEND_API_KEY) — skipping email to={} subject=\"{}\"",
+                    to, subject);
+            return;
+        }
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(emailProps.getFromAddress(), emailProps.getFromName());
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlBody, true);
-            mailSender.send(message);
-            log.info("Email sent to={} subject=\"{}\"", to, subject);
-        } catch (MailException | MessagingException | java.io.UnsupportedEncodingException e) {
+            ObjectNode body = MAPPER.createObjectNode();
+            body.put("from", buildFrom());
+            // Resend accepts a string or an array for "to"; we always send one
+            // recipient, but the array form keeps the payload valid either way.
+            body.putArray("to").add(to);
+            body.put("subject", subject);
+            body.put("html", htmlBody);
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(resendProps.getBaseUrl() + "/emails"))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("Authorization", "Bearer " + resendProps.getApiKey())
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(
+                            MAPPER.writeValueAsString(body), StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (resp.statusCode() >= 400) {
+                // Resend returns a JSON error body ({name, message, statusCode})
+                // — log it verbatim so a bad "from" domain or key is obvious.
+                log.error("Resend returned {} for to={} subject=\"{}\": {}",
+                        resp.statusCode(), to, subject, resp.body());
+                return;
+            }
+            log.info("Email sent via Resend to={} subject=\"{}\"", to, subject);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Interrupted sending email to={} subject=\"{}\"", to, subject);
+        } catch (Exception e) {
             log.error("Failed to send email to={} subject=\"{}\": {}", to, subject, e.getMessage());
         }
+    }
+
+    /**
+     * Resend's "from" field takes either a bare address or a display-name form
+     * ("Name &lt;addr&gt;"). Note the address's domain must be a domain you've
+     * verified in Resend (or resend.dev for testing) or the API rejects it.
+     */
+    private String buildFrom() {
+        String name = emailProps.getFromName();
+        String addr = emailProps.getFromAddress();
+        if (name == null || name.isBlank()) {
+            return addr;
+        }
+        return name + " <" + addr + ">";
     }
 }

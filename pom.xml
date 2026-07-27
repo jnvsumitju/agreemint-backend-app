@@ -113,12 +113,7 @@
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- Email (password reset, OTP, verification) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-        <!-- Thymeleaf for HTML email templates -->
+        <!-- Thymeleaf for HTML email templates (email is sent via the Resend HTTP API, see EmailService) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
