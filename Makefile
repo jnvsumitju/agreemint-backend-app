@@ -19,6 +19,14 @@ R2_PRESIGN_TTL_MINUTES   ?= 5
 FEATURE_PIXEL_PARITY     ?= true
 RESEND_BASE_URL          ?= https://api.resend.com
 
+# Docker network the backend attaches to so it can reach Postgres + Redis.
+# The compose stack sets `name: salesiq-data` and defines a network `salesiq`
+# with no explicit `name:`, so Compose creates it as "<project>_<network>" =
+# "salesiq-data_salesiq". Bring that stack up first (docker compose up -d) so
+# the network exists before `make run`. Override in the env file if you rename
+# the compose project or give the network an explicit `name:`.
+DOCKER_NETWORK ?= salesiq-data_salesiq
+
 APP_PORT := $(PORT)
 
 # ──────────────────────────────────────
@@ -32,7 +40,7 @@ build:
 ## Run the container (rebuilds if image is missing)
 run: build
 	docker run -d --name $(APP_NAME) \
-	    --network backend \
+	    --network $(DOCKER_NETWORK) \
 		-p $(APP_PORT):$(APP_PORT) \
 		-e SPRING_DATASOURCE_URL=jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME) \
 		-e SPRING_DATASOURCE_USERNAME=$(DB_USERNAME) \
