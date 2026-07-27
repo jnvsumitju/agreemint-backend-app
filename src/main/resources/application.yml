@@ -32,16 +32,6 @@ spring:
       # for every JPA repository at startup.
       repositories:
         enabled: false
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls.enable: true
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -73,6 +63,12 @@ agreemint:
   email:
     from-address: ${EMAIL_FROM:noreply@agreemint.com}
     from-name: ${EMAIL_FROM_NAME:Crixaa}
+    # Transactional email is delivered via the Resend HTTP API (see EmailService).
+    # The from-address domain above must be verified in your Resend account.
+    # Leave RESEND_API_KEY empty in dev to log-and-skip sends instead of failing.
+    resend:
+      api-key: ${RESEND_API_KEY:}
+      base-url: ${RESEND_BASE_URL:https://api.resend.com}
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
   features:
