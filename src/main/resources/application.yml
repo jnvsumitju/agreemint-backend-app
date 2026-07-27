@@ -138,6 +138,11 @@ agreemint:
 
 server:
   port: ${PORT}
+  # Behind the nginx reverse proxy (see deploy/nginx/api.crixaa.com.conf), honor
+  # the X-Forwarded-* headers it sets so the app knows it's served over HTTPS —
+  # correct absolute URLs, OAuth2 redirect URIs, and client IPs. Without this
+  # Spring ignores those headers and thinks every request is plain HTTP.
+  forward-headers-strategy: framework
 
 management:
   endpoints:
