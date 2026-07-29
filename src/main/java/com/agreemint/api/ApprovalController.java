@@ -1,5 +1,6 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
 import com.agreemint.api.dto.ApprovalDecisionRequest;
 import com.agreemint.api.dto.ApprovalWorkflowResponse;
 import com.agreemint.api.dto.CreateApprovalWorkflowRequest;
@@ -25,11 +26,14 @@ public class ApprovalController {
 
     private final ApprovalWorkflowService approvalService;
     private final OrgAuthorizationService authorizationService;
+    private final PlanGate planGate;
 
     public ApprovalController(ApprovalWorkflowService approvalService,
-                               OrgAuthorizationService authorizationService) {
+                               OrgAuthorizationService authorizationService,
+                               PlanGate planGate) {
         this.approvalService = approvalService;
         this.authorizationService = authorizationService;
+        this.planGate = planGate;
     }
 
     @PostMapping("/workflows")
@@ -38,6 +42,9 @@ public class ApprovalController {
             @Valid @RequestBody CreateApprovalWorkflowRequest request) {
         authorizationService.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER);
+        // Creating a workflow is the paid action. approve/reject stay open so an
+        // in-flight approval is not stranded if a subscription lapses mid-review.
+        planGate.requirePaid(principal.orgId(), "Approval workflows");
         return approvalService.createWorkflow(request.documentId(), principal.orgId(),
                 principal.userId(), request.steps());
     }
