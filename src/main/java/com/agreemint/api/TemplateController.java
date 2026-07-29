@@ -1,5 +1,6 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
 import com.agreemint.api.dto.CreateTemplateRequest;
 import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateDraftResponse;
@@ -42,16 +43,19 @@ public class TemplateController {
     private final TemplateVersionService templateVersionService;
     private final TemplateDraftService templateDraftService;
     private final OrgAuthorizationService orgAuthz;
+    private final PlanGate planGate;
 
     public TemplateController(
             TemplateService templateService,
             TemplateVersionService templateVersionService,
             TemplateDraftService templateDraftService,
-            OrgAuthorizationService orgAuthz) {
+            OrgAuthorizationService orgAuthz,
+            PlanGate planGate) {
         this.templateService = templateService;
         this.templateVersionService = templateVersionService;
         this.templateDraftService = templateDraftService;
         this.orgAuthz = orgAuthz;
+        this.planGate = planGate;
     }
 
     @PostMapping
@@ -132,10 +136,20 @@ public class TemplateController {
         return templateVersionService.listVersions(templateId);
     }
 
+    /**
+     * Open a specific historical version — this is what powers the version
+     * diff and restore, so it is the paid half of "version history".
+     *
+     * <p>The sibling list endpoint is deliberately NOT gated: the editor
+     * bootstraps from it on every load, and gating it would lock free
+     * workspaces out of the editor entirely.
+     */
     @GetMapping("/{id}/versions/{versionId}")
     public TemplateVersionResponse getVersion(
+            @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable("id") UUID templateId,
             @PathVariable UUID versionId) {
+        planGate.requirePaid(principal.orgId(), "Version history");
         return templateVersionService.getVersion(templateId, versionId);
     }
 

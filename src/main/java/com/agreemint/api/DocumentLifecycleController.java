@@ -5,6 +5,7 @@ import com.agreemint.api.dto.DocumentLifecycleResponse;
 import com.agreemint.api.dto.LifecycleStatsResponse;
 import com.agreemint.api.dto.PendingApprovalResponse;
 import com.agreemint.api.dto.TransitionStatusRequest;
+import com.agreemint.billing.PlanGate;
 import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.LifecycleStatus;
 import com.agreemint.domain.OrgRole;
@@ -33,13 +34,16 @@ public class DocumentLifecycleController {
     private final DocumentLifecycleService lifecycleService;
     private final ApprovalWorkflowService approvalService;
     private final OrgAuthorizationService authorizationService;
+    private final PlanGate planGate;
 
     public DocumentLifecycleController(DocumentLifecycleService lifecycleService,
                                         ApprovalWorkflowService approvalService,
-                                        OrgAuthorizationService authorizationService) {
+                                        OrgAuthorizationService authorizationService,
+                                        PlanGate planGate) {
         this.lifecycleService = lifecycleService;
         this.approvalService = approvalService;
         this.authorizationService = authorizationService;
+        this.planGate = planGate;
     }
 
     @GetMapping
@@ -70,6 +74,9 @@ public class DocumentLifecycleController {
             @Valid @RequestBody TransitionStatusRequest request) {
         authorizationService.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER);
+        // Paid feature. Reads stay open, so a lapsed workspace can still see
+        // where its documents got to — it just cannot move them further.
+        planGate.requirePaid(principal.orgId(), "Document lifecycle");
         return lifecycleService.transitionStatus(id, request.targetStatus(),
                 principal.userId(), request.comment());
     }
