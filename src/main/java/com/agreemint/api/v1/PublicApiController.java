@@ -7,6 +7,8 @@ import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.GeneratedDocumentResponse;
 import com.agreemint.api.dto.TemplateResponse;
 import com.agreemint.api.dto.TemplateVersionResponse;
+import com.agreemint.domain.DocumentSource;
+import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.Template;
 import com.agreemint.domain.TemplateVersion;
 import com.agreemint.repository.GeneratedDocumentRepository;
@@ -19,6 +21,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +51,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1")
 public class PublicApiController {
+
+    /** Upper bound on {@code size} for the document listing. */
+    private static final int MAX_PAGE_SIZE = 100;
+    /** Path DocumentGenerationService persists — the JWT/browser download route. */
+    private static final String UI_FILE_PREFIX = "/api/documents/";
+    /** Public equivalent, scope-checked for API keys. */
+    private static final String V1_FILE_PREFIX = "/api/v1/documents/";
 
     private final TemplateRepository templateRepo;
     private final TemplateVersionRepository versionRepo;
@@ -99,7 +110,8 @@ public class PublicApiController {
         // and nothing else from our lifecycle tracking.
         GenerateResponse res = docService.generate(req, principal.userId(), principal.orgId(),
                 com.agreemint.domain.DocumentSource.API_GENERATED);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new GenerateResponse(res.documentId(), toPublicFileUrl(res.fileUrl())));
     }
 
     // ── Documents ────────────────────────────────────────────────────────────
@@ -114,7 +126,33 @@ public class PublicApiController {
         GeneratedDocumentResponse doc = docService.getDocument(id);
         UUID docOrg = docRepo.findById(id).map(d -> d.getOrgId()).orElse(null);
         assertSameOrg(principal, docOrg);
-        return doc;
+        return toPublicResponse(doc);
+    }
+
+    @Operation(summary = "List generated documents, newest first",
+            description = "Scoped to the API key's organisation. Page through with "
+                    + "page/size; size is capped at 100. Filter to API- or UI-generated "
+                    + "documents with source=API_GENERATED|UI_GENERATED.")
+    @GetMapping("/documents")
+    @PreAuthorize("hasAuthority('SCOPE_documents:read')")
+    public List<GeneratedDocumentResponse> listDocuments(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) DocumentSource source,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        UUID orgId = principal.orgId();
+        if (orgId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "API key is not bound to an organisation");
+        }
+        // Clamp rather than reject: a caller asking for 5000 gets the max page
+        // instead of a 400, which keeps naive pagination loops working.
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), MAX_PAGE_SIZE));
+        List<GeneratedDocument> docs = source == null
+                ? docRepo.findByOrgIdOrderByCreatedAtDesc(orgId, pageable)
+                : docRepo.findByOrgIdAndSourceOrderByCreatedAtDesc(orgId, source, pageable);
+        return docs.stream().map(PublicApiController::toPublicResponse).toList();
     }
 
     @Operation(summary = "Download the generated PDF",
@@ -170,6 +208,38 @@ public class PublicApiController {
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Rewrite a stored {@code fileUrl} onto the public API path.
+     *
+     * <p>{@link DocumentGenerationService} persists {@code /api/documents/{id}/file}
+     * — the JWT/browser route the editor and Documents page download from. API-key
+     * callers can't use that path (it isn't scope-checked for them), so the v1
+     * surface hands back {@code /api/v1/documents/{id}/file} instead. We rewrite
+     * here rather than changing what's stored: the column is read by the browser
+     * UI and is already baked into existing rows and past webhook payloads.
+     */
+    private static String toPublicFileUrl(String storedFileUrl) {
+        if (storedFileUrl == null) return null;
+        return storedFileUrl.startsWith(UI_FILE_PREFIX)
+                ? V1_FILE_PREFIX + storedFileUrl.substring(UI_FILE_PREFIX.length())
+                : storedFileUrl;
+    }
+
+    private static GeneratedDocumentResponse toPublicResponse(GeneratedDocumentResponse doc) {
+        return new GeneratedDocumentResponse(doc.id(), doc.templateId(), doc.versionId(),
+                toPublicFileUrl(doc.fileUrl()), doc.status(), doc.createdAt());
+    }
+
+    private static GeneratedDocumentResponse toPublicResponse(GeneratedDocument doc) {
+        return new GeneratedDocumentResponse(
+                doc.getId(),
+                doc.getTemplate() == null ? null : doc.getTemplate().getId(),
+                doc.getVersion() == null ? null : doc.getVersion().getId(),
+                toPublicFileUrl(doc.getFileUrl()),
+                doc.getStatus(),
+                doc.getCreatedAt());
+    }
 
     private static void assertSameOrg(UserPrincipal principal, UUID resourceOrgId) {
         if (resourceOrgId == null) {
