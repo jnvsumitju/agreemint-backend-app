@@ -78,12 +78,29 @@ public class RateLimitConfig {
         return BucketConfiguration.builder().addLimit(limit).build();
     }
 
-    /** Per-day bucket for an entire org. */
+    /** Per-day bucket for an entire org, at the system-wide default. */
     public BucketConfiguration perOrgDaily() {
+        return perOrgDaily(null);
+    }
+
+    /**
+     * Per-day bucket for an org at a resolved cap.
+     *
+     * @param dailyMax the org's effective cap, or null to use the system
+     *                 default. Resolved by {@code OrgEntitlementService} from
+     *                 the org's plan and any staff override.
+     */
+    public BucketConfiguration perOrgDaily(Integer dailyMax) {
+        long capacity = Math.max(1L, dailyMax == null ? orgDailyMax : dailyMax.longValue());
         Bandwidth limit = Bandwidth.builder()
-                .capacity(orgDailyMax)
-                .refillGreedy(orgDailyMax, Duration.ofDays(1))
+                .capacity(capacity)
+                .refillGreedy(capacity, Duration.ofDays(1))
                 .build();
         return BucketConfiguration.builder().addLimit(limit).build();
+    }
+
+    /** The system-wide default, for callers that need to report it. */
+    public long getOrgDailyMax() {
+        return orgDailyMax;
     }
 }

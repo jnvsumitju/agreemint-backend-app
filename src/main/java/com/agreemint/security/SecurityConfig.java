@@ -79,6 +79,11 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/oauth2/**").permitAll()
+                // Razorpay webhooks. Cannot carry our credentials, so this is
+                // permitted here and authenticated instead by an HMAC signature
+                // check inside RazorpayWebhookController — which rejects the
+                // request outright when the webhook secret is unset.
+                .requestMatchers("/api/webhooks/razorpay").permitAll()
                 // Swagger UI & OpenAPI spec
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 // Static resources and health

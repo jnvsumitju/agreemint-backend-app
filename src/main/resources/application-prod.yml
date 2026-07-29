@@ -1,0 +1,13 @@
+# Production overrides. Activated by SPRING_PROFILES_ACTIVE=prod, which the
+# Makefile's `run` target always passes to the container.
+
+springdoc:
+  # The OpenAPI spec and Swagger UI enumerate every endpoint in the app,
+  # including the admin surface. SecurityConfig permits them unauthenticated
+  # (so they're usable in dev), so switch them off entirely in production
+  # rather than leaving the whole API surface publicly browsable.
+  # Customer-facing API docs live in the console instead (Documentation page).
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

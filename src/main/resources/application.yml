@@ -117,6 +117,33 @@ agreemint:
   # REDIS_PASSWORD); no new connection envs are needed.
   ratelimit:
     org-daily-max: ${RATELIMIT_ORG_DAILY_MAX:10000}
+  # Razorpay subscription billing. Amounts, currency and billing interval live
+  # on the Razorpay Plan itself, so only the plan ids appear here — changing a
+  # price is a dashboard action plus a new plan id, not a deploy.
+  # With an empty key-id the billing endpoints return 503 and the console hides
+  # the upgrade UI, so a dev environment without credentials still works.
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:}
+    key-secret: ${RAZORPAY_KEY_SECRET:}
+    # Set on the webhook in the Razorpay dashboard — a DIFFERENT value from the
+    # API key secret. Without it webhooks are rejected rather than trusted.
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    base-url: ${RAZORPAY_BASE_URL:https://api.razorpay.com/v1}
+    plan-pro-monthly: ${RAZORPAY_PLAN_PRO_MONTHLY:}
+    plan-pro-yearly: ${RAZORPAY_PLAN_PRO_YEARLY:}
+
+  # Per-plan ceilings. Every value is intentionally UNSET by default, which
+  # means "no plan-specific limit" and preserves today's behaviour, where every
+  # org falls back to ratelimit.org-daily-max. Setting these throttles existing
+  # customers, so fill them in deliberately once plans are finalised.
+  plans:
+    free-api-daily-max: ${PLAN_FREE_API_DAILY_MAX:#{null}}
+    pro-api-daily-max: ${PLAN_PRO_API_DAILY_MAX:#{null}}
+    enterprise-api-daily-max: ${PLAN_ENTERPRISE_API_DAILY_MAX:#{null}}
+    free-pdf-daily-max: ${PLAN_FREE_PDF_DAILY_MAX:#{null}}
+    pro-pdf-daily-max: ${PLAN_PRO_PDF_DAILY_MAX:#{null}}
+    enterprise-pdf-daily-max: ${PLAN_ENTERPRISE_PDF_DAILY_MAX:#{null}}
+
   # Developer platform — Phase 6 (API key expiry warnings). Quartz-style cron.
   # Default fires every day at 09:00 local time of the backend host.
   api-keys:

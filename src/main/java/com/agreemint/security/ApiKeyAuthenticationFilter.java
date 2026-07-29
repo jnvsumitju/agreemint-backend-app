@@ -1,5 +1,6 @@
 package com.agreemint.security;
 
+import com.agreemint.billing.OrgEntitlementService;
 import com.agreemint.config.RateLimitConfig;
 import com.agreemint.domain.ApiKey;
 import com.agreemint.service.ApiKeyService;
@@ -50,14 +51,17 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     private final ApiKeyService apiKeyService;
     private final ProxyManager<String> rateLimitProxyManager;
     private final RateLimitConfig rateLimitConfig;
+    private final OrgEntitlementService entitlements;
 
     public ApiKeyAuthenticationFilter(
             ApiKeyService apiKeyService,
             ProxyManager<String> rateLimitProxyManager,
-            RateLimitConfig rateLimitConfig) {
+            RateLimitConfig rateLimitConfig,
+            OrgEntitlementService entitlements) {
         this.apiKeyService = apiKeyService;
         this.rateLimitProxyManager = rateLimitProxyManager;
         this.rateLimitConfig = rateLimitConfig;
+        this.entitlements = entitlements;
     }
 
     @Override
@@ -85,13 +89,29 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Entitlement — the org's plan, staff overrides and freeze state.
+        // Cached per instance for a minute, so this is not a DB hit per request.
+        OrgEntitlementService.Entitlement entitlement = entitlements.resolve(key.getOrgId());
+
+        // A frozen org is stopped before anything is consumed. 402 rather than
+        // 403: this is a billing state the customer can resolve, not a
+        // permissions problem.
+        if (entitlement.frozen()) {
+            writePaymentRequired(response, entitlement.frozenReason());
+            return;
+        }
+
         // Rate limiting — per-key (rpm), then per-org (daily).
+        // The per-key rpm can be overridden for the whole org by staff.
+        int effectiveRpm = entitlement.apiRpmOverride() != null
+                ? entitlement.apiRpmOverride()
+                : key.getRateLimitRpm();
         if (!consumeBucket(response, "apikey:" + key.getId(),
-                RateLimitConfig.perKey(key.getRateLimitRpm()), "key")) {
+                RateLimitConfig.perKey(effectiveRpm), "key")) {
             return;
         }
         if (!consumeBucket(response, "org:" + key.getOrgId(),
-                rateLimitConfig.perOrgDaily(), "org")) {
+                rateLimitConfig.perOrgDaily(entitlement.apiDailyMax()), "org")) {
             return;
         }
 
@@ -154,6 +174,19 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         resp.setContentType("application/json");
         resp.getWriter().write("{\"error\":\"" + reason.replace("\"", "\\\"") + "\"}");
+    }
+
+    /**
+     * 402 for a frozen org. The reason is staff-authored, so it is escaped
+     * rather than trusted, and a generic fallback is used when none was given.
+     */
+    private static void writePaymentRequired(HttpServletResponse resp, String reason) throws IOException {
+        String message = (reason == null || reason.isBlank())
+                ? "This workspace is suspended. Please contact support."
+                : reason;
+        resp.setStatus(402);
+        resp.setContentType("application/json");
+        resp.getWriter().write("{\"error\":\"" + message.replace("\"", "\\\"") + "\"}");
     }
 
     // Kept for future fail-closed time guards if clock drift becomes an issue.
