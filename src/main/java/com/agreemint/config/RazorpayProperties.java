@@ -33,11 +33,18 @@ public class RazorpayProperties {
     private String planProYearly = "";
 
     /**
-     * How many billing cycles to authorise. Razorpay requires a finite count;
-     * 120 months / 10 years is effectively "until cancelled" while staying
-     * inside their limits.
+     * How many billing cycles to authorise. Razorpay requires a finite count
+     * and enforces a hard ceiling per period — exceeding it fails subscription
+     * creation with "Exceeds the maximum total_count allowed for the given
+     * period and interval".
+     *
+     * <p>Their maximums at interval 1: <strong>100 for monthly</strong> and
+     * <strong>10 for yearly</strong>. Both defaults sit at that ceiling, which
+     * is ~8 years of monthly billing or 10 of yearly — effectively "until
+     * cancelled" for any real customer. A subscription that runs to term ends
+     * as {@code completed}, which downgrades the org to FREE.
      */
-    private int totalCountMonthly = 120;
+    private int totalCountMonthly = 100;
     private int totalCountYearly = 10;
 
     public boolean isConfigured() {
@@ -53,8 +60,22 @@ public class RazorpayProperties {
         return period == BillingPeriod.YEARLY ? planProYearly : planProMonthly;
     }
 
+    /** Razorpay's hard ceilings at interval 1. Exceeding these is a 400. */
+    private static final int MAX_TOTAL_COUNT_MONTHLY = 100;
+    private static final int MAX_TOTAL_COUNT_YEARLY = 10;
+
+    /**
+     * Cycles to authorise, clamped to Razorpay's ceiling.
+     *
+     * <p>Clamping rather than validating at startup on purpose: an
+     * over-large value should not turn into a failed checkout for a paying
+     * customer, and the difference between 100 and 120 months is meaningless
+     * in practice.
+     */
     public int totalCountFor(BillingPeriod period) {
-        return period == BillingPeriod.YEARLY ? totalCountYearly : totalCountMonthly;
+        return period == BillingPeriod.YEARLY
+                ? Math.min(Math.max(1, totalCountYearly), MAX_TOTAL_COUNT_YEARLY)
+                : Math.min(Math.max(1, totalCountMonthly), MAX_TOTAL_COUNT_MONTHLY);
     }
 
     public String getKeyId() { return keyId; }
