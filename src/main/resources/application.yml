@@ -132,17 +132,21 @@ agreemint:
     plan-pro-monthly: ${RAZORPAY_PLAN_PRO_MONTHLY:}
     plan-pro-yearly: ${RAZORPAY_PLAN_PRO_YEARLY:}
 
-  # Per-plan ceilings. Every value is intentionally UNSET by default, which
-  # means "no plan-specific limit" and preserves today's behaviour, where every
-  # org falls back to ratelimit.org-daily-max. Setting these throttles existing
-  # customers, so fill them in deliberately once plans are finalised.
-  plans:
-    free-api-daily-max: ${PLAN_FREE_API_DAILY_MAX:#{null}}
-    pro-api-daily-max: ${PLAN_PRO_API_DAILY_MAX:#{null}}
-    enterprise-api-daily-max: ${PLAN_ENTERPRISE_API_DAILY_MAX:#{null}}
-    free-pdf-daily-max: ${PLAN_FREE_PDF_DAILY_MAX:#{null}}
-    pro-pdf-daily-max: ${PLAN_PRO_PDF_DAILY_MAX:#{null}}
-    enterprise-pdf-daily-max: ${PLAN_ENTERPRISE_PDF_DAILY_MAX:#{null}}
+  # Per-plan ceilings (agreemint.plans.*) are deliberately NOT declared here.
+  #
+  # They must default to null, meaning "no plan-specific limit", which preserves
+  # today's behaviour where every org falls back to ratelimit.org-daily-max.
+  # A YAML placeholder cannot express that: `${VAR:}` binds an empty string and
+  # `${VAR:#{null}}` is not valid inside a property default — Spring treats the
+  # `#{null}` as a literal and fails to parse it as an Integer.
+  #
+  # Leaving them undeclared lets the null defaults on PlanLimitsProperties
+  # stand. To set one, use Spring's relaxed binding via the environment:
+  #   AGREEMINT_PLANS_FREE_API_DAILY_MAX=500
+  #   AGREEMINT_PLANS_PRO_API_DAILY_MAX=10000
+  #   AGREEMINT_PLANS_FREE_PDF_DAILY_MAX=100
+  # Setting these throttles existing customers — decide the commercial limits
+  # first.
 
   # Developer platform — Phase 6 (API key expiry warnings). Quartz-style cron.
   # Default fires every day at 09:00 local time of the backend host.
