@@ -1,6 +1,7 @@
 package com.agreemint.api;
 
 import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.api.dto.ApprovalDecisionRequest;
 import com.agreemint.api.dto.ApprovalWorkflowResponse;
 import com.agreemint.api.dto.CreateApprovalWorkflowRequest;
@@ -44,7 +45,7 @@ public class ApprovalController {
                 OrgRole.ADMIN, OrgRole.DESIGNER);
         // Creating a workflow is the paid action. approve/reject stay open so an
         // in-flight approval is not stranded if a subscription lapses mid-review.
-        planGate.requirePaid(principal.orgId(), "Approval workflows");
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.PRO, "Approval workflows");
         return approvalService.createWorkflow(request.documentId(), principal.orgId(),
                 principal.userId(), request.steps());
     }

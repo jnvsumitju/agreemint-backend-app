@@ -29,12 +29,27 @@ public record UserPrincipal(
         UUID orgId,
         OrgRole role,
         Set<String> scopes,
-        boolean staff
+        boolean staff,
+        /** Staff user driving an impersonated session, else null. */
+        UUID impersonatedBy,
+        /** Session id for an impersonated token, else null. Used to revoke. */
+        String impersonationSid
 ) implements UserDetails {
 
     /** Legacy 4-arg constructor kept so existing JWT callers don't need to construct an empty scope set. */
     public UserPrincipal(UUID userId, String email, UUID orgId, OrgRole role) {
         this(userId, email, orgId, role, Set.of(), false);
+    }
+
+    /** 6-arg form for ordinary (non-impersonated) sessions. */
+    public UserPrincipal(UUID userId, String email, UUID orgId, OrgRole role,
+                          Set<String> scopes, boolean staff) {
+        this(userId, email, orgId, role, scopes, staff, null, null);
+    }
+
+    /** True when this request is running inside an impersonated session. */
+    public boolean isImpersonated() {
+        return impersonatedBy != null;
     }
 
     /** 5-arg constructor for API-key paths that don't carry a staff flag. */

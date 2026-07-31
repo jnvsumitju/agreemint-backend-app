@@ -45,4 +45,46 @@ public interface GeneratedDocumentRepository extends JpaRepository<GeneratedDocu
           + "group by t.productId, d.source")
     List<Object[]> aggregateDocsByProduct(
             @org.springframework.data.repository.query.Param("orgId") UUID orgId);
+
+    /**
+     * Document counts per org since an instant — powers docsLast30d on the
+     * admin org list, which was previously hardcoded to 0.
+     */
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT d.orgId, COUNT(d)
+            FROM GeneratedDocument d
+            WHERE d.orgId IN :orgIds AND d.createdAt >= :since
+            GROUP BY d.orgId
+            """)
+    List<Object[]> countByOrgIdsSince(
+            @org.springframework.data.repository.query.Param("orgIds") java.util.Collection<UUID> orgIds,
+            @org.springframework.data.repository.query.Param("since") Instant since);
+
+    /** Platform-wide document count since an instant. */
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT COUNT(d) FROM GeneratedDocument d WHERE d.createdAt >= :since")
+    long countTotalSince(
+            @org.springframework.data.repository.query.Param("since") Instant since);
+
+    /** Per-org totals since an instant, newest-heavy orgs first at the caller. */
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT d.orgId, COUNT(d)
+            FROM GeneratedDocument d
+            WHERE d.createdAt >= :since
+            GROUP BY d.orgId
+            ORDER BY COUNT(d) DESC
+            """)
+    List<Object[]> topOrgsSince(
+            @org.springframework.data.repository.query.Param("since") Instant since,
+            org.springframework.data.domain.Pageable pageable);
+
+    /** Per-day document counts since an instant, as (yyyy-MM-dd, count). */
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT FUNCTION('to_char', d.createdAt, 'YYYY-MM-DD'), COUNT(d)
+            FROM GeneratedDocument d
+            WHERE d.createdAt >= :since
+            GROUP BY FUNCTION('to_char', d.createdAt, 'YYYY-MM-DD')
+            """)
+    List<Object[]> countByDaySince(
+            @org.springframework.data.repository.query.Param("since") Instant since);
 }

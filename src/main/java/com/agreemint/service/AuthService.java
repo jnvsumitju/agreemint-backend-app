@@ -326,11 +326,41 @@ public class AuthService {
     }
 
     /** Get current user info with all their org memberships. */
-    public record MeResponse(UserResponse user, List<MeOrgEntry> orgs) {}
+    public record MeResponse(UserResponse user, List<MeOrgEntry> orgs, Impersonation impersonation) {}
     public record MeOrgEntry(OrgResponse org, String role) {}
+
+    /**
+     * Present only when this request is running inside a staff impersonation
+     * session, and null otherwise.
+     *
+     * <p>The console renders its impersonation banner from this rather than by
+     * decoding the JWT itself. A client-decoded claim would be unverified and,
+     * worse, would keep the banner up after the session was revoked — the
+     * claim stays in the token, but {@code secondsRemaining} comes from the
+     * Redis TTL that revocation actually deletes.
+     *
+     * @param secondsRemaining null when the session is no longer live
+     */
+    public record Impersonation(
+            String sessionId,
+            UUID operatorId,
+            String operatorEmail,
+            /**
+             * The workspace this session was opened against. The console must
+             * scope itself to this and not to the target's first membership —
+             * an operator who picked one workspace and silently landed in
+             * another would read and edit the wrong tenant.
+             */
+            UUID orgId,
+            Long secondsRemaining) {}
 
     @Transactional(readOnly = true)
     public MeResponse getMe(UUID userId) {
+        return getMe(userId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public MeResponse getMe(UUID userId, Impersonation impersonation) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -339,7 +369,7 @@ public class AuthService {
                 .map(m -> new MeOrgEntry(OrgResponse.from(m.getOrganization()), m.getRole().name()))
                 .toList();
 
-        return new MeResponse(UserResponse.from(user), orgs);
+        return new MeResponse(UserResponse.from(user), orgs, impersonation);
     }
 
     // ── Helpers ──

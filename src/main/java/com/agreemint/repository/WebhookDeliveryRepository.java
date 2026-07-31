@@ -16,4 +16,12 @@ public interface WebhookDeliveryRepository extends JpaRepository<WebhookDelivery
             Status status, Instant now, Pageable pageable);
 
     List<WebhookDelivery> findByWebhookIdOrderByCreatedAtDesc(UUID webhookId, Pageable pageable);
+
+    /** Deliveries in a given status — the admin health page reported the
+     *  all-time row count under a "pending" label before this existed. */
+    long countByStatus(com.agreemint.domain.WebhookDelivery.Status status);
+
+    /** Failures since an instant, for the 24h failed-jobs figure. */
+    long countByStatusAndCreatedAtAfter(
+            com.agreemint.domain.WebhookDelivery.Status status, java.time.Instant since);
 }

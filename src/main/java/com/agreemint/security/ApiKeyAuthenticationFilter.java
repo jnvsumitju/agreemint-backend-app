@@ -106,11 +106,18 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         int effectiveRpm = entitlement.apiRpmOverride() != null
                 ? entitlement.apiRpmOverride()
                 : key.getRateLimitRpm();
-        if (!consumeBucket(response, "apikey:" + key.getId(),
+        // Capacity is part of the key — see RateLimitConfig.capacitySuffix. Without
+        // it a staff-changed limit would not reach an existing bucket for ~2 days.
+        if (!consumeBucket(response,
+                "apikey:" + key.getId() + RateLimitConfig.capacitySuffix(effectiveRpm),
                 RateLimitConfig.perKey(effectiveRpm), "key")) {
             return;
         }
-        if (!consumeBucket(response, "org:" + key.getOrgId(),
+        long orgDailyCapacity = entitlement.apiDailyMax() != null
+                ? entitlement.apiDailyMax()
+                : rateLimitConfig.getOrgDailyMax();
+        if (!consumeBucket(response,
+                "org:" + key.getOrgId() + RateLimitConfig.capacitySuffix(orgDailyCapacity),
                 rateLimitConfig.perOrgDaily(entitlement.apiDailyMax()), "org")) {
             return;
         }

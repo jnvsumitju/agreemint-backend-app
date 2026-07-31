@@ -63,7 +63,7 @@ public class JwtService {
             UUID targetOrgId,
             OrgRole targetRole,
             UUID impersonatedBy,
-            Duration ttl) {
+            Duration ttl, String sessionId) {
         Instant now = Instant.now();
         Duration effective = ttl != null ? ttl : Duration.ofMinutes(15);
         return Jwts.builder()
@@ -73,6 +73,7 @@ public class JwtService {
                 .claim("orgId", targetOrgId != null ? targetOrgId.toString() : null)
                 .claim("role", targetRole != null ? targetRole.name() : null)
                 .claim("isStaff", false)
+                .claim("impersonationSid", sessionId)
                 .claim("impersonatedBy", impersonatedBy != null ? impersonatedBy.toString() : null)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(effective)))

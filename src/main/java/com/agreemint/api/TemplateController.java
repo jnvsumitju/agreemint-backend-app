@@ -1,6 +1,7 @@
 package com.agreemint.api;
 
 import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.api.dto.CreateTemplateRequest;
 import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateDraftResponse;
@@ -74,6 +75,8 @@ public class TemplateController {
         // Only ADMIN/DESIGNER may create templates in an org.
         orgAuthz.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER);
+        // Free-plan template ceiling. No-op for paid and grandfathered orgs.
+        planGate.requireTemplateHeadroom(principal.orgId());
         return templateService.create(request, principal.orgId(), principal.userId());
     }
 
@@ -149,7 +152,7 @@ public class TemplateController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable("id") UUID templateId,
             @PathVariable UUID versionId) {
-        planGate.requirePaid(principal.orgId(), "Version history");
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.STARTER, "Version history");
         return templateVersionService.getVersion(templateId, versionId);
     }
 

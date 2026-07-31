@@ -1,5 +1,13 @@
 package com.agreemint.admin.api;
 
+import com.agreemint.repository.GeneratedDocumentRepository;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.time.temporal.ChronoUnit;
+import java.time.Instant;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import com.agreemint.admin.api.dto.PageResponse;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.admin.domain.OrgQuota;
 import com.agreemint.admin.repository.OrgQuotaRepository;
@@ -35,53 +43,76 @@ public class AdminOrgController {
     private final TemplateRepository templateRepo;
     private final ApiKeyRepository apiKeyRepo;
     private final OrgQuotaRepository quotaRepo;
+    private final GeneratedDocumentRepository docRepo;
 
     public AdminOrgController(
             OrganizationRepository orgRepo,
             OrgMembershipRepository membershipRepo,
             TemplateRepository templateRepo,
             ApiKeyRepository apiKeyRepo,
-            OrgQuotaRepository quotaRepo) {
+            OrgQuotaRepository quotaRepo,
+            GeneratedDocumentRepository docRepo) {
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
         this.templateRepo = templateRepo;
         this.apiKeyRepo = apiKeyRepo;
         this.quotaRepo = quotaRepo;
+        this.docRepo = docRepo;
     }
 
     @GetMapping
-    public List<AdminDtos.OrgSummary> list() {
-        List<Organization> orgs = orgRepo.findAll();
-        List<UUID> orgIds = orgs.stream().map(Organization::getId).toList();
+    public PageResponse<AdminDtos.OrgSummary> list(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
 
-        // Batch member counts: one group-by query. N+1 is only an issue at
-        // scale; for the admin list where ops skim all orgs it's fine for
-        // now, and we can swap for a native aggregate later.
-        Map<UUID, Integer> memberCounts = new HashMap<>();
-        Map<UUID, Integer> templateCounts = new HashMap<>();
-        for (UUID oid : orgIds) {
-            memberCounts.put(oid, membershipRepo.findByOrganizationId(oid).size());
-            templateCounts.put(oid, templateRepo.findByOrgIdOrderByCreatedAtDesc(oid).size());
+        int pageSize = Math.min(200, Math.max(1, size));
+        String search = (q == null || q.isBlank()) ? null : q.trim();
+
+        // Paged in the DB and sorted in the DB. This previously loaded every
+        // organisation and sorted in memory.
+        Page<Organization> orgs = orgRepo.search(search,
+                PageRequest.of(Math.max(0, page), pageSize,
+                        Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<UUID> orgIds = orgs.getContent().stream().map(Organization::getId).toList();
+        if (orgIds.isEmpty()) {
+            return PageResponse.of(orgs, List.of());
         }
 
-        // Frozen state from org_quotas.
-        Map<UUID, Boolean> frozenMap = new HashMap<>();
-        quotaRepo.findAllById(orgIds).forEach(q -> frozenMap.put(q.getOrgId(), q.isFrozen()));
+        // Three grouped queries for the whole page, replacing two queries per
+        // org. The old code claimed to do this but ran a loop.
+        Map<UUID, Long> memberCounts = toCountMap(membershipRepo.countByOrgIds(orgIds));
+        Map<UUID, Long> templateCounts = toCountMap(templateRepo.countByOrgIds(orgIds));
+        Map<UUID, Long> docCounts = toCountMap(docRepo.countByOrgIdsSince(
+                orgIds, Instant.now().minus(30, ChronoUnit.DAYS)));
 
-        return orgs.stream()
+        Map<UUID, Boolean> frozenMap = new HashMap<>();
+        quotaRepo.findAllById(orgIds).forEach(qt -> frozenMap.put(qt.getOrgId(), qt.isFrozen()));
+
+        List<AdminDtos.OrgSummary> items = orgs.getContent().stream()
                 .map(o -> new AdminDtos.OrgSummary(
                         o.getId(),
                         o.getName(),
                         o.getSlug(),
+                        o.getPlan() == null ? "FREE" : o.getPlan().name(),
                         o.getCreatedAt(),
-                        memberCounts.getOrDefault(o.getId(), 0),
-                        templateCounts.getOrDefault(o.getId(), 0),
-                        // docsLast30d: TODO wire GeneratedDocumentRepository aggregate
-                        // once we're sure of the index. Stubbed to 0 for now.
-                        0L,
+                        memberCounts.getOrDefault(o.getId(), 0L).intValue(),
+                        templateCounts.getOrDefault(o.getId(), 0L).intValue(),
+                        docCounts.getOrDefault(o.getId(), 0L),
                         frozenMap.getOrDefault(o.getId(), false)))
-                .sorted(Comparator.comparing(AdminDtos.OrgSummary::createdAt).reversed())
                 .toList();
+
+        return PageResponse.of(orgs, items);
+    }
+
+    /** Collapse a grouped-count result — rows of (UUID id, Long count). */
+    private static Map<UUID, Long> toCountMap(List<Object[]> rows) {
+        Map<UUID, Long> out = new HashMap<>();
+        for (Object[] row : rows) {
+            out.put((UUID) row[0], ((Number) row[1]).longValue());
+        }
+        return out;
     }
 
     @GetMapping("/{id}")
@@ -90,7 +121,10 @@ public class AdminOrgController {
         if (maybe.isEmpty()) return ResponseEntity.notFound().build();
         Organization o = maybe.get();
 
-        List<AdminDtos.OrgMember> members = membershipRepo.findByOrganizationId(id).stream()
+        // findWithUserByOrganizationId, not findByOrganizationId: this method has
+        // no transaction and open-in-view is off, so a LAZY user proxy would be
+        // detached by the time getEmail() is called below.
+        List<AdminDtos.OrgMember> members = membershipRepo.findWithUserByOrganizationId(id).stream()
                 .map((OrgMembership m) -> new AdminDtos.OrgMember(
                         m.getUser().getId(),
                         m.getUser().getEmail(),
@@ -122,9 +156,18 @@ public class AdminOrgController {
                         quota.getPdfDailyCap(), quota.isFrozen(), quota.getFrozenReason())
                 : new AdminDtos.OrgQuotaSummary(null, null, null, false, null);
 
+        long docsLast30d = docRepo
+                .countByOrgIdsSince(List.of(id), Instant.now().minus(30, ChronoUnit.DAYS))
+                .stream()
+                .findFirst()
+                .map(row -> ((Number) row[1]).longValue())
+                .orElse(0L);
+
         return ResponseEntity.ok(new AdminDtos.OrgDetail(
-                o.getId(), o.getName(), o.getSlug(), o.getCreatedAt(),
+                o.getId(), o.getName(), o.getSlug(),
+                o.getPlan() == null ? "FREE" : o.getPlan().name(),
+                o.getCreatedAt(),
                 members, templates, apiKeys, qsum,
-                0L /* docsLast30d TODO */));
+                docsLast30d));
     }
 }

@@ -10,6 +10,9 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
 
     List<Template> findByOrgId(UUID orgId);
 
+    /** Used to enforce the free-plan template cap. */
+    long countByOrgId(UUID orgId);
+
     List<Template> findByOwnerId(UUID ownerId);
 
     /** All templates belonging to an org, plus legacy unowned templates. */
@@ -36,4 +39,14 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
           + "group by t.productId")
     List<Object[]> countTemplatesGroupedByProduct(
             @org.springframework.data.repository.query.Param("orgId") UUID orgId);
+
+    /** Template counts for a batch of orgs — one query for the whole page. */
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT t.orgId, COUNT(t)
+            FROM Template t
+            WHERE t.orgId IN :orgIds
+            GROUP BY t.orgId
+            """)
+    List<Object[]> countByOrgIds(
+            @org.springframework.data.repository.query.Param("orgIds") java.util.Collection<UUID> orgIds);
 }

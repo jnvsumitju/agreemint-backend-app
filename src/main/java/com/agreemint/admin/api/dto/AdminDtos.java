@@ -17,6 +17,7 @@ public final class AdminDtos {
             UUID id,
             String name,
             String slug,
+            String plan,
             Instant createdAt,
             int memberCount,
             int templateCount,
@@ -29,6 +30,7 @@ public final class AdminDtos {
             UUID id,
             String name,
             String slug,
+            String plan,
             Instant createdAt,
             List<OrgMember> members,
             List<OrgTemplate> templates,
@@ -55,7 +57,6 @@ public final class AdminDtos {
             String email,
             String name,
             Instant createdAt,
-            Instant lastLoginAt,
             boolean emailVerified,
             boolean staff,
             int orgCount
@@ -68,7 +69,6 @@ public final class AdminDtos {
             String name,
             String avatarUrl,
             Instant createdAt,
-            Instant lastLoginAt,
             boolean emailVerified,
             boolean staff,
             List<UserOrg> orgs
@@ -87,13 +87,24 @@ public final class AdminDtos {
             String entityType,
             UUID entityId,
             String entityName,
-            Instant createdAt
+            Instant createdAt,
+            /**
+             * Operator behind an impersonated action, or null for an ordinary one.
+             *
+             * <p>ActivityService has always stamped this into
+             * {@code activity_log.metadata}, but nothing read it back — every
+             * action taken during a support session displayed as the customer's
+             * own. The whole point of 0e was attribution, and it stopped one
+             * layer short of anyone being able to see it.
+             */
+            UUID impersonatedBy
     ) {}
 
     /** Announcement create / update / response. */
     public record AnnouncementRequest(
-            String title,
-            String body,
+            @jakarta.validation.constraints.NotBlank(message = "title is required")
+            @jakarta.validation.constraints.Size(max = 200) String title,
+            @jakarta.validation.constraints.NotBlank(message = "body is required") String body,
             String severity,
             List<UUID> targetOrgIds,
             Instant startsAt,
@@ -124,38 +135,64 @@ public final class AdminDtos {
 
     public record FeatureFlagOverrideResponse(UUID orgId, String orgName, boolean enabled) {}
 
-    public record FeatureFlagUpsertRequest(String key, String description, boolean defaultEnabled) {}
-    public record FeatureFlagOverrideRequest(UUID orgId, boolean enabled) {}
+    public record FeatureFlagUpsertRequest(
+            @jakarta.validation.constraints.NotBlank(message = "key is required")
+            @jakarta.validation.constraints.Size(max = 64) String key,
+            String description,
+            boolean defaultEnabled) {}
+    /**
+     * @param enabled null is rejected rather than silently meaning false — the
+     *                DELETE endpoint is how an override is removed. As a
+     *                primitive this was indistinguishable from an explicit off.
+     */
+    public record FeatureFlagOverrideRequest(UUID orgId, Boolean enabled) {}
 
-    /** Usage dashboard payload. */
+    /**
+     * Usage dashboard payload.
+     *
+     * <p>{@code apiCallsLast30d} was removed rather than kept at a hardcoded
+     * zero: API traffic is counted by Bucket4j in Redis with a short TTL and is
+     * not recorded anywhere durable, so the figure cannot be produced. A field
+     * that always reads 0 is worse than an absent one — it looks like an answer.
+     */
     public record UsageSummary(
             long totalOrgs,
             long totalUsers,
             long totalTemplates,
             long docsLast30d,
-            long apiCallsLast30d,
             List<UsageBucket> dailyDocs,  // last 30 days, oldest first
             List<OrgUsageRow> topOrgs
     ) {}
 
     public record UsageBucket(String day, long docs) {}
-    public record OrgUsageRow(UUID orgId, String orgName, long docsLast30d, long apiCallsLast30d) {}
+    public record OrgUsageRow(UUID orgId, String orgName, long docsLast30d) {}
 
-    /** Platform-health metrics displayed on the Health page. */
+    /**
+     * Platform-health metrics.
+     *
+     * <p>{@code recentFailedLogins24h} and {@code recentIssues} were removed:
+     * neither failed logins nor error events are recorded anywhere, so both
+     * were permanently 0 and []. They can come back when there is a table
+     * behind them.
+     */
     public record PlatformHealth(
             long pendingWebhookDeliveries,
             long pendingExports,
             long failedJobsLast24h,
-            long activeApiKeys,
-            long recentFailedLogins24h,
-            List<HealthIssue> recentIssues
+            long activeApiKeys
     ) {}
 
-    public record HealthIssue(String severity, String message, Instant at) {}
-
     /** Impersonation request + response. `ttlMinutes` must be ≤ 60. */
-    public record ImpersonationRequest(UUID targetUserId, UUID targetOrgId, Integer ttlMinutes) {}
-    public record ImpersonationResponse(String accessToken, Instant expiresAt, UUID targetUserId, UUID impersonatedBy) {}
+    public record ImpersonationRequest(
+            @jakarta.validation.constraints.NotNull(message = "targetUserId is required") UUID targetUserId,
+            UUID targetOrgId,
+            Integer ttlMinutes) {}
+    /**
+     * @param sessionId hand back so the operator can end the session early;
+     *                  without it a session could only be waited out.
+     */
+    public record ImpersonationResponse(String accessToken, Instant expiresAt, UUID targetUserId,
+                                        UUID impersonatedBy, String sessionId) {}
 
     /** Quota update payload. Null fields clear the override. */
     public record OrgQuotaRequest(
@@ -166,11 +203,46 @@ public final class AdminDtos {
             String frozenReason
     ) {}
 
+    /**
+     * A quota as the admin portal needs to show it: the staff override, plus
+     * what is <em>actually in force</em> once the plan and system defaults are
+     * applied.
+     *
+     * <p>The override alone is not enough to render honestly. A null
+     * {@code apiDailyCap} means "inherit", and staff need to see the number
+     * being inherited before deciding whether to change it — otherwise the
+     * screen shows a blank field next to no indication of the real limit.
+     *
+     * @param override           the raw per-org row, all-null when none exists
+     * @param plan               the org's current plan, which supplies the middle tier
+     * @param effectiveApiDailyMax daily API requests actually enforced
+     * @param effectivePdfDailyMax daily documents actually enforced, null = uncapped
+     * @param systemApiDailyMax  the fallback used when neither override nor plan sets one
+     * @param pdfRemainingToday  documents left in the current rolling day, null when uncapped
+     */
+    public record OrgQuotaView(
+            OrgQuotaSummary override,
+            String plan,
+            Integer effectiveApiDailyMax,
+            Integer effectivePdfDailyMax,
+            long systemApiDailyMax,
+            Long pdfRemainingToday
+    ) {}
+
     /** Export lifecycle. */
-    public record ExportRequest(String scope, UUID targetId) {}
-    public record ExportResponse(UUID id, String scope, UUID targetId, String status, String fileUrl, Instant requestedAt, Instant completedAt) {}
+    public record ExportRequest(
+            @jakarta.validation.constraints.NotBlank(message = "scope is required") String scope,
+            UUID targetId) {}
+    /**
+     * @param error why a FAILED export failed. Previously omitted, which left
+     *              the UI showing a red status with no explanation.
+     */
+    public record ExportResponse(UUID id, String scope, UUID targetId, String status, String fileUrl,
+                                 String error, Instant requestedAt, Instant completedAt) {}
 
     /** Email template override. */
     public record EmailTemplateResponse(String key, String subject, String bodyHtml, Instant updatedAt) {}
-    public record EmailTemplateUpsertRequest(String subject, String bodyHtml) {}
+    public record EmailTemplateUpsertRequest(
+            @jakarta.validation.constraints.Size(max = 200) String subject,
+            @jakarta.validation.constraints.NotBlank(message = "bodyHtml is required") String bodyHtml) {}
 }

@@ -83,6 +83,8 @@ public class PdfRendererService {
 
     /** Default sans family used when the parity flag is on and the element/run doesn't set one. */
     private static final String DEFAULT_PARITY_FAMILY = PdfFontRegistry.FAMILY_SANS;
+    /** Free-plan watermark text. */
+    private static final String WATERMARK_TEXT = "Crixaa";
 
     private final ObjectMapper objectMapper;
     private final LayoutBehaviourResolver behaviourResolver;
@@ -120,7 +122,21 @@ public class PdfRendererService {
         return fontRegistry.createFont(family, bold, italic);
     }
 
+    /**
+     * Render without a watermark. Retained as the default so existing callers
+     * and the pixel-parity golden tests are unaffected by watermarking.
+     */
     public byte[] render(JsonNode layoutJson, JsonNode data) throws IOException {
+        return render(layoutJson, data, false);
+    }
+
+    /**
+     * @param watermark stamp the free-plan mark on every page. Applied after
+     *                  all content is laid out, so it cannot shift anything —
+     *                  a watermark that moved text would break the guarantee
+     *                  that the canvas and the PDF agree.
+     */
+    public byte[] render(JsonNode layoutJson, JsonNode data, boolean watermark) throws IOException {
         long startNanos = System.nanoTime();
         PageSpec pageSpec = readPage(layoutJson);
         List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
@@ -189,6 +205,10 @@ public class PdfRendererService {
                             ex.getClass().getSimpleName(), ex.getMessage());
                 }
             }
+        }
+
+        if (watermark) {
+            stampWatermark(pdfDoc);
         }
 
         document.close();
@@ -3129,4 +3149,58 @@ public class PdfRendererService {
             default -> false;
         };
     }
+
+    /**
+     * Diagonal "Crixaa" mark across every page, for free-plan documents.
+     *
+     * <p>Drawn last, directly onto each page's canvas, so it never participates
+     * in layout — content positions are identical with and without it.
+     * Deliberately low-opacity and behind nothing: the document stays readable
+     * and printable, which keeps the free plan genuinely useful rather than
+     * crippled.
+     */
+    private void stampWatermark(PdfDocument pdfDoc) throws IOException {
+        // createFont returns null when the TTFs failed to load. A missing
+        // watermark is a commercial annoyance; a failed render is a broken
+        // product, so degrade rather than throw.
+        PdfFont font = fontRegistry.createFont(PdfFontRegistry.FAMILY_SANS, true, false);
+        if (font == null) {
+            log.warn("Skipping free-plan watermark — watermark font unavailable");
+            return;
+        }
+
+        double angle = Math.toRadians(45);
+        float cos = (float) Math.cos(angle);
+        float sin = (float) Math.sin(angle);
+
+        for (int pageNumber = 1; pageNumber <= pdfDoc.getNumberOfPages(); pageNumber++) {
+            com.itextpdf.kernel.pdf.PdfPage page = pdfDoc.getPage(pageNumber);
+            com.itextpdf.kernel.geom.Rectangle box = page.getPageSize();
+
+            // Size to the page so the mark reads the same on A5 and Tabloid.
+            float fontSize = Math.max(28f, Math.min(box.getWidth(), box.getHeight()) * 0.12f);
+            float textWidth = font.getWidth(WATERMARK_TEXT, fontSize);
+
+            com.itextpdf.kernel.pdf.extgstate.PdfExtGState transparent =
+                    new com.itextpdf.kernel.pdf.extgstate.PdfExtGState().setFillOpacity(0.10f);
+
+            // Drawn straight onto the page canvas rather than through the layout
+            // engine: no Paragraph, no property resolution, and therefore no way
+            // for the stamp to influence where anything else sits.
+            new PdfCanvas(page)
+                    .saveState()
+                    .setExtGState(transparent)
+                    // Rotate about the page centre, then offset so the text is
+                    // centred on it rather than starting there.
+                    .concatMatrix(cos, sin, -sin, cos, box.getWidth() / 2f, box.getHeight() / 2f)
+                    .beginText()
+                    .setFontAndSize(font, fontSize)
+                    .setFillColor(com.itextpdf.kernel.colors.ColorConstants.GRAY)
+                    .moveText(-textWidth / 2f, -fontSize / 3f)
+                    .showText(WATERMARK_TEXT)
+                    .endText()
+                    .restoreState();
+        }
+    }
+
 }

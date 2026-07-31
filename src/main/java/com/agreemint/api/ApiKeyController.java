@@ -1,5 +1,7 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.api.dto.ApiKeyCreatedResponse;
 import com.agreemint.api.dto.ApiKeyResponse;
 import com.agreemint.api.dto.CreateApiKeyRequest;
@@ -34,14 +36,17 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final OrgAuthorizationService orgAuthz;
     private final UserRepository userRepo;
+    private final PlanGate planGate;
 
     public ApiKeyController(
             ApiKeyService apiKeyService,
             OrgAuthorizationService orgAuthz,
-            UserRepository userRepo) {
+            UserRepository userRepo,
+            PlanGate planGate) {
         this.apiKeyService = apiKeyService;
         this.orgAuthz = orgAuthz;
         this.userRepo = userRepo;
+        this.planGate = planGate;
     }
 
     @PostMapping
@@ -51,6 +56,10 @@ public class ApiKeyController {
             @RequestBody CreateApiKeyRequest req
     ) {
         orgAuthz.assertRole(principal.userId(), orgId, OrgRole.ADMIN);
+        // API access starts at Starter. Existing keys keep working — only
+        // minting new ones is gated, so a downgrade does not break live
+        // integrations without warning.
+        planGate.requireAtLeast(orgId, OrgPlan.STARTER, "API access");
         String actorName = userRepo.findById(principal.userId())
                 .map(User::getName).orElse(principal.email());
         ApiKeyCreatedResponse created = apiKeyService.create(orgId, principal.userId(), actorName, req);

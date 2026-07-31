@@ -22,10 +22,12 @@ import org.springframework.stereotype.Component;
 public class PlanLimitsProperties {
 
     private Integer freeApiDailyMax;
+    private Integer starterApiDailyMax;
     private Integer proApiDailyMax;
     private Integer enterpriseApiDailyMax;
 
     private Integer freePdfDailyMax;
+    private Integer starterPdfDailyMax;
     private Integer proPdfDailyMax;
     private Integer enterprisePdfDailyMax;
 
@@ -34,6 +36,7 @@ public class PlanLimitsProperties {
         if (plan == null) return null;
         return switch (plan) {
             case FREE -> freeApiDailyMax;
+            case STARTER -> starterApiDailyMax;
             case PRO -> proApiDailyMax;
             case ENTERPRISE -> enterpriseApiDailyMax;
         };
@@ -44,11 +47,16 @@ public class PlanLimitsProperties {
         if (plan == null) return null;
         return switch (plan) {
             case FREE -> freePdfDailyMax;
+            case STARTER -> starterPdfDailyMax;
             case PRO -> proPdfDailyMax;
             case ENTERPRISE -> enterprisePdfDailyMax;
         };
     }
 
+    public Integer getStarterApiDailyMax() { return starterApiDailyMax; }
+    public void setStarterApiDailyMax(Integer v) { this.starterApiDailyMax = v; }
+    public Integer getStarterPdfDailyMax() { return starterPdfDailyMax; }
+    public void setStarterPdfDailyMax(Integer v) { this.starterPdfDailyMax = v; }
     public Integer getFreeApiDailyMax() { return freeApiDailyMax; }
     public void setFreeApiDailyMax(Integer v) { this.freeApiDailyMax = v; }
     public Integer getProApiDailyMax() { return proApiDailyMax; }

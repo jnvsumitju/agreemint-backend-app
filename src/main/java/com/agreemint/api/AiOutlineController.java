@@ -1,5 +1,7 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.ai.AiTemplatePromptBuilder;
 import com.agreemint.ai.DeepSeekClient;
 import com.agreemint.api.dto.AiOutlineRequest;
@@ -39,16 +41,20 @@ public class AiOutlineController {
 
     private final DeepSeekClient deepSeek;
     private final AiTemplatePromptBuilder promptBuilder;
+    private final PlanGate planGate;
 
-    public AiOutlineController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder) {
+    public AiOutlineController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder,
+            PlanGate planGate) {
         this.deepSeek = deepSeek;
         this.promptBuilder = promptBuilder;
+        this.planGate = planGate;
     }
 
     @PostMapping(value = "/{templateId}/ai-outline", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JsonNode> outline(@PathVariable String templateId,
                                             @AuthenticationPrincipal UserPrincipal principal,
                                             @RequestBody AiOutlineRequest request) {
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.STARTER, "AI drafting");
         String systemPrompt = promptBuilder.buildOutlineSystemPrompt(
                 request.currentLayout(), request.variables());
         String userInstruction = request.instruction() == null ? "" : request.instruction();

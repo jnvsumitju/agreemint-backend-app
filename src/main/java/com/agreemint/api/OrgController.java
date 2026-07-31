@@ -2,6 +2,7 @@ package com.agreemint.api;
 
 import com.agreemint.api.dto.InviteMemberResponse;
 import com.agreemint.api.dto.OrgMembershipResponse;
+import com.agreemint.api.dto.OrgEntitlementsResponse;
 import com.agreemint.api.dto.OrgResponse;
 import com.agreemint.domain.OrgRole;
 import com.agreemint.security.UserPrincipal;
@@ -39,6 +40,24 @@ public class OrgController {
     ) {
         OrgResponse org = orgService.createOrg(principal.userId(), req.name());
         return ResponseEntity.status(HttpStatus.CREATED).body(org);
+    }
+
+
+    /**
+     * What this workspace may currently do, for the console to render limits
+     * before the user hits a 402.
+     *
+     * <p>Readable by any member — designers create templates, not just admins —
+     * and it deliberately reports the resolved state rather than the raw plan,
+     * because grandfathered free workspaces are exempt from the caps and the
+     * browser cannot work that out for itself.
+     */
+    @GetMapping("/{orgId}/entitlements")
+    public OrgEntitlementsResponse entitlements(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID orgId
+    ) {
+        return orgService.entitlements(principal.userId(), orgId);
     }
 
     @GetMapping("/{orgId}")

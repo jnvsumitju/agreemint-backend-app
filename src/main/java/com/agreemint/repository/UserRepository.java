@@ -14,4 +14,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
+
+    /** Admin user list: optional email/name substring, paged and sorted in the DB. */
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT u FROM User u
+            WHERE :q IS NULL
+               OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))
+               OR LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%'))
+            """)
+    org.springframework.data.domain.Page<User> search(
+            @org.springframework.data.repository.query.Param("q") String q,
+            org.springframework.data.domain.Pageable pageable);
 }

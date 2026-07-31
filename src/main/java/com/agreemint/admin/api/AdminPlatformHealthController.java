@@ -1,5 +1,7 @@
 package com.agreemint.admin.api;
 
+import java.time.temporal.ChronoUnit;
+import java.time.Instant;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.admin.repository.StaffExportRepository;
 import com.agreemint.repository.ApiKeyRepository;
@@ -37,27 +39,39 @@ public class AdminPlatformHealthController {
 
     @GetMapping
     public AdminDtos.PlatformHealth snapshot() {
-        long pendingWebhooks = 0L;
-        try {
-            // Some repos expose countByStatus; fall back to findAll().size()
-            // if not. Swallow the reflection hiccup either way.
-            pendingWebhooks = webhookRepo.count();
-        } catch (Exception ignored) { /* stub */ }
+        // countByStatus exists — the previous comment claimed it might not and
+        // fell back to count(), which is every delivery ever made. The Overview
+        // tile read "Pending webhooks: 41,982" on a healthy queue.
+        long pendingWebhooks = webhookRepo.countByStatus(
+                com.agreemint.domain.WebhookDelivery.Status.PENDING);
 
         long pendingExports = exportRepo.findAll().stream()
                 .filter(e -> "PENDING".equals(e.getStatus()) || "PROCESSING".equals(e.getStatus()))
                 .count();
 
+        // Expiry counts too. ApiKey.isActive() — the definition the auth filter
+        // enforces — treats an expired key as inactive, so counting only
+        // revocation here reported keys as active that could not authenticate.
+        Instant now = Instant.now();
         long activeKeys = apiKeyRepo.findAll().stream()
                 .filter(k -> k.getRevokedAt() == null)
+                .filter(k -> k.getExpiresAt() == null || k.getExpiresAt().isAfter(now))
                 .count();
+
+        // Failures across the two queues we actually record outcomes for.
+        Instant since24h = Instant.now().minus(24, ChronoUnit.HOURS);
+        long failedLast24h =
+                webhookRepo.countByStatusAndCreatedAtAfter(
+                        com.agreemint.domain.WebhookDelivery.Status.ABANDONED, since24h)
+                + exportRepo.findAll().stream()
+                        .filter(e -> "FAILED".equals(e.getStatus()))
+                        .filter(e -> e.getCompletedAt() != null && e.getCompletedAt().isAfter(since24h))
+                        .count();
 
         return new AdminDtos.PlatformHealth(
                 pendingWebhooks,
                 pendingExports,
-                0L, // failedJobsLast24h: TODO wire scheduled-jobs error log
-                activeKeys,
-                0L, // recentFailedLogins24h: TODO query login events
-                List.of());
+                failedLast24h,
+                activeKeys);
     }
 }

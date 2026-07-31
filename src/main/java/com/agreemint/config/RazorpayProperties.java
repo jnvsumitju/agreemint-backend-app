@@ -1,6 +1,7 @@
 package com.agreemint.config;
 
 import com.agreemint.domain.BillingPeriod;
+import com.agreemint.domain.OrgPlan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +29,13 @@ public class RazorpayProperties {
     private String webhookSecret = "";
     private String baseUrl = "https://api.razorpay.com/v1";
 
-    /** Razorpay Plan ids, one per purchasable billing period. */
+    /**
+     * Razorpay Plan ids — one per purchasable (plan × billing period) pair.
+     * Create these in the Razorpay dashboard; the amount and interval live
+     * there, so a price change is a new Plan plus a new id here, not a deploy.
+     */
+    private String planStarterMonthly = "";
+    private String planStarterYearly = "";
     private String planProMonthly = "";
     private String planProYearly = "";
 
@@ -55,9 +62,26 @@ public class RazorpayProperties {
         return !webhookSecret.isBlank();
     }
 
-    /** Plan id for a billing period, or blank if that period is not sold. */
-    public String planIdFor(BillingPeriod period) {
-        return period == BillingPeriod.YEARLY ? planProYearly : planProMonthly;
+    /**
+     * Razorpay Plan id for a (plan, period) pair, or blank when that
+     * combination is not sold — which is how the console decides whether to
+     * offer the button at all.
+     */
+    public String planIdFor(OrgPlan plan, BillingPeriod period) {
+        boolean yearly = period == BillingPeriod.YEARLY;
+        return switch (plan) {
+            case STARTER -> yearly ? planStarterYearly : planStarterMonthly;
+            case PRO -> yearly ? planProYearly : planProMonthly;
+            // FREE needs no subscription; ENTERPRISE is contract-led and set
+            // by staff rather than bought through checkout.
+            case FREE, ENTERPRISE -> "";
+        };
+    }
+
+    /** Whether a given plan can be purchased on any cycle right now. */
+    public boolean isPurchasable(OrgPlan plan) {
+        return !planIdFor(plan, BillingPeriod.MONTHLY).isBlank()
+                || !planIdFor(plan, BillingPeriod.YEARLY).isBlank();
     }
 
     /** Razorpay's hard ceilings at interval 1. Exceeding these is a 400. */
@@ -86,6 +110,10 @@ public class RazorpayProperties {
     public void setWebhookSecret(String webhookSecret) { this.webhookSecret = webhookSecret; }
     public String getBaseUrl() { return baseUrl; }
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
+    public String getPlanStarterMonthly() { return planStarterMonthly; }
+    public void setPlanStarterMonthly(String v) { this.planStarterMonthly = v; }
+    public String getPlanStarterYearly() { return planStarterYearly; }
+    public void setPlanStarterYearly(String v) { this.planStarterYearly = v; }
     public String getPlanProMonthly() { return planProMonthly; }
     public void setPlanProMonthly(String planProMonthly) { this.planProMonthly = planProMonthly; }
     public String getPlanProYearly() { return planProYearly; }

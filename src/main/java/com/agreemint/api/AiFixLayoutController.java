@@ -1,5 +1,7 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.ai.AiTemplatePromptBuilder;
 import com.agreemint.ai.DeepSeekClient;
 import com.agreemint.api.dto.AiFixLayoutRequest;
@@ -38,16 +40,20 @@ public class AiFixLayoutController {
 
     private final DeepSeekClient deepSeek;
     private final AiTemplatePromptBuilder promptBuilder;
+    private final PlanGate planGate;
 
-    public AiFixLayoutController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder) {
+    public AiFixLayoutController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder,
+            PlanGate planGate) {
         this.deepSeek = deepSeek;
         this.promptBuilder = promptBuilder;
+        this.planGate = planGate;
     }
 
     @PostMapping(value = "/{templateId}/ai-fix-layout", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JsonNode> fixLayout(@PathVariable String templateId,
                                               @AuthenticationPrincipal UserPrincipal principal,
                                               @RequestBody AiFixLayoutRequest request) {
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.STARTER, "AI drafting");
         if (request.page() == null || request.page().isNull()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page is required");
         }

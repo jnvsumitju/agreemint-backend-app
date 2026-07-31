@@ -33,18 +33,24 @@ public class DocumentGenerationService {
     private final PdfRendererService pdfRendererService;
     private final R2StorageService r2;
     private final WebhookService webhookService;
+    private final com.agreemint.billing.PlanGate planGate;
+    private final com.agreemint.billing.PdfQuotaService pdfQuota;
 
     public DocumentGenerationService(
             TemplateVersionService templateVersionService,
             GeneratedDocumentRepository generatedDocumentRepository,
             PdfRendererService pdfRendererService,
             R2StorageService r2,
-            WebhookService webhookService) {
+            WebhookService webhookService,
+            com.agreemint.billing.PlanGate planGate,
+            com.agreemint.billing.PdfQuotaService pdfQuota) {
         this.templateVersionService = templateVersionService;
         this.generatedDocumentRepository = generatedDocumentRepository;
         this.pdfRendererService = pdfRendererService;
         this.r2 = r2;
         this.webhookService = webhookService;
+        this.planGate = planGate;
+        this.pdfQuota = pdfQuota;
     }
 
     /** R2 object key under the private documents bucket for a document id. */
@@ -54,7 +60,7 @@ public class DocumentGenerationService {
 
     /** Renders PDF from arbitrary layout JSON (e.g. editor preview / local state). */
     @Transactional(readOnly = true)
-    public byte[] renderPreviewPdf(JsonNode layout, JsonNode data) {
+    public byte[] renderPreviewPdf(JsonNode layout, JsonNode data, UUID orgId) {
         if (layout == null || layout.isNull()) {
             throw new com.agreemint.api.BadRequestException("layout is required");
         }
@@ -63,7 +69,9 @@ public class DocumentGenerationService {
             data = JsonNodeFactory.instance.objectNode();
         }
         try {
-            return pdfRendererService.render(layout, data);
+            // Preview must match what generation produces — previewing clean
+            // and then getting a watermark would be a nasty surprise.
+            return pdfRendererService.render(layout, data, planGate.isFreeRestricted(orgId));
         } catch (IOException e) {
             log.error("Preview PDF generation failed (I/O)", e);
             throw new com.agreemint.api.BadRequestException(
@@ -98,6 +106,26 @@ public class DocumentGenerationService {
             data = JsonNodeFactory.instance.objectNode();
         }
 
+        // Where the document is filed. Caller's org wins, as it always has.
+        UUID effectiveOrgId = orgId != null ? orgId : version.getTemplate().getOrgId();
+
+        // Which org's plan and allowance govern this render — deliberately NOT
+        // effectiveOrgId. The caller's org id arrives from the X-Org-Id header,
+        // which JwtAuthenticationFilter accepts as any well-formed UUID, so it is
+        // client-controlled. Charging it would let a member of a capped org bill
+        // their document to an uncapped workspace (or drain a third party's
+        // allowance) by changing one header, and would let a free workspace's
+        // template render without its watermark the same way. The template's own
+        // org is server-derived, so it is the safe anchor for both.
+        UUID governingOrgId = version.getTemplate().getOrgId() != null
+                ? version.getTemplate().getOrgId()
+                : effectiveOrgId;
+
+        // Charged before the row is written: a rejected generation should leave
+        // no PENDING document behind that never completes. Refunded below if the
+        // work it paid for fails.
+        pdfQuota.requireHeadroom(governingOrgId);
+
         GeneratedDocument doc = new GeneratedDocument();
         doc.setTemplate(version.getTemplate());
         doc.setVersion(version);
@@ -109,27 +137,31 @@ public class DocumentGenerationService {
                 ? null
                 : com.agreemint.domain.LifecycleStatus.DRAFT);
         if (userId != null) doc.setCreatedBy(userId);
-        if (orgId != null) {
-            doc.setOrgId(orgId);
-        } else if (version.getTemplate().getOrgId() != null) {
-            doc.setOrgId(version.getTemplate().getOrgId());
-        }
+        if (effectiveOrgId != null) doc.setOrgId(effectiveOrgId);
         generatedDocumentRepository.save(doc);
         generatedDocumentRepository.flush();
 
         try {
-            byte[] pdf = pdfRendererService.render(version.getLayoutJson(), data);
+            // Free-plan documents carry a watermark. Anchored to the template's
+            // org for the same reason the quota is — see governingOrgId above.
+            boolean watermark = planGate.isFreeRestricted(governingOrgId);
+            byte[] pdf = pdfRendererService.render(version.getLayoutJson(), data, watermark);
             r2.putDocument(documentKey(doc.getId()), pdf, "application/pdf");
             // `fileUrl` stays as our own routing endpoint — the controller
             // redirects to a fresh presigned R2 URL on each hit, so the
             // column doesn't need to know the bucket / account layout.
             doc.setFileUrl("/api/documents/" + doc.getId() + "/file");
             doc.setStatus(DocumentStatus.COMPLETED);
-        } catch (IOException e) {
+        } catch (RuntimeException | IOException e) {
+            // The allowance paid for a document that does not exist. Without the
+            // refund an R2 outage silently burns a capped customer's whole day
+            // and leaves them nothing to show for it.
+            pdfQuota.refund(governingOrgId);
             log.error("Document PDF generation failed for doc {}", doc.getId(), e);
             doc.setStatus(DocumentStatus.FAILED);
             doc.setFileUrl(null);
             generatedDocumentRepository.save(doc);
+            if (e instanceof RuntimeException re) throw re;
             throw new com.agreemint.api.BadRequestException(
                     "PDF generation failed: " + e.getMessage());
         }

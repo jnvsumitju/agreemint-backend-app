@@ -1,5 +1,7 @@
 package com.agreemint.admin.api;
 
+import com.agreemint.api.BadRequestException;
+import com.agreemint.service.FeatureFlagService;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.admin.domain.FeatureFlag;
 import com.agreemint.admin.domain.FeatureFlagOverride;
@@ -37,14 +39,17 @@ public class AdminFeatureFlagController {
     private final FeatureFlagRepository flagRepo;
     private final FeatureFlagOverrideRepository overrideRepo;
     private final OrganizationRepository orgRepo;
+    private final FeatureFlagService flagService;
 
     public AdminFeatureFlagController(
             FeatureFlagRepository flagRepo,
             FeatureFlagOverrideRepository overrideRepo,
-            OrganizationRepository orgRepo) {
+            OrganizationRepository orgRepo,
+            FeatureFlagService flagService) {
         this.flagRepo = flagRepo;
         this.overrideRepo = overrideRepo;
         this.orgRepo = orgRepo;
+        this.flagService = flagService;
     }
 
     @GetMapping
@@ -64,7 +69,7 @@ public class AdminFeatureFlagController {
 
     /** Create or update a flag by key. `key` in the body is authoritative. */
     @PutMapping
-    public AdminDtos.FeatureFlagResponse upsert(@RequestBody AdminDtos.FeatureFlagUpsertRequest req) {
+    public AdminDtos.FeatureFlagResponse upsert(@jakarta.validation.Valid @RequestBody AdminDtos.FeatureFlagUpsertRequest req) {
         FeatureFlag f = flagRepo.findById(req.key()).orElseGet(() -> {
             FeatureFlag n = new FeatureFlag();
             n.setKey(req.key());
@@ -74,6 +79,10 @@ public class AdminFeatureFlagController {
         f.setDefaultEnabled(req.defaultEnabled());
         f.setUpdatedAt(Instant.now());
         flagRepo.save(f);
+        // A default change affects every org that has no override.
+        flagService.invalidateAll();
+
+        // Overrides are returned empty here — re-GET the list to see them.
         return new AdminDtos.FeatureFlagResponse(
                 f.getKey(), f.getDescription(), f.isDefaultEnabled(), List.of());
     }
@@ -82,14 +91,35 @@ public class AdminFeatureFlagController {
     public ResponseEntity<Void> delete(@PathVariable String key) {
         flagRepo.deleteById(key);
         // Overrides cascade via FK ON DELETE CASCADE.
+        flagService.invalidateAll();
         return ResponseEntity.noContent().build();
     }
 
-    /** Set / clear a per-org override. `enabled=null` removes the override. */
+    /**
+     * Set a per-org override.
+     *
+     * <p>{@code enabled} is required. It used to be a primitive, which made a
+     * missing value indistinguishable from an explicit {@code false} — so the
+     * documented "null removes the override" silently turned the flag off
+     * instead. Removal is the DELETE below.
+     */
     @PostMapping("/{key}/overrides")
     public ResponseEntity<Void> upsertOverride(
             @PathVariable String key,
             @RequestBody AdminDtos.FeatureFlagOverrideRequest req) {
+        if (req == null || req.orgId() == null || req.enabled() == null) {
+            throw new BadRequestException(
+                    "orgId and enabled are required. To remove an override, DELETE it.");
+        }
+        // Checked rather than left to the FK. A mistyped org id used to surface
+        // as a 500 from the constraint violation, which tells the operator
+        // nothing and logs a stack trace for a typo.
+        if (!flagRepo.existsById(key)) {
+            throw new BadRequestException("No feature flag with key \"" + key + "\".");
+        }
+        if (!orgRepo.existsById(req.orgId())) {
+            throw new BadRequestException("No organisation with id " + req.orgId() + ".");
+        }
         FeatureFlagOverride o = overrideRepo
                 .findById(new FeatureFlagOverride.PK(key, req.orgId()))
                 .orElseGet(() -> {
@@ -100,12 +130,14 @@ public class AdminFeatureFlagController {
                 });
         o.setEnabled(req.enabled());
         overrideRepo.save(o);
+        flagService.invalidateOrg(req.orgId());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{key}/overrides/{orgId}")
     public ResponseEntity<Void> deleteOverride(@PathVariable String key, @PathVariable UUID orgId) {
         overrideRepo.deleteById(new FeatureFlagOverride.PK(key, orgId));
+        flagService.invalidateOrg(orgId);
         return ResponseEntity.noContent().build();
     }
 }

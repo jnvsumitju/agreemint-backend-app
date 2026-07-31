@@ -112,8 +112,13 @@ public class R2StorageService {
      * Retained for API-key callers (curl / server-to-server) where CORS
      * doesn't apply and a redirect is cheaper than a proxied byte stream.
      */
+    /** How long a presigned URL from this service stays valid, in minutes. */
+    public int presignTtlMinutes() {
+        return Math.max(props.getPresignTtlMinutes(), 1);
+    }
+
     public URL presignDocumentGet(String key) {
-        int ttl = Math.max(props.getPresignTtlMinutes(), 1);
+        int ttl = presignTtlMinutes();
         GetObjectPresignRequest req = GetObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(ttl))
                 .getObjectRequest(GetObjectRequest.builder()
