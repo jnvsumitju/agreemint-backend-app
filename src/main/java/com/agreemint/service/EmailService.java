@@ -41,7 +41,14 @@ public class EmailService {
     private final ResendProperties resendProps;
     private final HttpClient http;
 
-    public EmailService(TemplateEngine templateEngine, EmailProperties emailProps, ResendProperties resendProps,
+    public EmailService(
+            // Explicit: this is Boot's auto-configured engine for the bundled
+            // classpath templates, not either of the string engines. It used to
+            // resolve by parameter name alone, which silently stopped working
+            // the moment a second candidate appeared.
+            @org.springframework.beans.factory.annotation.Qualifier("templateEngine")
+            TemplateEngine templateEngine,
+            EmailProperties emailProps, ResendProperties resendProps,
             @org.springframework.beans.factory.annotation.Qualifier("stringTemplateEngine") TemplateEngine stringTemplateEngine,
             @org.springframework.beans.factory.annotation.Qualifier("subjectTemplateEngine") TemplateEngine subjectTemplateEngine,
             AdminEmailTemplateRepository overrideRepo) {
