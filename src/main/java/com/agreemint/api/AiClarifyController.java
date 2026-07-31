@@ -1,5 +1,7 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.ai.AiTemplatePromptBuilder;
 import com.agreemint.ai.DeepSeekClient;
 import com.agreemint.api.dto.AiClarifyRequest;
@@ -41,16 +43,20 @@ public class AiClarifyController {
 
     private final DeepSeekClient deepSeek;
     private final AiTemplatePromptBuilder promptBuilder;
+    private final PlanGate planGate;
 
-    public AiClarifyController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder) {
+    public AiClarifyController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder,
+            PlanGate planGate) {
         this.deepSeek = deepSeek;
         this.promptBuilder = promptBuilder;
+        this.planGate = planGate;
     }
 
     @PostMapping(value = "/{templateId}/ai-clarify", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JsonNode> clarify(@PathVariable String templateId,
                                             @AuthenticationPrincipal UserPrincipal principal,
                                             @RequestBody AiClarifyRequest request) {
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.STARTER, "AI drafting");
         String systemPrompt = promptBuilder.buildClarifierSystemPrompt(
                 request.currentLayout(), request.variables(), request.targetElementId());
         String userInstruction = request.instruction() == null ? "" : request.instruction();

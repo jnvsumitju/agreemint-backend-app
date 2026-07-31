@@ -1,5 +1,10 @@
 package com.agreemint.admin.api;
 
+import java.util.UUID;
+import java.util.Map;
+import java.util.HashMap;
+import java.time.temporal.ChronoUnit;
+import java.time.Instant;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.repository.GeneratedDocumentRepository;
 import com.agreemint.repository.OrganizationRepository;
@@ -46,24 +51,46 @@ public class AdminUsageController {
         long totalOrgs = orgRepo.count();
         long totalUsers = userRepo.count();
         long totalTemplates = templateRepo.count();
-        long docsAll = docRepo.count();
-
-        // 30-day zero-filled histogram. Real aggregation is a native
-        // `date_trunc('day', created_at) group by 1` query — saving that
-        // for when the billing story firms up.
-        List<AdminDtos.UsageBucket> daily = new ArrayList<>();
+        // This used to report docRepo.count() — the all-time total — under a
+        // "last 30 days" label.
+        // Anchored to the same UTC day boundary the daily series below uses.
+        // A rolling now-minus-720h window included part of a 31st day that the
+        // series omitted, so the buckets never summed to this number and a
+        // staff member comparing the two saw a discrepancy with no explanation.
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
-        for (int i = 29; i >= 0; i--) {
-            daily.add(new AdminDtos.UsageBucket(today.minusDays(i).toString(), 0L));
+        Instant since = today.minusDays(29).atStartOfDay(ZoneOffset.UTC).toInstant();
+        long docsLast30d = docRepo.countTotalSince(since);
+
+        // Real per-day counts, zero-filled so the series is continuous even on
+        // days with no activity. Previously every bucket was hardcoded to 0.
+        Map<String, Long> byDay = new HashMap<>();
+        for (Object[] row : docRepo.countByDaySince(since)) {
+            byDay.put(String.valueOf(row[0]), ((Number) row[1]).longValue());
         }
+        List<AdminDtos.UsageBucket> daily = new ArrayList<>();
+        for (int i = 29; i >= 0; i--) {
+            String day = today.minusDays(i).toString();
+            daily.add(new AdminDtos.UsageBucket(day, byDay.getOrDefault(day, 0L)));
+        }
+
+        // Busiest orgs by document volume. Previously always an empty list.
+        Map<UUID, String> orgNames = new HashMap<>();
+        orgRepo.findAll().forEach(o -> orgNames.put(o.getId(), o.getName()));
+        List<AdminDtos.OrgUsageRow> topOrgs = docRepo
+                .topOrgsSince(since, org.springframework.data.domain.PageRequest.of(0, 10))
+                .stream()
+                .map(row -> new AdminDtos.OrgUsageRow(
+                        (UUID) row[0],
+                        orgNames.get((UUID) row[0]),
+                        ((Number) row[1]).longValue()))
+                .toList();
 
         return new AdminDtos.UsageSummary(
                 totalOrgs,
                 totalUsers,
                 totalTemplates,
-                docsAll,
-                0L, // apiCallsLast30d: needs api_key_usage table; stubbed
+                docsLast30d,
                 daily,
-                List.of());
+                topOrgs);
     }
 }

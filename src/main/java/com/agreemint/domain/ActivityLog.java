@@ -19,7 +19,12 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "org_id", nullable = false)
+    /**
+     * The tenant this action belongs to, or null for a platform-wide staff
+     * action that belongs to no single one — see V22. Customer-facing queries
+     * always filter on a concrete org id, so a null row is invisible to tenants.
+     */
+    @Column(name = "org_id")
     private UUID orgId;
 
     @Column(name = "user_id")

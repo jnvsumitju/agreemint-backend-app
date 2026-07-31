@@ -44,8 +44,13 @@ public class GenerateController {
             value = "/generate/preview",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_PDF_VALUE)
-    public byte[] previewPdf(@RequestBody PreviewPdfRequest request) {
-        return documentGenerationService.renderPreviewPdf(request.layout(), request.data());
+    public byte[] previewPdf(@RequestBody PreviewPdfRequest request,
+                              @AuthenticationPrincipal UserPrincipal principal) {
+        // Org context decides whether the preview carries the free-plan
+        // watermark, so it matches the document that would be generated.
+        return documentGenerationService.renderPreviewPdf(
+                request.layout(), request.data(),
+                principal == null ? null : principal.orgId());
     }
 
     /**

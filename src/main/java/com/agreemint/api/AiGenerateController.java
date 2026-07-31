@@ -1,5 +1,7 @@
 package com.agreemint.api;
 
+import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.ai.AiTemplatePromptBuilder;
 import com.agreemint.ai.DeepSeekClient;
 import com.agreemint.api.dto.AiGenerateRequest;
@@ -41,16 +43,20 @@ public class AiGenerateController {
 
     private final DeepSeekClient deepSeek;
     private final AiTemplatePromptBuilder promptBuilder;
+    private final PlanGate planGate;
 
-    public AiGenerateController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder) {
+    public AiGenerateController(DeepSeekClient deepSeek, AiTemplatePromptBuilder promptBuilder,
+            PlanGate planGate) {
         this.deepSeek = deepSeek;
         this.promptBuilder = promptBuilder;
+        this.planGate = planGate;
     }
 
     @PostMapping(value = "/{templateId}/ai-generate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter generate(@PathVariable String templateId,
                                @AuthenticationPrincipal UserPrincipal principal,
                                @RequestBody AiGenerateRequest request) {
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.STARTER, "AI drafting");
         // 30-minute SSE timeout. V4-Pro on a single chunk of dense legal
         // prose can stream 40K+ chars at ~70 tokens/sec, which crosses
         // the 10-min mark. The 600s cap was killing chunk-3-of-3 calls

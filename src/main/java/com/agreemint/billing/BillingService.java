@@ -88,14 +88,20 @@ public class BillingService {
      * yet, and the org's plan is not touched here.
      */
     @Transactional
-    public Subscription createSubscription(UUID orgId, BillingPeriod period, UUID actingUserId) {
+    public Subscription createSubscription(UUID orgId, OrgPlan targetPlan,
+                                            BillingPeriod period, UUID actingUserId) {
         Organization org = orgRepo.findById(orgId)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        String planId = props.planIdFor(period);
+        if (targetPlan == null || !targetPlan.isSelfServe()) {
+            throw new BadRequestException(
+                    "Only Starter and Pro can be purchased here. Contact us about Enterprise.");
+        }
+
+        String planId = props.planIdFor(targetPlan, period);
         if (planId == null || planId.isBlank()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "No Razorpay plan is configured for " + period
+                    "No Razorpay plan is configured for " + targetPlan + " on " + period
                             + " billing (set the matching RAZORPAY_PLAN_* variable)");
         }
 
@@ -117,7 +123,7 @@ public class BillingService {
         sub.setRazorpayPlanId(planId);
         sub.setRazorpayCustomerId(created.path("customer_id").asText(null));
         sub.setStatus(SubscriptionStatus.fromWire(created.path("status").asText("created")));
-        sub.setPlan(OrgPlan.PRO);
+        sub.setPlan(targetPlan);
         sub.setBillingPeriod(period);
         sub.setCreatedBy(actingUserId);
 

@@ -1,5 +1,7 @@
 package com.agreemint.service;
 
+import com.agreemint.admin.repository.AdminEmailTemplateRepository;
+import com.agreemint.admin.domain.AdminEmailTemplate;
 import com.agreemint.config.EmailProperties;
 import com.agreemint.config.ResendProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,14 +34,23 @@ public class EmailService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final TemplateEngine templateEngine;
+    private final TemplateEngine stringTemplateEngine;
+    private final TemplateEngine subjectTemplateEngine;
+    private final AdminEmailTemplateRepository overrideRepo;
     private final EmailProperties emailProps;
     private final ResendProperties resendProps;
     private final HttpClient http;
 
-    public EmailService(TemplateEngine templateEngine, EmailProperties emailProps, ResendProperties resendProps) {
+    public EmailService(TemplateEngine templateEngine, EmailProperties emailProps, ResendProperties resendProps,
+            @org.springframework.beans.factory.annotation.Qualifier("stringTemplateEngine") TemplateEngine stringTemplateEngine,
+            @org.springframework.beans.factory.annotation.Qualifier("subjectTemplateEngine") TemplateEngine subjectTemplateEngine,
+            AdminEmailTemplateRepository overrideRepo) {
         this.templateEngine = templateEngine;
         this.emailProps = emailProps;
         this.resendProps = resendProps;
+        this.stringTemplateEngine = stringTemplateEngine;
+        this.subjectTemplateEngine = subjectTemplateEngine;
+        this.overrideRepo = overrideRepo;
         this.http = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(15))
                 .build();
@@ -52,8 +63,47 @@ public class EmailService {
         ctx.setVariable("resetLink", resetLink);
         ctx.setVariable("expiryMinutes", 60);
 
-        String html = templateEngine.process("email/password-reset", ctx);
-        send(to, "Reset your Crixaa password", html);
+        sendTemplated("password-reset", to, "Reset your Crixaa password", ctx);
+    }
+
+    /**
+     * Tell a customer that staff signed in to their account.
+     *
+     * <p>Sent on every session start. The audit trail records impersonation for
+     * staff, but only staff can read it — without this the person whose account
+     * was accessed had no way to find out. {@code @Async} and swallowed on
+     * failure: a mail outage must not stop support from doing its job, and the
+     * activity_log row is the durable record either way.
+     */
+    @Async
+    public void sendImpersonationNoticeEmail(String to, String orgName, String occurredAt,
+                                              int ttlMinutes) {
+        Context ctx = new Context();
+        ctx.setVariable("headline", "Crixaa support signed in to your account");
+        ctx.setVariable("summary", "A member of the Crixaa support team signed in to your account "
+                + "to investigate an issue. They can see and do what you can.");
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("occurredAt", occurredAt);
+        ctx.setVariable("detailLabel", "Session length");
+        ctx.setVariable("detail", "up to " + ttlMinutes + " minutes");
+        sendTemplated("impersonation-notice", to,
+                "Crixaa support signed in to your account", ctx);
+    }
+
+    /** Tell a customer that staff exported data from their account. */
+    @Async
+    public void sendDataExportNoticeEmail(String to, String orgName, String occurredAt,
+                                           String scope) {
+        Context ctx = new Context();
+        ctx.setVariable("headline", "Crixaa support exported data from your account");
+        ctx.setVariable("summary", "A member of the Crixaa support team exported a copy of data "
+                + "associated with your account.");
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("occurredAt", occurredAt);
+        ctx.setVariable("detailLabel", "Scope");
+        ctx.setVariable("detail", scope);
+        sendTemplated("data-export-notice", to,
+                "Crixaa support exported data from your account", ctx);
     }
 
     /** Send email verification link after registration. */
@@ -62,8 +112,7 @@ public class EmailService {
         Context ctx = new Context();
         ctx.setVariable("verifyLink", verifyLink);
 
-        String html = templateEngine.process("email/email-verification", ctx);
-        send(to, "Verify your email address", html);
+        sendTemplated("email-verification", to, "Verify your email address", ctx);
     }
 
     /** Send OTP code for passwordless login. */
@@ -73,8 +122,7 @@ public class EmailService {
         ctx.setVariable("otpCode", otpCode);
         ctx.setVariable("ttlMinutes", ttlMinutes);
 
-        String html = templateEngine.process("email/otp-code", ctx);
-        send(to, "Your Crixaa login code: " + otpCode, html);
+        sendTemplated("otp-code", to, "Your Crixaa login code: " + otpCode, ctx);
     }
 
     /** Notify an approver they have a pending approval step. */
@@ -86,8 +134,7 @@ public class EmailService {
         ctx.setVariable("approverName", approverName);
         ctx.setVariable("reviewLink", reviewLink);
 
-        String html = templateEngine.process("email/approval-request", ctx);
-        send(to, "Action required: Review '" + documentTitle + "'", html);
+        sendTemplated("approval-request", to, "Action required: Review '" + documentTitle + "'", ctx);
     }
 
     /** Notify document creator about approval/rejection decision. */
@@ -101,8 +148,7 @@ public class EmailService {
         ctx.setVariable("comment", comment);
         ctx.setVariable("documentLink", documentLink);
 
-        String html = templateEngine.process("email/approval-decision", ctx);
-        send(to, "Document '" + documentTitle + "' was " + decision, html);
+        sendTemplated("approval-decision", to, "Document '" + documentTitle + "' was " + decision, ctx);
     }
 
     /** Notify about a lifecycle status change. */
@@ -115,8 +161,7 @@ public class EmailService {
         ctx.setVariable("changedBy", changedBy);
         ctx.setVariable("documentLink", documentLink);
 
-        String html = templateEngine.process("email/lifecycle-change", ctx);
-        send(to, "Document status changed: '" + documentTitle + "' is now " + newStatus, html);
+        sendTemplated("lifecycle-change", to, "Document status changed: '" + documentTitle + "' is now " + newStatus, ctx);
     }
 
     /** Send org invitation email to an unregistered user. */
@@ -129,8 +174,7 @@ public class EmailService {
         ctx.setVariable("role", role);
         ctx.setVariable("inviteLink", inviteLink);
 
-        String html = templateEngine.process("email/org-invite", ctx);
-        send(to, "You've been invited to join " + orgName + " on Crixaa", html);
+        sendTemplated("org-invite", to, "You've been invited to join " + orgName + " on Crixaa", ctx);
     }
 
     /**
@@ -146,8 +190,7 @@ public class EmailService {
         ctx.setVariable("sharerName", sharerName);
         ctx.setVariable("templateUrl", templateUrl);
 
-        String html = templateEngine.process("email/template-shared", ctx);
-        send(to, sharerName + " shared \"" + templateName + "\" with you", html);
+        sendTemplated("template-shared", to, sharerName + " shared \"" + templateName + "\" with you", ctx);
     }
 
     /** Ask a reviewer to look at a committed template version. */
@@ -161,8 +204,7 @@ public class EmailService {
         ctx.setVariable("message", message == null ? "" : message);
         ctx.setVariable("reviewUrl", reviewUrl);
 
-        String html = templateEngine.process("email/review-requested", ctx);
-        send(to, "Review requested: \"" + templateName + "\" (v" + versionNumber + ")", html);
+        sendTemplated("review-requested", to, "Review requested: \"" + templateName + "\" (v" + versionNumber + ")", ctx);
     }
 
     /**
@@ -180,9 +222,9 @@ public class EmailService {
         ctx.setVariable("summary", summary == null ? "" : summary);
         ctx.setVariable("templateUrl", templateUrl);
 
-        String html = templateEngine.process("email/review-decision", ctx);
         String verb = "APPROVED".equals(status) ? "approved" : "requested changes on";
-        send(to, reviewerName + " " + verb + " \"" + templateName + "\"", html);
+        sendTemplated("review-decision", to,
+                reviewerName + " " + verb + " \"" + templateName + "\"", ctx);
     }
 
     /** Warn a workspace admin that an API key is about to expire. */
@@ -195,9 +237,8 @@ public class EmailService {
         ctx.setVariable("daysLeft", daysLeft);
         ctx.setVariable("developerUrl", developerUrl);
 
-        String html = templateEngine.process("email/api-key-expiry-warning", ctx);
-        send(to, "API key \"" + keyName + "\" expires in " + daysLeft + " day"
-                + (daysLeft == 1 ? "" : "s"), html);
+        sendTemplated("api-key-expiry-warning", to, "API key \"" + keyName + "\" expires in " + daysLeft + " day"
+                + (daysLeft == 1 ? "" : "s"), ctx);
     }
 
     /** Warn about an upcoming or past document expiration. */
@@ -209,8 +250,7 @@ public class EmailService {
         ctx.setVariable("expiresAt", expiresAt);
         ctx.setVariable("documentLink", documentLink);
 
-        String html = templateEngine.process("email/expiration-warning", ctx);
-        send(to, "Document expiring: '" + documentTitle + "'", html);
+        sendTemplated("expiration-warning", to, "Document expiring: '" + documentTitle + "'", ctx);
     }
 
     // ── Internal ──
@@ -270,4 +310,58 @@ public class EmailService {
         }
         return name + " <" + addr + ">";
     }
+
+    /**
+     * Render a template and send it, preferring a staff-authored override.
+     *
+     * <p>Overrides live in {@code admin_email_templates} and were, until now,
+     * written by the admin API and read by nothing — the claim that "an
+     * override row wins at send time" was simply untrue. This is where it
+     * becomes true.
+     *
+     * <p>An override supplies both subject and body, and both are rendered
+     * through Thymeleaf so they keep the same variables as the bundled
+     * template. Looked up per send rather than cached: staff edit these
+     * expecting the next email to reflect the change, and it is one indexed
+     * primary-key read on an already-async path.
+     *
+     * <p>A broken override falls back to the bundled template rather than
+     * dropping the email — a malformed edit should not stop a password reset.
+     */
+    private void sendTemplated(String key, String to, String defaultSubject, Context ctx) {
+        AdminEmailTemplate override = null;
+        try {
+            override = overrideRepo.findById(key).orElse(null);
+        } catch (RuntimeException e) {
+            log.warn("Could not read email override for {}: {}", key, e.getMessage());
+        }
+
+        if (override != null) {
+            try {
+                // A blank override subject means "keep the built-in one", and the
+                // built-in is NOT re-rendered — it is already a finished string
+                // computed at the call site, often carrying live values (the OTP
+                // code, the document title). Pushing it back through a template
+                // engine would at best be a no-op and at worst mangle it.
+                String raw = override.getSubject();
+                String subject = (raw == null || raw.isBlank())
+                        ? defaultSubject
+                        : subjectTemplateEngine.process(raw, ctx);
+                String body = stringTemplateEngine.process(override.getBodyHtml(), ctx);
+                send(to, subject, body);
+                return;
+            } catch (Exception e) {
+                // Exception, not RuntimeException: a missing expression-language
+                // artifact surfaces as a LinkageError-adjacent failure that a
+                // RuntimeException catch walks straight past, and the email is
+                // then dropped rather than falling back — the opposite of what
+                // the contract above promises.
+                log.error("Email override for {} failed to render — falling back to the bundled template",
+                        key, e);
+            }
+        }
+
+        send(to, defaultSubject, templateEngine.process("email/" + key, ctx));
+    }
+
 }

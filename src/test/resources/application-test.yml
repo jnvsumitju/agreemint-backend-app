@@ -1,0 +1,31 @@
+# Test slice datasource.
+#
+# H2 in PostgreSQL mode with Hibernate generating the schema — Flyway is off
+# because the migrations contain Postgres-specific SQL (jsonb, partial indexes)
+# that H2 will not accept.
+#
+# NON_KEYWORDS=KEY is load-bearing: `key` is reserved in H2, and both
+# admin_email_templates and feature_flags use it as their primary key column.
+# Without this the schema fails to create and every JPA test errors out.
+#
+# The INIT clause aliases JSONB to H2's JSON type — ActivityLog.metadata is
+# declared columnDefinition="jsonb", which H2 does not recognise natively.
+spring:
+  datasource:
+    url: jdbc:h2:mem:agreemint_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=KEY;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    org.hibernate.SQL: warn

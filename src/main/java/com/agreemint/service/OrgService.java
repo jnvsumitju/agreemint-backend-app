@@ -1,5 +1,9 @@
 package com.agreemint.service;
 
+import com.agreemint.repository.TemplateRepository;
+import com.agreemint.config.FreePlanProperties;
+import com.agreemint.api.dto.OrgEntitlementsResponse;
+import com.agreemint.billing.PlanGate;
 import com.agreemint.api.dto.InviteMemberResponse;
 import com.agreemint.api.dto.OrgMembershipResponse;
 import com.agreemint.api.dto.OrgResponse;
@@ -32,6 +36,9 @@ public class OrgService {
     private final SlugService slugService;
     private final EmailService emailService;
     private final FrontendProperties frontendProps;
+    private final PlanGate planGate;
+    private final FreePlanProperties freeLimits;
+    private final TemplateRepository templateRepo;
 
     public OrgService(
             OrganizationRepository orgRepo,
@@ -42,7 +49,10 @@ public class OrgService {
             SlugService slugService,
             EmailService emailService,
             FrontendProperties frontendProps
-    ) {
+    ,
+            PlanGate planGate,
+            FreePlanProperties freeLimits,
+            TemplateRepository templateRepo) {
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
         this.invitationRepo = invitationRepo;
@@ -51,6 +61,9 @@ public class OrgService {
         this.slugService = slugService;
         this.emailService = emailService;
         this.frontendProps = frontendProps;
+        this.planGate = planGate;
+        this.freeLimits = freeLimits;
+        this.templateRepo = templateRepo;
     }
 
     @Transactional(readOnly = true)
@@ -64,6 +77,24 @@ public class OrgService {
     public OrgResponse createOrg(UUID userId, String name) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Free-plan workspace ceiling. Counts only workspaces this user
+        // administers — belonging to someone else's workspace does not consume
+        // your own allowance. No-op unless the free-plan cutover is configured.
+        List<OrgMembership> owned = membershipRepo.findByUserId(userId).stream()
+                .filter(m -> m.getRole() == OrgRole.ADMIN)
+                .toList();
+        boolean anyOwnedIsPaid = owned.stream()
+                .map(OrgMembership::getOrganization)
+                .anyMatch(o -> o != null && o.getPlan() != null && o.getPlan().isPaid());
+        java.time.Instant oldestOwnedAt = owned.stream()
+                .map(OrgMembership::getOrganization)
+                .filter(java.util.Objects::nonNull)
+                .map(Organization::getCreatedAt)
+                .filter(java.util.Objects::nonNull)
+                .min(java.time.Instant::compareTo)
+                .orElse(null);
+        planGate.requireWorkspaceHeadroom(owned.size(), anyOwnedIsPaid, oldestOwnedAt);
 
         String slug = slugService.generateUniqueSlug(name);
         Organization org = new Organization();
@@ -235,6 +266,28 @@ public class OrgService {
         }
 
         membershipRepo.delete(membership);
+    }
+
+
+    /** Resolved limits for the console. See OrgEntitlementsResponse. */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public OrgEntitlementsResponse entitlements(UUID userId, UUID orgId) {
+        // Any member may read this; non-members must not learn another
+        // workspace's plan or limits.
+        membershipRepo.findByUserIdAndOrganizationId(userId, orgId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN, "Not a member of this organization"));
+
+        Organization org = orgRepo.findById(orgId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Org not found"));
+
+        boolean restricted = planGate.isFreeRestricted(orgId);
+        return new OrgEntitlementsResponse(
+                org.getPlan() == null ? "FREE" : org.getPlan().name(),
+                restricted,
+                restricted ? freeLimits.getMaxTemplates() : 0,
+                templateRepo.countByOrgId(orgId),
+                restricted ? freeLimits.getMaxWorkspaces() : 0);
     }
 
 }

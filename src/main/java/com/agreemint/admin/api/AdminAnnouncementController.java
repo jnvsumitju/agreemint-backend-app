@@ -49,7 +49,7 @@ public class AdminAnnouncementController {
 
     @PostMapping
     public AdminDtos.AnnouncementResponse create(
-            @RequestBody AdminDtos.AnnouncementRequest req,
+            @jakarta.validation.Valid @RequestBody AdminDtos.AnnouncementRequest req,
             @AuthenticationPrincipal UserPrincipal principal) {
         Announcement a = new Announcement();
         a.setId(UUID.randomUUID());
@@ -62,7 +62,7 @@ public class AdminAnnouncementController {
     @PutMapping("/{id}")
     public ResponseEntity<AdminDtos.AnnouncementResponse> update(
             @PathVariable UUID id,
-            @RequestBody AdminDtos.AnnouncementRequest req) {
+            @jakarta.validation.Valid @RequestBody AdminDtos.AnnouncementRequest req) {
         Optional<Announcement> maybe = repo.findById(id);
         if (maybe.isEmpty()) return ResponseEntity.notFound().build();
         Announcement a = maybe.get();

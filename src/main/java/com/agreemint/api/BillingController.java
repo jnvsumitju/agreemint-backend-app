@@ -5,6 +5,7 @@ import com.agreemint.billing.RazorpaySignatureVerifier;
 import com.agreemint.config.RazorpayProperties;
 import com.agreemint.domain.BillingEvent;
 import com.agreemint.domain.BillingPeriod;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.domain.OrgRole;
 import com.agreemint.domain.Subscription;
 import com.agreemint.repository.BillingEventRepository;
@@ -60,10 +61,13 @@ public class BillingController {
             boolean billingEnabled,
             /** Public Razorpay key so the browser can open Checkout. Never the secret. */
             String razorpayKeyId,
-            boolean monthlyAvailable,
-            boolean yearlyAvailable,
+            /** Which (plan, cycle) pairs have a Razorpay Plan configured. */
+            List<PurchasablePlan> purchasable,
             SubscriptionSummary subscription
     ) {}
+
+    /** A plan the console may offer, and on which cycles. */
+    public record PurchasablePlan(String plan, boolean monthly, boolean yearly) {}
 
     public record SubscriptionSummary(
             UUID id,
@@ -80,11 +84,12 @@ public class BillingController {
         }
     }
 
-    public record CreateSubscriptionRequest(String billingPeriod) {}
+    public record CreateSubscriptionRequest(String plan, String billingPeriod) {}
 
     public record CreateSubscriptionResponse(
             String razorpaySubscriptionId,
             String razorpayKeyId,
+            String plan,
             String billingPeriod
     ) {}
 
@@ -104,12 +109,20 @@ public class BillingController {
                                  @AuthenticationPrincipal UserPrincipal principal) {
         orgAuthz.assertRole(principal.userId(), orgId, OrgRole.ADMIN);
 
+        List<PurchasablePlan> purchasable = java.util.Arrays.stream(OrgPlan.values())
+                .filter(OrgPlan::isSelfServe)
+                .map(p -> new PurchasablePlan(
+                        p.name(),
+                        !props.planIdFor(p, BillingPeriod.MONTHLY).isBlank(),
+                        !props.planIdFor(p, BillingPeriod.YEARLY).isBlank()))
+                .filter(p -> p.monthly() || p.yearly())
+                .toList();
+
         return new BillingStatus(
                 billing.currentPlan(orgId).name(),
                 props.isConfigured(),
                 props.getKeyId(),
-                !props.getPlanProMonthly().isBlank(),
-                !props.getPlanProYearly().isBlank(),
+                purchasable,
                 billing.activeSubscription(orgId).map(SubscriptionSummary::of).orElse(null));
     }
 
@@ -122,10 +135,12 @@ public class BillingController {
         orgAuthz.assertRole(principal.userId(), orgId, OrgRole.ADMIN);
 
         BillingPeriod period = parsePeriod(req == null ? null : req.billingPeriod());
-        Subscription sub = billing.createSubscription(orgId, period, principal.userId());
+        OrgPlan targetPlan = parsePlan(req == null ? null : req.plan());
+        Subscription sub = billing.createSubscription(orgId, targetPlan, period, principal.userId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CreateSubscriptionResponse(
-                sub.getRazorpaySubscriptionId(), props.getKeyId(), period.name()));
+                sub.getRazorpaySubscriptionId(), props.getKeyId(),
+                targetPlan.name(), period.name()));
     }
 
     @Operation(summary = "Record the browser's checkout result",
@@ -173,6 +188,16 @@ public class BillingController {
     private static PaymentRecord toPaymentRecord(BillingEvent e) {
         return new PaymentRecord(e.getCreatedAt(), e.getAmount(), e.getCurrency(),
                 e.getRazorpayPaymentId());
+    }
+
+    /** Defaults to PRO so an older client that omits the field still works. */
+    private static OrgPlan parsePlan(String value) {
+        if (value == null || value.isBlank()) return OrgPlan.PRO;
+        try {
+            return OrgPlan.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("plan must be STARTER or PRO");
+        }
     }
 
     private static BillingPeriod parsePeriod(String value) {

@@ -108,9 +108,10 @@ public class SecurityConfig {
                     res.getWriter().write("{\"error\":\"Unauthorized\"}");
                 })
             )
-            // Order: API-key filter first (handles X-Api-Key), then JWT filter. A
-            // request carrying both headers is handled by whichever runs first —
-            // API keys win by design.
+            // Order: API-key filter first (handles X-Api-Key), then JWT filter.
+            // Order alone does not decide precedence — JwtAuthenticationFilter
+            // carries the guard that makes the earlier authentication stick, so
+            // a request sent with both headers keeps its API-key scopes.
             .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -1,0 +1,24 @@
+-- Allow an activity_log row that belongs to no single tenant.
+--
+-- Some staff actions are platform-wide and have no org to attribute them to.
+-- The clearest case is a scope=audit staff export: it reads every tenant's
+-- activity, so naming one org would be a lie and naming all of them would write
+-- a row per organisation for a single act.
+--
+-- Until now org_id was NOT NULL, so those actions could not be recorded at all.
+-- The export ran, the data left the system, and the only trace was a WARN line
+-- in the application log — the audit view could not show it, which is precisely
+-- the surface someone reviewing staff conduct would look at.
+--
+-- Making the column nullable is safe for the existing read paths:
+--   * the customer feed queries findByOrgIdOrderByCreatedAtDesc(orgId, …) with a
+--     non-null argument, and NULL never equals it, so tenants cannot see these;
+--   * the admin audit query is (:orgId IS NULL OR a.org_id = :orgId), so an
+--     unfiltered staff view includes them and an org-scoped one does not;
+--   * AdminDtos.AuditEvent.orgId is already a nullable UUID and the portal
+--     already renders an em dash when it is absent.
+ALTER TABLE activity_log ALTER COLUMN org_id DROP NOT NULL;
+
+-- The existing (org_id, created_at DESC) index still serves the per-org feed;
+-- Postgres btrees index NULLs, so nothing degrades. The global newest-first
+-- index added in V21 is what the unfiltered staff view uses.

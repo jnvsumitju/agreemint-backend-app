@@ -6,6 +6,7 @@ import com.agreemint.api.dto.LifecycleStatsResponse;
 import com.agreemint.api.dto.PendingApprovalResponse;
 import com.agreemint.api.dto.TransitionStatusRequest;
 import com.agreemint.billing.PlanGate;
+import com.agreemint.domain.OrgPlan;
 import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.LifecycleStatus;
 import com.agreemint.domain.OrgRole;
@@ -76,7 +77,7 @@ public class DocumentLifecycleController {
                 OrgRole.ADMIN, OrgRole.DESIGNER);
         // Paid feature. Reads stay open, so a lapsed workspace can still see
         // where its documents got to — it just cannot move them further.
-        planGate.requirePaid(principal.orgId(), "Document lifecycle");
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.PRO, "Document lifecycle");
         return lifecycleService.transitionStatus(id, request.targetStatus(),
                 principal.userId(), request.comment());
     }

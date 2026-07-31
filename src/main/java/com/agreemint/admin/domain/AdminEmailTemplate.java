@@ -16,6 +16,20 @@ import java.util.UUID;
 @Entity
 @Table(name = "admin_email_templates")
 public class AdminEmailTemplate {
+    // A staff override of a bundled email.
+    //
+    // The table starts EMPTY — nothing seeds it. A row here replaces the
+    // classpath template for that key at render time; deleting the row restores
+    // the bundled one.
+    //
+    // Both columns are Thymeleaf, and both use ${...} — never {{var}}. The body
+    // renders in HTML mode, the subject in TEXT mode so interpolated values are
+    // not HTML-escaped on their way to the inbox.
+    //
+    // A BLANK subject means "keep the subject the send path composed". That is
+    // usually what you want: those are built per send and carry live values —
+    // the OTP code, the document title — which a static override cannot express.
+
 
     @Id
     @Column(length = 64)

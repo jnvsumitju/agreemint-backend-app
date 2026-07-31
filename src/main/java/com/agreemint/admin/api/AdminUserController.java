@@ -1,5 +1,10 @@
 package com.agreemint.admin.api;
 
+import java.util.HashMap;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import com.agreemint.admin.api.dto.PageResponse;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.domain.OrgMembership;
 import com.agreemint.domain.User;
@@ -47,37 +52,44 @@ public class AdminUserController {
 
     /** Returns a paginated user list with an optional email/name substring filter. */
     @GetMapping
-    public List<AdminDtos.UserSummary> list(@RequestParam(required = false) String q) {
-        List<User> users = userRepo.findAll();
-        String needle = q == null ? "" : q.trim().toLowerCase();
-        if (!needle.isEmpty()) {
-            users = users.stream()
-                    .filter(u -> (u.getEmail() != null && u.getEmail().toLowerCase().contains(needle))
-                            || (u.getName() != null && u.getName().toLowerCase().contains(needle)))
-                    .toList();
+    public PageResponse<AdminDtos.UserSummary> list(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+
+        int pageSize = Math.min(200, Math.max(1, size));
+        String search = (q == null || q.isBlank()) ? null : q.trim();
+
+        // Searched, sorted and paged in the DB. This previously loaded every
+        // user, filtered in memory, then truncated to a fixed 200 — so a match
+        // beyond that cut-off was simply invisible.
+        Page<User> users = userRepo.search(search,
+                PageRequest.of(Math.max(0, page), pageSize,
+                        Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<UUID> userIds = users.getContent().stream().map(User::getId).toList();
+        if (userIds.isEmpty()) {
+            return PageResponse.of(users, List.of());
         }
-        // Pre-compute org counts. Same N+1 caveat as the org list — fine at
-        // internal scale, drop in a native aggregate if we outgrow it.
-        Map<UUID, Integer> orgCounts = users.stream().collect(Collectors.toMap(
-                User::getId,
-                u -> membershipRepo.findByUserId(u.getId()).size(),
-                (a, b) -> a));
-        return users.stream()
+
+        // One grouped query for the page, replacing a query per user.
+        Map<UUID, Long> orgCounts = new HashMap<>();
+        for (Object[] row : membershipRepo.countByUserIds(userIds)) {
+            orgCounts.put((UUID) row[0], ((Number) row[1]).longValue());
+        }
+
+        List<AdminDtos.UserSummary> items = users.getContent().stream()
                 .map(u -> new AdminDtos.UserSummary(
                         u.getId(),
                         u.getEmail(),
                         u.getName(),
                         u.getCreatedAt(),
-                        // lastLoginAt: we don't currently record this on the
-                        // user row. Leaving null until a `users.last_login_at`
-                        // column lands. UI renders as "—".
-                        null,
                         u.isEmailVerified(),
                         u.isStaff(),
-                        orgCounts.getOrDefault(u.getId(), 0)))
-                .sorted((a, b) -> b.createdAt().compareTo(a.createdAt()))
-                .limit(200)
+                        orgCounts.getOrDefault(u.getId(), 0L).intValue()))
                 .toList();
+
+        return PageResponse.of(users, items);
     }
 
     @GetMapping("/{id}")
@@ -94,7 +106,7 @@ public class AdminUserController {
                 .toList();
         return ResponseEntity.ok(new AdminDtos.UserDetail(
                 u.getId(), u.getEmail(), u.getName(), u.getAvatarUrl(),
-                u.getCreatedAt(), null, u.isEmailVerified(), u.isStaff(), orgs));
+                u.getCreatedAt(), u.isEmailVerified(), u.isStaff(), orgs));
     }
 
     /** Revoke every refresh token for this user — the next API call with an

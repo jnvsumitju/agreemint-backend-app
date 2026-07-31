@@ -129,6 +129,8 @@ agreemint:
     # API key secret. Without it webhooks are rejected rather than trusted.
     webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
     base-url: ${RAZORPAY_BASE_URL:https://api.razorpay.com/v1}
+    plan-starter-monthly: ${RAZORPAY_PLAN_STARTER_MONTHLY:}
+    plan-starter-yearly: ${RAZORPAY_PLAN_STARTER_YEARLY:}
     plan-pro-monthly: ${RAZORPAY_PLAN_PRO_MONTHLY:}
     plan-pro-yearly: ${RAZORPAY_PLAN_PRO_YEARLY:}
 
@@ -147,6 +149,16 @@ agreemint:
   #   AGREEMINT_PLANS_FREE_PDF_DAILY_MAX=100
   # Setting these throttles existing customers — decide the commercial limits
   # first.
+
+  # Free-plan limits. DISABLED unless free.restrictions-from is set: these take
+  # away capability free workspaces have had since launch, so switching them on
+  # is an explicit act. Set it to the instant the new terms start applying;
+  # every workspace created BEFORE that keeps the old behaviour permanently.
+  #   AGREEMINT_FREE_RESTRICTIONS_FROM=2026-08-01T00:00:00Z
+  free:
+    restrictions-from: ${FREE_RESTRICTIONS_FROM:}
+    max-templates: ${FREE_MAX_TEMPLATES:10}
+    max-workspaces: ${FREE_MAX_WORKSPACES:1}
 
   # Developer platform — Phase 6 (API key expiry warnings). Quartz-style cron.
   # Default fires every day at 09:00 local time of the backend host.

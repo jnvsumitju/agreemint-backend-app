@@ -1,6 +1,7 @@
 package com.agreemint.repository;
 
 import com.agreemint.domain.ActivityLog;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +31,30 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, UUID> 
     List<ActivityLog> findByOrgIdAndTemplateIdOrderByCreatedAtDesc(
             @Param("orgId") UUID orgId,
             @Param("templateId") UUID templateId,
+            Pageable pageable);
+
+    /**
+     * Cross-org audit search for the staff portal.
+     *
+     * <p>Every filter is optional and applied <strong>in the query</strong>. The
+     * admin controller previously fetched the newest N rows globally and then
+     * filtered in memory, so a search scoped to one org usually returned nothing
+     * — the matching rows were simply not in the window. Filtering before the
+     * limit is the whole point of this method.
+     *
+     * <p>{@code action} matches case-insensitively on a prefix, so "template"
+     * finds template.created, template.deleted and so on. Passing a full action
+     * name still matches exactly that one.
+     */
+    @Query("""
+            SELECT a FROM ActivityLog a
+            WHERE (:orgId IS NULL OR a.orgId = :orgId)
+              AND (:userId IS NULL OR a.userId = :userId)
+              AND (:action IS NULL OR LOWER(a.action) LIKE LOWER(CONCAT(:action, '%')))
+            """)
+    Page<ActivityLog> search(
+            @Param("orgId") UUID orgId,
+            @Param("userId") UUID userId,
+            @Param("action") String action,
             Pageable pageable);
 }

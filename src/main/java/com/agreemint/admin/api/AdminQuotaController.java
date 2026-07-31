@@ -1,8 +1,11 @@
 package com.agreemint.admin.api;
 
+import com.agreemint.billing.OrgEntitlementService;
+import com.agreemint.billing.PdfQuotaService;
 import com.agreemint.admin.api.dto.AdminDtos;
 import com.agreemint.admin.domain.OrgQuota;
 import com.agreemint.admin.repository.OrgQuotaRepository;
+import com.agreemint.config.RateLimitConfig;
 import com.agreemint.repository.OrganizationRepository;
 import com.agreemint.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,10 +22,35 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Per-org quota / freeze controls. The rate limiter reads org_quotas on
- * each request; fields left NULL mean "fall back to the system default in
- * {@code RateLimitConfig}". Flipping `frozen` is the nuclear option — it
- * short-circuits every API call for the org.
+ * Per-org quota and freeze controls.
+ *
+ * <p><strong>What these fields actually do</strong> — stated precisely because
+ * the admin portal repeats it to the operator, and because an earlier version
+ * of this Javadoc overstated all three:
+ *
+ * <ul>
+ *   <li>{@code apiRpmOverride} and {@code apiDailyCap} are enforced in
+ *       {@code ApiKeyAuthenticationFilter} — they bound <em>API-key</em>
+ *       traffic under {@code /api/v1/*} only. Neither limits the web console.</li>
+ *   <li>{@code pdfDailyCap} is enforced in {@code PdfQuotaService}, charged
+ *       once per persisted document. Editor previews are not charged.</li>
+ *   <li>{@code frozen} is checked in {@code ApiKeyAuthenticationFilter} and
+ *       returns 402 to API-key callers. It does <em>not</em> lock the org out
+ *       of the web app — a frozen org's members can still sign in and work.</li>
+ * </ul>
+ *
+ * <p>Values left NULL mean "inherit", but not uniformly.
+ * {@code apiDailyCap} and {@code pdfDailyCap} fall back to the plan's limit in
+ * {@code PlanLimitsProperties}, then to {@code RateLimitConfig}'s system
+ * default for API traffic or to uncapped for documents. {@code apiRpmOverride}
+ * has no plan tier at all — {@code PlanLimitsProperties} exposes no rpm — so a
+ * NULL there falls straight through to each key's own {@code rate_limit_rpm}.
+ * {@code GET} returns both the raw override and the resolved effective values,
+ * so the portal can show what is really in force rather than a blank field.
+ *
+ * <p>Reads go through {@code OrgEntitlementService}, which caches for 60
+ * seconds — a change here is felt within a minute, not instantly.
+ * {@link #upsert} invalidates that cache on the node that served the write.
  */
 @Tag(name = "Admin · Quotas")
 @RestController
@@ -31,20 +59,28 @@ public class AdminQuotaController {
 
     private final OrgQuotaRepository quotaRepo;
     private final OrganizationRepository orgRepo;
+    private final OrgEntitlementService entitlements;
+    private final PdfQuotaService pdfQuota;
+    private final RateLimitConfig rateLimitConfig;
 
-    public AdminQuotaController(OrgQuotaRepository quotaRepo, OrganizationRepository orgRepo) {
+    public AdminQuotaController(OrgQuotaRepository quotaRepo, OrganizationRepository orgRepo,
+            OrgEntitlementService entitlements, PdfQuotaService pdfQuota,
+            RateLimitConfig rateLimitConfig) {
         this.quotaRepo = quotaRepo;
         this.orgRepo = orgRepo;
+        this.entitlements = entitlements;
+        this.pdfQuota = pdfQuota;
+        this.rateLimitConfig = rateLimitConfig;
     }
 
     @GetMapping("/{orgId}")
-    public ResponseEntity<AdminDtos.OrgQuotaSummary> get(@PathVariable UUID orgId) {
+    public ResponseEntity<AdminDtos.OrgQuotaView> get(@PathVariable UUID orgId) {
         if (orgRepo.findById(orgId).isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(toDto(quotaRepo.findById(orgId).orElse(null)));
+        return ResponseEntity.ok(view(orgId, quotaRepo.findById(orgId).orElse(null)));
     }
 
     @PutMapping("/{orgId}")
-    public ResponseEntity<AdminDtos.OrgQuotaSummary> upsert(
+    public ResponseEntity<AdminDtos.OrgQuotaView> upsert(
             @PathVariable UUID orgId,
             @RequestBody AdminDtos.OrgQuotaRequest req,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -62,7 +98,23 @@ public class AdminQuotaController {
         q.setUpdatedAt(Instant.now());
         q.setUpdatedBy(principal.userId());
         quotaRepo.save(q);
-        return ResponseEntity.ok(toDto(q));
+
+        // Must happen before the effective values are recomputed below, or the
+        // response would echo the stale cached entitlement back to the operator
+        // who just changed it.
+        entitlements.invalidate(orgId);
+        return ResponseEntity.ok(view(orgId, q));
+    }
+
+    private AdminDtos.OrgQuotaView view(UUID orgId, OrgQuota q) {
+        OrgEntitlementService.Entitlement e = entitlements.resolve(orgId);
+        return new AdminDtos.OrgQuotaView(
+                toDto(q),
+                e.plan() == null ? "FREE" : e.plan().name(),
+                e.apiDailyMax(),
+                e.pdfDailyMax(),
+                rateLimitConfig.getOrgDailyMax(),
+                pdfQuota.remainingToday(orgId));
     }
 
     private static AdminDtos.OrgQuotaSummary toDto(OrgQuota q) {

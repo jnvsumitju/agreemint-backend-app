@@ -69,6 +69,25 @@ public class RateLimitConfig {
                 .build();
     }
 
+    /**
+     * Bucket key suffix carrying the capacity the bucket was built for.
+     *
+     * <p>Bucket4j applies a {@link BucketConfiguration} only when a key is first
+     * created; for an existing key the supplied config is ignored. Since these
+     * buckets live for up to two days, a staff-changed limit would otherwise not
+     * take effect until the old key expired — the portal would report the new
+     * number while the old one kept being enforced.
+     *
+     * <p>Putting the capacity in the key sidesteps that: a changed limit is a
+     * different key, so it gets a correctly-sized bucket immediately, with no
+     * extra Redis round-trip on the request path. The trade is that a limit
+     * change starts a fresh allowance rather than carrying consumption across —
+     * and that changing back reuses the earlier bucket, consumption intact.
+     */
+    public static String capacitySuffix(long capacity) {
+        return ":c" + capacity;
+    }
+
     /** Per-minute bucket for a specific API key. Capacity = {@code rpm}, refill full every minute. */
     public static BucketConfiguration perKey(int rpm) {
         Bandwidth limit = Bandwidth.builder()
@@ -92,6 +111,23 @@ public class RateLimitConfig {
      */
     public BucketConfiguration perOrgDaily(Integer dailyMax) {
         long capacity = Math.max(1L, dailyMax == null ? orgDailyMax : dailyMax.longValue());
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(capacity)
+                .refillGreedy(capacity, Duration.ofDays(1))
+                .build();
+        return BucketConfiguration.builder().addLimit(limit).build();
+    }
+
+    /**
+     * Per-day bucket for an org's document generation, at an explicit cap.
+     *
+     * <p>Separate from {@link #perOrgDaily(Integer)} on purpose, and takes no
+     * null: there is no system-wide PDF default to fall back to, so "no cap
+     * configured" must be handled by the caller skipping the bucket entirely
+     * rather than silently inheriting the API cap.
+     */
+    public static BucketConfiguration perOrgDailyPdf(int dailyMax) {
+        long capacity = Math.max(1L, dailyMax);
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillGreedy(capacity, Duration.ofDays(1))
