@@ -28,6 +28,16 @@ public final class EmailTemplateCatalog {
                         List<String> variables) {}
 
     public static final List<Entry> ALL = List.of(
+            new Entry("api-access-ending",
+                    "Warns a workspace that its API keys will be revoked when the grace period ends",
+                    "Your Crixaa API access ends in 3 days",
+                    List.of("headline", "summary", "orgName", "keyCount", "deadline",
+                            "billingUrl", "footnote")),
+            new Entry("api-access-revoked",
+                    "Tells a workspace its API keys have been revoked after a lapsed plan",
+                    "Your Crixaa API keys have been revoked",
+                    List.of("headline", "summary", "orgName", "keyCount", "deadline",
+                            "billingUrl", "footnote")),
             new Entry("impersonation-notice",
                     "Tells a customer that staff signed in to their account",
                     "Crixaa support signed in to your account",

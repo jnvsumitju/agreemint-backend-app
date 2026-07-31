@@ -1,6 +1,5 @@
 package com.agreemint.api;
 
-import com.agreemint.billing.PlanGate;
 import com.agreemint.domain.OrgPlan;
 import com.agreemint.api.dto.ApiKeyCreatedResponse;
 import com.agreemint.api.dto.ApiKeyResponse;
@@ -36,17 +35,14 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final OrgAuthorizationService orgAuthz;
     private final UserRepository userRepo;
-    private final PlanGate planGate;
 
     public ApiKeyController(
             ApiKeyService apiKeyService,
             OrgAuthorizationService orgAuthz,
-            UserRepository userRepo,
-            PlanGate planGate) {
+            UserRepository userRepo) {
         this.apiKeyService = apiKeyService;
         this.orgAuthz = orgAuthz;
         this.userRepo = userRepo;
-        this.planGate = planGate;
     }
 
     @PostMapping
@@ -59,7 +55,15 @@ public class ApiKeyController {
         // API access starts at Starter. Existing keys keep working — only
         // minting new ones is gated, so a downgrade does not break live
         // integrations without warning.
-        planGate.requireAtLeast(orgId, OrgPlan.STARTER, "API access");
+        // No plan gate. The free tier can create and use API keys, bounded by
+        // its own rate limits rather than by a wall — see PlanLimitsProperties
+        // and OrgEntitlementService. Rotation is likewise ungated: a key you are
+        // allowed to hold is one you must be allowed to re-secure.
+        //
+        // What a lapsed paid plan does instead is start a grace period —
+        // ApiAccessGraceService revokes the keys after it runs out, having
+        // warned first — so access ends on a schedule the customer was told
+        // about rather than on the next request.
         String actorName = userRepo.findById(principal.userId())
                 .map(User::getName).orElse(principal.email());
         ApiKeyCreatedResponse created = apiKeyService.create(orgId, principal.userId(), actorName, req);

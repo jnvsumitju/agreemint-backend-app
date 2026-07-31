@@ -113,6 +113,49 @@ public class EmailService {
                 "Crixaa support exported data from your account", ctx);
     }
 
+    /**
+     * Warn that a lapsed plan will cost this workspace its API keys.
+     *
+     * <p>Sent once, at the start of the grace period. The whole point of the
+     * grace period is that this arrives before anything breaks — an integration
+     * that stops on an unannounced request is the failure being designed out.
+     */
+    @Async
+    public void sendApiAccessEndingEmail(String to, String orgName, int keyCount,
+                                          String deadline, String billingUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("headline", "Your API access is ending");
+        ctx.setVariable("summary", "Your paid plan has ended. Your existing API keys keep "
+                + "working until the date below, after which they are revoked and any "
+                + "integration using them will stop.");
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("keyCount", keyCount);
+        ctx.setVariable("deadline", deadline);
+        ctx.setVariable("billingUrl", billingUrl);
+        ctx.setVariable("footnote", "Reactivating before then keeps your keys exactly as they "
+                + "are — nothing to re-issue and no code to change.");
+        sendTemplated("api-access-ending", to, "Your Crixaa API access ends " + deadline, ctx);
+    }
+
+    /** Confirm that the keys are now gone, and say what to do next. */
+    @Async
+    public void sendApiAccessRevokedEmail(String to, String orgName, int keyCount,
+                                           String billingUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("headline", "Your API keys have been revoked");
+        ctx.setVariable("summary", "The grace period after your plan ended has run out, so the "
+                + "API keys for this workspace have been revoked. Requests using them now "
+                + "fail with 401.");
+        ctx.setVariable("orgName", orgName);
+        ctx.setVariable("keyCount", keyCount);
+        ctx.setVariable("deadline", null);
+        ctx.setVariable("billingUrl", billingUrl);
+        ctx.setVariable("footnote", "You can still use the API on the free plan — create a new "
+                + "key in Settings → Developer. Revoked keys cannot be restored, so the new key "
+                + "will need to go into your integration.");
+        sendTemplated("api-access-revoked", to, "Your Crixaa API keys have been revoked", ctx);
+    }
+
     /** Send email verification link after registration. */
     @Async
     public void sendEmailVerificationEmail(String to, String verifyLink) {

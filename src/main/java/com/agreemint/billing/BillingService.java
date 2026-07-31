@@ -50,19 +50,22 @@ public class BillingService {
     private final BillingEventRepository eventRepo;
     private final OrganizationRepository orgRepo;
     private final OrgEntitlementService entitlements;
+    private final ApiAccessGraceService apiAccessGrace;
 
     public BillingService(RazorpayClient razorpay,
                            RazorpayProperties props,
                            SubscriptionRepository subRepo,
                            BillingEventRepository eventRepo,
                            OrganizationRepository orgRepo,
-                           OrgEntitlementService entitlements) {
+                           OrgEntitlementService entitlements,
+            ApiAccessGraceService apiAccessGrace) {
         this.razorpay = razorpay;
         this.props = props;
         this.subRepo = subRepo;
         this.eventRepo = eventRepo;
         this.orgRepo = orgRepo;
         this.entitlements = entitlements;
+        this.apiAccessGrace = apiAccessGrace;
     }
 
     // ── Reading ──────────────────────────────────────────────────────────────
@@ -298,6 +301,10 @@ public class BillingService {
             }
         });
         entitlements.invalidate(sub.getOrgId());
+        // Paying again calls off any pending key revocation, so a customer who
+        // resubscribes inside the grace window keeps the keys their integration
+        // already uses.
+        apiAccessGrace.onPlanReactivated(sub.getOrgId());
     }
 
     private void downgradeToFree(UUID orgId) {
@@ -309,6 +316,9 @@ public class BillingService {
             }
         });
         entitlements.invalidate(orgId);
+        // The plan is gone immediately; the keys are not. This opens the grace
+        // period so the workspace is warned before its integration stops.
+        apiAccessGrace.onPlanLapsed(orgId);
     }
 
     /** Copy Razorpay's view of the subscription onto our row. */

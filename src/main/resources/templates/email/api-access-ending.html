@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0; padding:0; background-color:#f4f4f5; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5; padding:40px 20px;">
+    <tr><td align="center">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+        <tr><td style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding:32px 40px; text-align:center;">
+          <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:700;">Crixaa</h1>
+        </td></tr>
+        <tr><td style="padding:40px;">
+          <h2 style="margin:0 0 8px; color:#18181b; font-size:20px; font-weight:600;" th:text="${headline}">API access</h2>
+          <p style="margin:0 0 24px; color:#52525b; font-size:14px; line-height:1.6;" th:text="${summary}">Summary</p>
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5; border-radius:10px; padding:16px 20px;">
+            <tr>
+              <td style="color:#71717a; font-size:13px; padding:4px 0;">Workspace</td>
+              <td style="color:#18181b; font-size:13px; font-weight:600; text-align:right;" th:text="${orgName}">Acme</td>
+            </tr>
+            <tr th:if="${keyCount != null}">
+              <td style="color:#71717a; font-size:13px; padding:4px 0;">API keys affected</td>
+              <td style="color:#18181b; font-size:13px; font-weight:600; text-align:right;" th:text="${keyCount}">2</td>
+            </tr>
+            <tr th:if="${deadline != null}">
+              <td style="color:#71717a; font-size:13px; padding:4px 0;">Stops working</td>
+              <td style="color:#18181b; font-size:13px; font-weight:600; text-align:right;" th:text="${deadline}">—</td>
+            </tr>
+          </table>
+
+          <p style="margin:28px 0 0; text-align:center;">
+            <a th:href="${billingUrl}" style="display:inline-block; background:#7c3aed; color:#ffffff; text-decoration:none; padding:12px 28px; border-radius:8px; font-size:14px; font-weight:600;">Reactivate your plan</a>
+          </p>
+          <p style="margin:20px 0 0; color:#71717a; font-size:13px; line-height:1.6;" th:text="${footnote}"></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
