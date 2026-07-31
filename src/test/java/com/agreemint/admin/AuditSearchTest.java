@@ -78,7 +78,7 @@ class AuditSearchTest {
     void findsEventsHiddenBehindANoisyNeighbour() {
         // The regression: with in-memory filtering over the newest 100 rows,
         // this returned zero because all 100 belonged to the noisy org.
-        Page<ActivityLog> result = search(quietOrg, null, null, 100);
+        Page<ActivityLog> result = search(quietOrg, null, "", 100);
 
         assertEquals(1, result.getTotalElements(), "the quiet org's event must be found");
         assertEquals(quietOrg, result.getContent().get(0).getOrgId());
@@ -86,7 +86,7 @@ class AuditSearchTest {
 
     @Test
     void noFiltersReturnsEverythingPaged() {
-        Page<ActivityLog> result = search(null, null, null, 50);
+        Page<ActivityLog> result = search(null, null, "", 50);
 
         assertEquals(201, result.getTotalElements(), "total counts all rows, not just this page");
         assertEquals(50, result.getContent().size(), "page is capped at the requested size");
@@ -95,8 +95,8 @@ class AuditSearchTest {
 
     @Test
     void filtersByUser() {
-        assertEquals(1, search(null, alice, null, 100).getTotalElements());
-        assertEquals(200, search(null, bob, null, 100).getTotalElements());
+        assertEquals(1, search(null, alice, "", 100).getTotalElements());
+        assertEquals(200, search(null, bob, "", 100).getTotalElements());
     }
 
     @Test
@@ -110,14 +110,14 @@ class AuditSearchTest {
 
     @Test
     void filtersCombine() {
-        assertEquals(0, search(quietOrg, bob, null, 100).getTotalElements(),
+        assertEquals(0, search(quietOrg, bob, "", 100).getTotalElements(),
                 "bob has no events in the quiet org");
         assertEquals(1, search(quietOrg, alice, "template", 100).getTotalElements());
     }
 
     @Test
     void newestFirst() {
-        Page<ActivityLog> result = search(noisyOrg, null, null, 10);
+        Page<ActivityLog> result = search(noisyOrg, null, "", 10);
         Instant previous = null;
         for (ActivityLog e : result.getContent()) {
             if (previous != null) {

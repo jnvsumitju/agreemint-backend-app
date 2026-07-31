@@ -50,7 +50,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, UUID> 
             SELECT a FROM ActivityLog a
             WHERE (:orgId IS NULL OR a.orgId = :orgId)
               AND (:userId IS NULL OR a.userId = :userId)
-              AND (:action IS NULL OR LOWER(a.action) LIKE LOWER(CONCAT(:action, '%')))
+              AND (:action = '' OR LOWER(a.action) LIKE LOWER(CONCAT(:action, '%')))
             """)
     Page<ActivityLog> search(
             @Param("orgId") UUID orgId,

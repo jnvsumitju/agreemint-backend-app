@@ -87,7 +87,7 @@ class AdminListQueriesTest {
         org("Globex", "globex", OrgPlan.FREE);
 
         var pageable = PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
-        assertEquals(2, orgRepo.search(null, pageable).getTotalElements(), "null q returns all");
+        assertEquals(2, orgRepo.search("", pageable).getTotalElements(), "an empty q returns all — null is not a legal argument");
         assertEquals(1, orgRepo.search("acme", pageable).getTotalElements(), "matches name");
         assertEquals(1, orgRepo.search("GLOBEX", pageable).getTotalElements(), "case-insensitive");
         assertEquals(1, orgRepo.search("acme-c", pageable).getTotalElements(), "matches slug");
@@ -98,7 +98,7 @@ class AdminListQueriesTest {
     void orgListIsPagedInTheDatabase() {
         for (int i = 0; i < 25; i++) org("Org " + i, "org-" + i, OrgPlan.FREE);
 
-        Page<Organization> first = orgRepo.search(null,
+        Page<Organization> first = orgRepo.search("",
                 PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         assertEquals(10, first.getContent().size(), "page honours the requested size");
@@ -133,7 +133,7 @@ class AdminListQueriesTest {
         user("bob@other.com", "Bob Jones");
 
         var pageable = PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
-        assertEquals(2, userRepo.search(null, pageable).getTotalElements());
+        assertEquals(2, userRepo.search("", pageable).getTotalElements());
         assertEquals(1, userRepo.search("alice", pageable).getTotalElements(), "matches email");
         assertEquals(1, userRepo.search("Jones", pageable).getTotalElements(), "matches name");
         assertEquals(1, userRepo.search("EXAMPLE.COM", pageable).getTotalElements(), "case-insensitive");
