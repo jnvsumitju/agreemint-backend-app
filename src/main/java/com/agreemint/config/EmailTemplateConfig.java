@@ -15,14 +15,23 @@ import org.thymeleaf.templateresolver.StringTemplateResolver;
  * {@code admin_email_templates.body_html}, and rendering them through the
  * ordinary engine would look for a file on the classpath by that name.
  *
- * <p><strong>SpringTemplateEngine, not TemplateEngine.</strong> A plain
- * {@link TemplateEngine} installs {@code StandardDialect}, whose expression
- * evaluator is OGNL — and {@code thymeleaf-spring6} explicitly excludes the
+ * <p><strong>SpringTemplateEngine inside, TemplateEngine on the signature.</strong>
+ * A plain {@link TemplateEngine} installs {@code StandardDialect}, whose
+ * expression evaluator is OGNL — and {@code thymeleaf-spring6} excludes the
  * {@code ognl} artifact, so it is not on the classpath at all. Every override
- * containing a {@code ${...}} therefore threw at render time, which is to say
- * every useful override: an email body with no interpolation is not worth
- * overriding. {@code SpringTemplateEngine} installs
- * {@code SpringStandardDialect} and evaluates through SpEL, which is present.
+ * containing a {@code ${...}} therefore threw at render time, which is every
+ * useful override. {@code SpringTemplateEngine} evaluates through SpEL, which
+ * is present.
+ *
+ * <p>But the <em>declared return type</em> must stay {@link TemplateEngine}.
+ * Spring Boot's {@code ThymeleafAutoConfiguration} declares its own engine
+ * {@code @ConditionalOnMissingBean(ISpringTemplateEngine.class)}, and conditions
+ * are evaluated against a bean method's declared type. Returning
+ * {@code SpringTemplateEngine} here made Boot back off, the auto-configured
+ * {@code templateEngine} bean vanished, and {@code EmailService} — which needs
+ * it to render the bundled classpath templates — failed to start with two
+ * candidates and no match. Widening the signature keeps the auto-configured
+ * engine while still giving these two SpEL.
  */
 @Configuration
 public class EmailTemplateConfig {
@@ -37,7 +46,7 @@ public class EmailTemplateConfig {
 
     /** Renders an override body. HTML mode, because the body is HTML. */
     @Bean
-    public SpringTemplateEngine stringTemplateEngine() {
+    public TemplateEngine stringTemplateEngine() {
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver(TemplateMode.HTML));
         return engine;
@@ -52,7 +61,7 @@ public class EmailTemplateConfig {
      * {@code &amp;#39;}.
      */
     @Bean
-    public SpringTemplateEngine subjectTemplateEngine() {
+    public TemplateEngine subjectTemplateEngine() {
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver(TemplateMode.TEXT));
         return engine;
