@@ -71,7 +71,7 @@ class PlatformScopedAuditTest {
         row(null, "export.request");
         row(orgA, "template.created");
 
-        Page<ActivityLog> all = auditRepo.search(null, null, null,
+        Page<ActivityLog> all = auditRepo.search(null, null, "",
                 PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         assertEquals(2, all.getTotalElements());
@@ -99,7 +99,7 @@ class PlatformScopedAuditTest {
         row(null, "export.request");
         row(orgA, "template.created");
 
-        Page<ActivityLog> scoped = auditRepo.search(orgA, null, null,
+        Page<ActivityLog> scoped = auditRepo.search(orgA, null, "",
                 PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         // Reviewing one org should not surface actions that were not about it.

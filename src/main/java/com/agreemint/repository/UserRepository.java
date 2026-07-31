@@ -15,10 +15,22 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
 
-    /** Admin user list: optional email/name substring, paged and sorted in the DB. */
+    /**
+     * Admin list search. {@code q} must never be null — pass "" for "no filter".
+     *
+     * <p>The obvious {@code :q IS NULL OR LOWER(col) LIKE ...} form fails on
+     * Postgres: a null bind has no type context other than {@code LOWER(?)},
+     * PgJDBC sends it untyped, the server infers {@code bytea}, and there is no
+     * {@code lower(bytea)} — so the unfiltered list, which is the default view,
+     * threw 500 while a search worked. Comparing against '' keeps the parameter
+     * a real string, which is all Postgres needs to type it.
+     *
+     * <p>H2 in PostgreSQL mode accepts the null form, which is why the tests
+     * were green and only production failed.
+     */
     @org.springframework.data.jpa.repository.Query("""
             SELECT u FROM User u
-            WHERE :q IS NULL
+            WHERE :q = ''
                OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))
                OR LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%'))
             """)

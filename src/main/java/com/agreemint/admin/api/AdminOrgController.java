@@ -67,7 +67,9 @@ public class AdminOrgController {
             @RequestParam(defaultValue = "50") int size) {
 
         int pageSize = Math.min(200, Math.max(1, size));
-        String search = (q == null || q.isBlank()) ? null : q.trim();
+        // "" not null: a null bound into LOWER() has no type on Postgres and
+        // the server infers bytea, so the unfiltered list 500s. See the repository.
+        String search = (q == null || q.isBlank()) ? "" : q.trim();
 
         // Paged in the DB and sorted in the DB. This previously loaded every
         // organisation and sorted in memory.

@@ -51,7 +51,9 @@ public class AdminAuditController {
             @RequestParam(defaultValue = "100") int size) {
 
         int pageSize = Math.min(500, Math.max(1, size));
-        String actionFilter = (action == null || action.isBlank()) ? null : action.trim();
+        // "" not null: a null bound into LOWER() has no type on Postgres and
+        // the server infers bytea, so the unfiltered list 500s. See the repository.
+        String actionFilter = (action == null || action.isBlank()) ? "" : action.trim();
 
         // Filters go into the query. Filtering after a global limit — which is
         // what this did before — meant a search scoped to one org usually came
