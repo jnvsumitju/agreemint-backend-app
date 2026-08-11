@@ -36,6 +36,11 @@ public class WebhookService {
     /** Whitelist of emittable event names — see plan Phase 4. */
     public static final Set<String> KNOWN_EVENTS = Set.of(
             "document.generated",
+            // Emitted by the expiry sweeps in DocumentLifecycleService. "expiring"
+            // fires once, ahead of the date; "expired" when the status actually
+            // flips, so an integration can act on either.
+            "document.expiring",
+            "document.expired",
             "review.requested",
             "review.decided",
             "template.version.committed"

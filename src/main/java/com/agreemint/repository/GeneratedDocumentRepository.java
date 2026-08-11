@@ -26,6 +26,22 @@ public interface GeneratedDocumentRepository extends JpaRepository<GeneratedDocu
 
     List<GeneratedDocument> findByExpiresAtBeforeAndLifecycleStatus(Instant before, LifecycleStatus status);
 
+    /**
+     * Documents due to expire inside the lookahead window that have not been
+     * warned yet.
+     *
+     * <p>Excludes API-generated documents deliberately: {@code transitionStatus}
+     * refuses lifecycle moves for them, so warning that one is "about to expire"
+     * would promise a state change the rest of the service declines to make.
+     *
+     * <p>Paged, because the first time a workspace back-fills expiry dates this
+     * could otherwise load an unbounded list into one transaction.
+     */
+    List<GeneratedDocument>
+        findByLifecycleStatusAndSourceNotAndExpiryWarnedAtIsNullAndExpiresAtBetweenOrderByExpiresAtAsc(
+            LifecycleStatus status, DocumentSource excludedSource,
+            Instant from, Instant to, Pageable pageable);
+
     long countByOrgIdAndLifecycleStatus(UUID orgId, LifecycleStatus status);
 
     long countByOrgIdAndSource(UUID orgId, DocumentSource source);

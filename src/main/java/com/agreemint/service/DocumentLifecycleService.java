@@ -28,7 +28,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.agreemint.config.FrontendProperties;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -51,6 +53,8 @@ public class DocumentLifecycleService {
     private final NotificationService notificationService;
     private final ActivityService activityService;
     private final EmailService emailService;
+    private final FrontendProperties frontend;
+    private final WebhookService webhookService;
 
     public DocumentLifecycleService(
             GeneratedDocumentRepository documentRepo,
@@ -61,7 +65,9 @@ public class DocumentLifecycleService {
             ProductRepository productRepo,
             NotificationService notificationService,
             ActivityService activityService,
-            EmailService emailService) {
+            EmailService emailService,
+            FrontendProperties frontend,
+            WebhookService webhookService) {
         this.documentRepo = documentRepo;
         this.eventRepo = eventRepo;
         this.workflowRepo = workflowRepo;
@@ -71,13 +77,48 @@ public class DocumentLifecycleService {
         this.notificationService = notificationService;
         this.activityService = activityService;
         this.emailService = emailService;
+        this.frontend = frontend;
+        this.webhookService = webhookService;
+    }
+
+    /**
+     * Absolute link to a document, for emails.
+     *
+     * <p>The lifecycle emails used to pass a bare {@code "/documents/{id}"},
+     * which Thymeleaf rendered straight into an {@code href} — a dead link in
+     * every mail client, since there is no origin to resolve it against.
+     */
+    private String documentLink(UUID documentId) {
+        return frontend.getBaseUrl() + "/documents/" + documentId;
+    }
+
+
+    /**
+     * Load a document and prove it belongs to the workspace the caller is acting in.
+     *
+     * <p>Role and plan are checked in the controller against
+     * {@code principal.orgId()} — the caller's OWN workspace. That establishes
+     * "you are an admin somewhere", not "you may touch this document". Without
+     * this second check an admin of any Pro workspace could pass a document id
+     * belonging to a different customer and mutate it: the repository lookup is
+     * by primary key and carries no tenant predicate.
+     *
+     * <p>404 rather than 403 on mismatch, so the endpoint does not confirm that
+     * an id exists in someone else's workspace.
+     */
+    private GeneratedDocument loadInOrg(UUID documentId, UUID actingOrgId) {
+        GeneratedDocument doc = documentRepo.findById(documentId)
+                .orElseThrow(() -> new NotFoundException("Document not found"));
+        if (actingOrgId == null || !actingOrgId.equals(doc.getOrgId())) {
+            throw new NotFoundException("Document not found");
+        }
+        return doc;
     }
 
     @Transactional
     public DocumentLifecycleResponse transitionStatus(UUID documentId, LifecycleStatus targetStatus,
-                                                       UUID actorId, String comment) {
-        GeneratedDocument doc = documentRepo.findById(documentId)
-                .orElseThrow(() -> new NotFoundException("Document not found"));
+                                                       UUID actorId, String comment, UUID actingOrgId) {
+        GeneratedDocument doc = loadInOrg(documentId, actingOrgId);
 
         // API-sourced documents skip the lifecycle entirely — customers run
         // their own review/approval on their side. Reject transition attempts
@@ -133,7 +174,7 @@ public class DocumentLifecycleService {
                         doc.getTitle() != null ? doc.getTitle() : "Untitled document",
                         targetStatus.name().replace('_', ' '),
                         actor.getName(),
-                        "/documents/" + doc.getId());
+                        documentLink(doc.getId()));
             }
         }
 
@@ -200,9 +241,8 @@ public class DocumentLifecycleService {
     }
 
     @Transactional(readOnly = true)
-    public DocumentDetailResponse getDocumentWithTimeline(UUID documentId) {
-        GeneratedDocument doc = documentRepo.findById(documentId)
-                .orElseThrow(() -> new NotFoundException("Document not found"));
+    public DocumentDetailResponse getDocumentWithTimeline(UUID documentId, UUID actingOrgId) {
+        GeneratedDocument doc = loadInOrg(documentId, actingOrgId);
 
         List<DocumentTimelineEventResponse> timeline = eventRepo
                 .findByDocumentIdOrderByCreatedAtDesc(documentId)
@@ -233,6 +273,116 @@ public class DocumentLifecycleService {
         return new LifecycleStatsResponse(counts, total);
     }
 
+    /**
+     * Set or clear a document's expiration date.
+     *
+     * <p>This is the write path the whole expiry feature was missing.
+     * {@code expires_at} has existed since V11 along with an hourly sweep that
+     * expires past-due documents, but nothing ever assigned it — the column was
+     * always NULL, so the sweep matched nothing and the advertised behaviour had
+     * never once run.
+     *
+     * @param expiresAt the new date, or null to remove the expiry entirely
+     */
+    @Transactional
+    public DocumentLifecycleResponse setExpiry(UUID documentId, Instant expiresAt, UUID actorId,
+                                                UUID actingOrgId) {
+        GeneratedDocument doc = loadInOrg(documentId, actingOrgId);
+
+        // Same rule as transitionStatus: an API-generated document does not
+        // participate in the lifecycle, so accepting a date that can only be
+        // enforced by a lifecycle transition would be a promise we refuse to keep.
+        if (doc.getSource() == DocumentSource.API_GENERATED) {
+            throw new BadRequestException(
+                    "API-generated documents do not participate in the lifecycle workflow");
+        }
+        if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
+            throw new BadRequestException("Expiration date must be in the future");
+        }
+
+        User actor = userRepo.findById(actorId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Instant previous = doc.getExpiresAt();
+        doc.setExpiresAt(expiresAt);
+        // Re-arm the warning. Without this, moving a date further out leaves the
+        // old "already warned" marker set and the customer is never told about
+        // the new date.
+        doc.setExpiryWarnedAt(null);
+        doc.setUpdatedAt(Instant.now());
+        documentRepo.save(doc);
+
+        DocumentLifecycleEvent event = new DocumentLifecycleEvent();
+        event.setDocument(doc);
+        event.setActorId(actorId);
+        event.setActorName(actor.getName());
+        event.setFromStatus(doc.getLifecycleStatus());
+        event.setToStatus(doc.getLifecycleStatus());
+        event.setEventType(expiresAt == null ? "EXPIRY_CLEARED" : "EXPIRY_SET");
+        event.setComment(expiresAt == null
+                ? (previous == null ? "No expiration date" : "Expiration removed")
+                : "Expires " + expiresAt);
+        eventRepo.save(event);
+
+        if (doc.getOrgId() != null) {
+            activityService.log(doc.getOrgId(), actorId, actor.getName(),
+                    expiresAt == null ? "expiry.cleared" : "expiry.set", "DOCUMENT", doc.getId(),
+                    doc.getTitle() != null ? doc.getTitle() : "Untitled document");
+        }
+
+        return singleResponse(doc);
+    }
+
+    /**
+     * Warn about documents due to expire inside the lookahead window.
+     *
+     * <p>Split from {@link #expireDocuments()} on purpose: that one fires
+     * *after* the date and tells someone their document is already gone, which
+     * is exactly the notice that arrives too late to act on.
+     *
+     * @param leadDays how far ahead to look
+     * @param batchSize cap on documents handled per run
+     * @return how many warnings were sent
+     */
+    @Transactional
+    public int sendExpiryWarnings(int leadDays, int batchSize) {
+        Instant now = Instant.now();
+        Instant horizon = now.plus(Duration.ofDays(leadDays));
+
+        List<GeneratedDocument> due = documentRepo
+                .findByLifecycleStatusAndSourceNotAndExpiryWarnedAtIsNullAndExpiresAtBetweenOrderByExpiresAtAsc(
+                        LifecycleStatus.ACTIVE, DocumentSource.API_GENERATED,
+                        now, horizon, PageRequest.of(0, batchSize));
+
+        int sent = 0;
+        for (GeneratedDocument doc : due) {
+            // Stamp first. If the email throws, the customer misses one warning;
+            // if we stamped last, a failure part-way through a multi-instance
+            // run would send the same warning again on the next sweep.
+            doc.setExpiryWarnedAt(now);
+            documentRepo.save(doc);
+
+            String title = doc.getTitle() != null ? doc.getTitle() : "Untitled document";
+            if (doc.getCreatedBy() != null) {
+                notificationService.notify(doc.getCreatedBy(), "DOCUMENT_EXPIRING",
+                        "Expiring soon: " + title, null, "DOCUMENT", doc.getId());
+
+                User creator = userRepo.findById(doc.getCreatedBy()).orElse(null);
+                if (creator != null) {
+                    emailService.sendDocumentExpiringSoonEmail(creator.getEmail(), title,
+                            String.valueOf(doc.getExpiresAt()), documentLink(doc.getId()));
+                }
+            }
+            webhookService.emit(doc.getOrgId(), "document.expiring", Map.of(
+                    "documentId", doc.getId().toString(),
+                    "title", title,
+                    "expiresAt", String.valueOf(doc.getExpiresAt())));
+            sent++;
+        }
+        if (sent > 0) log.info("Sent {} document expiry warnings", sent);
+        return sent;
+    }
+
     /** Scheduled job: auto-expire ACTIVE documents past their expiration date. */
     @Scheduled(fixedDelay = 3600000) // every hour
     @Transactional
@@ -241,6 +391,12 @@ public class DocumentLifecycleService {
                 Instant.now(), LifecycleStatus.ACTIVE);
 
         for (GeneratedDocument doc : expired) {
+            // transitionStatus refuses lifecycle moves for API-generated
+            // documents, and this sweep sets the status directly — without the
+            // same guard it would push them into EXPIRED anyway, contradicting
+            // the contract the manual path enforces.
+            if (doc.getSource() == DocumentSource.API_GENERATED) continue;
+
             LifecycleStatus from = doc.getLifecycleStatus();
             doc.setLifecycleStatus(LifecycleStatus.EXPIRED);
             doc.setUpdatedAt(Instant.now());
@@ -264,9 +420,14 @@ public class DocumentLifecycleService {
                     emailService.sendExpirationWarningEmail(creator.getEmail(),
                             doc.getTitle() != null ? doc.getTitle() : "Untitled document",
                             doc.getExpiresAt() != null ? doc.getExpiresAt().toString() : "now",
-                            "/documents/" + doc.getId());
+                            documentLink(doc.getId()));
                 }
             }
+
+            webhookService.emit(doc.getOrgId(), "document.expired", Map.of(
+                    "documentId", doc.getId().toString(),
+                    "title", doc.getTitle() != null ? doc.getTitle() : "Untitled document",
+                    "expiresAt", String.valueOf(doc.getExpiresAt())));
 
             log.info("Auto-expired document {}", doc.getId());
         }

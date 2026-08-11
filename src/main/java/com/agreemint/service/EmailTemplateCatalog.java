@@ -76,8 +76,13 @@ public final class EmailTemplateCatalog {
             new Entry("lifecycle-change", "A document changed lifecycle status",
                     "Document status changed",
                     List.of("documentTitle", "newStatus", "changedBy", "documentLink")),
-            new Entry("expiration-warning", "A document is close to expiring",
-                    "Document expiring",
+            // Sent by the hourly sweep AFTER the date has passed; the copy is
+            // past-tense. The ahead-of-date notice is a separate template below.
+            new Entry("expiration-warning", "A document has passed its expiration date",
+                    "Document expired",
+                    List.of("documentTitle", "expiresAt", "documentLink")),
+            new Entry("document-expiring-soon", "A document is due to expire soon",
+                    "Document expiring soon",
                     List.of("documentTitle", "expiresAt", "documentLink")),
             new Entry("api-key-expiry-warning", "An API key is close to expiring",
                     "An API key is expiring soon",

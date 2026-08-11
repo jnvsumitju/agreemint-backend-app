@@ -160,6 +160,19 @@ agreemint:
     max-templates: ${FREE_MAX_TEMPLATES:10}
     max-workspaces: ${FREE_MAX_WORKSPACES:1}
 
+  # Document expiry. `expires_at` has existed since V11 but nothing wrote it
+  # until the PUT /api/documents/{id}/expiry endpoint landed, so the hourly
+  # auto-expire sweep had never matched a row.
+  #
+  # The warning sweep is separate and daily: it looks `lead-days` ahead and
+  # emails once per document, tracked by generated_documents.expiry_warned_at
+  # (V24). Raising lead-days re-warns nothing — the marker is only cleared when
+  # a document's date actually changes.
+  documents:
+    expiry-warning-lead-days: ${DOCUMENT_EXPIRY_WARNING_LEAD_DAYS:7}
+    expiry-warning-batch-size: ${DOCUMENT_EXPIRY_WARNING_BATCH_SIZE:500}
+    expiry-warning-cron: ${DOCUMENT_EXPIRY_WARNING_CRON:0 15 9 * * *}
+
   # Developer platform — Phase 6 (API key expiry warnings). Quartz-style cron.
   # Default fires every day at 09:00 local time of the backend host.
   api-keys:

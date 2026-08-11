@@ -1,11 +1,14 @@
 package com.agreemint.domain;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -36,8 +39,34 @@ public class MarketplaceListing {
     @Column(name = "org_id")
     private UUID orgId;
 
+    /**
+     * The template this listing was published from.
+     *
+     * <p>Provenance only. Since V25 the content lives on the listing itself, so
+     * this is never dereferenced to install — a deleted source template no
+     * longer breaks the listing.
+     */
     @Column(name = "source_template_id")
     private UUID sourceTemplateId;
+
+    /** The version that was snapshotted, for support questions. */
+    @Column(name = "source_version_id")
+    private UUID sourceVersionId;
+
+    /**
+     * The layout, copied at publish time.
+     *
+     * <p>Snapshotting rather than live-linking is what makes a listing a stable
+     * artifact: the publisher can keep editing their template without silently
+     * changing what everyone who already installed it agreed to.
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "layout_json")
+    private JsonNode layoutJson;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column
+    private JsonNode variables;
 
     @Column(name = "thumbnail_url", length = 1024)
     private String thumbnailUrl;
@@ -104,4 +133,13 @@ public class MarketplaceListing {
 
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+
+    public UUID getSourceVersionId() { return sourceVersionId; }
+    public void setSourceVersionId(UUID sourceVersionId) { this.sourceVersionId = sourceVersionId; }
+
+    public JsonNode getLayoutJson() { return layoutJson; }
+    public void setLayoutJson(JsonNode layoutJson) { this.layoutJson = layoutJson; }
+
+    public JsonNode getVariables() { return variables; }
+    public void setVariables(JsonNode variables) { this.variables = variables; }
 }

@@ -11,4 +11,10 @@ public interface MarketplaceListingRepository extends JpaRepository<MarketplaceL
     List<MarketplaceListing> findByPublishedTrueOrderByCreatedAtDesc();
 
     List<MarketplaceListing> findByCategoryAndPublishedTrue(String category);
+
+    /** Is this template already live in the catalogue? */
+    boolean existsBySourceTemplateIdAndPublishedTrue(UUID sourceTemplateId);
+
+    /** Every listing an org has published, withdrawn ones included. */
+    List<MarketplaceListing> findByOrgIdOrderByCreatedAtDesc(UUID orgId);
 }

@@ -13,6 +13,8 @@ public record MarketplaceListingResponse(
         String category,
         String tags,
         int installCount,
+        /** Only ever false on /mine — the browse list returns published rows only. */
+        boolean published,
         Instant createdAt
 ) {
 }
