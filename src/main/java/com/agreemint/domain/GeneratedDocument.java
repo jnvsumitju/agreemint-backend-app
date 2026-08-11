@@ -73,6 +73,19 @@ public class GeneratedDocument {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
+    /**
+     * When the ahead-of-date expiry warning was sent, or null if it has not been.
+     *
+     * <p>Durable send-once state: the warning sweep runs on a schedule, and every
+     * {@code @Scheduled} job in this application runs on every instance, so
+     * without a persisted marker a multi-instance deploy emails the customer
+     * once per instance per run. Must be cleared whenever {@link #expiresAt}
+     * changes — see {@code DocumentLifecycleService.setExpiry} — or a re-dated
+     * document is never warned again.
+     */
+    @Column(name = "expiry_warned_at")
+    private Instant expiryWarnedAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -181,6 +194,14 @@ public class GeneratedDocument {
 
     public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public Instant getExpiryWarnedAt() {
+        return expiryWarnedAt;
+    }
+
+    public void setExpiryWarnedAt(Instant expiryWarnedAt) {
+        this.expiryWarnedAt = expiryWarnedAt;
     }
 
     public Instant getUpdatedAt() {

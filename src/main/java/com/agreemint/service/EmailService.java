@@ -303,6 +303,26 @@ public class EmailService {
         sendTemplated("expiration-warning", to, "Document expiring: '" + documentTitle + "'", ctx);
     }
 
+    /**
+     * Tell someone a document is going to expire, while they can still act.
+     *
+     * <p>Separate from {@link #sendExpirationWarningEmail} because that template
+     * is written in the past tense — "Document expired", "has expired" — so
+     * reusing it for an ahead-of-date notice would tell a customer their live
+     * document was already gone.
+     */
+    @Async
+    public void sendDocumentExpiringSoonEmail(String to, String documentTitle,
+                                               String expiresAt, String documentLink) {
+        Context ctx = new Context();
+        ctx.setVariable("documentTitle", documentTitle);
+        ctx.setVariable("expiresAt", expiresAt);
+        ctx.setVariable("documentLink", documentLink);
+
+        sendTemplated("document-expiring-soon", to,
+                "Expiring soon: '" + documentTitle + "'", ctx);
+    }
+
     // ── Internal ──
 
     private void send(String to, String subject, String htmlBody) {

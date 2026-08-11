@@ -3,6 +3,7 @@ package com.agreemint.api;
 import com.agreemint.api.dto.DocumentDetailResponse;
 import com.agreemint.api.dto.DocumentLifecycleResponse;
 import com.agreemint.api.dto.LifecycleStatsResponse;
+import com.agreemint.api.dto.SetDocumentExpiryRequest;
 import com.agreemint.api.dto.PendingApprovalResponse;
 import com.agreemint.api.dto.TransitionStatusRequest;
 import com.agreemint.billing.PlanGate;
@@ -19,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,7 +67,7 @@ public class DocumentLifecycleController {
             @PathVariable UUID id) {
         authorizationService.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER, OrgRole.REVIEWER, OrgRole.VIEWER);
-        return lifecycleService.getDocumentWithTimeline(id);
+        return lifecycleService.getDocumentWithTimeline(id, principal.orgId());
     }
 
     @PostMapping("/{id}/transition")
@@ -79,7 +81,26 @@ public class DocumentLifecycleController {
         // where its documents got to — it just cannot move them further.
         planGate.requireAtLeast(principal.orgId(), OrgPlan.PRO, "Document lifecycle");
         return lifecycleService.transitionStatus(id, request.targetStatus(),
-                principal.userId(), request.comment());
+                principal.userId(), request.comment(), principal.orgId());
+    }
+
+    /**
+     * Set or clear a document's expiration date.
+     *
+     * <p>Gated at PRO to match {@code /transition}: an expiry date is only
+     * meaningful because a lifecycle transition enforces it, so selling one
+     * without the other would let a workspace set a date that nothing acts on.
+     */
+    @PutMapping("/{id}/expiry")
+    public DocumentLifecycleResponse setExpiry(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id,
+            @RequestBody SetDocumentExpiryRequest request) {
+        authorizationService.assertRole(principal.userId(), principal.orgId(),
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+        planGate.requireAtLeast(principal.orgId(), OrgPlan.PRO, "Document lifecycle");
+        return lifecycleService.setExpiry(id, request.expiresAt(), principal.userId(),
+                principal.orgId());
     }
 
     @GetMapping("/stats")

@@ -110,9 +110,28 @@ public class BillingService {
 
         // One live subscription per org. Re-entering checkout while one is
         // already active would create a second mandate and double-charge.
+        //
+        // An abandoned checkout is NOT that. A subscription still sitting in
+        // CREATED was never authenticated, so no mandate exists and nothing can
+        // be charged against it — but it occupies the slot (see
+        // SubscriptionStatus.OCCUPYING and ux_subscriptions_active_org), which
+        // used to lock the workspace out of billing permanently. The console
+        // made it worse by treating CREATED as "not live": it offered the
+        // upgrade cards this method then refused, and hid the cancel button
+        // that would have cleared it. There was no way out through the product.
         activeSubscription(orgId).ifPresent(existing -> {
-            throw new BadRequestException(
-                    "This workspace already has a subscription. Cancel it before starting a new one.");
+            // The rule is "does this subscription currently entitle the org to
+            // anything?", not a list of statuses — a list is what let HALTED slip
+            // through when CREATED was handled. Both occupy the slot while
+            // granting nothing: CREATED was never authorised, HALTED has had its
+            // renewal retries exhausted and the org is already back on FREE. In
+            // neither case can a second checkout double-charge, and in both the
+            // customer needs a way back in.
+            if (existing.getStatus().grantsAccess()) {
+                throw new BadRequestException(
+                        "This workspace already has a subscription. Cancel it before starting a new one.");
+            }
+            supersedeDormant(existing);
         });
 
         JsonNode created = razorpay.createSubscription(
@@ -137,6 +156,48 @@ public class BillingService {
             throw new BadRequestException(
                     "A subscription was just created for this workspace. Refresh and try again.");
         }
+    }
+
+    /**
+     * Retire a subscription that occupies the slot without granting anything,
+     * so a new checkout can start.
+     *
+     * <p>Razorpay is asked first, because our row and theirs drift: a customer
+     * can cancel or let a subscription expire on their side and, if we missed
+     * the webhook, our copy sits in CREATED forever. Reconciling here makes the
+     * next checkout self-healing rather than requiring someone to go and fix a
+     * row by hand.
+     *
+     * <p>The cancellation at Razorpay is the important half. The abandoned
+     * checkout's payment link stays live and payable indefinitely — if we
+     * retired the row locally and the customer later opened that old link,
+     * Razorpay would activate a subscription we had written off and send us an
+     * {@code subscription.activated} for it, leaving two mandates against one
+     * workspace. So a failure to cancel remotely is fatal to this attempt: it
+     * is better to keep the customer blocked, with a message that says what to
+     * do, than to risk charging them twice.
+     */
+    private void supersedeDormant(Subscription existing) {
+        String remoteId = existing.getRazorpaySubscriptionId();
+        try {
+            JsonNode remote = razorpay.fetchSubscription(remoteId);
+            SubscriptionStatus remoteStatus =
+                    SubscriptionStatus.fromWire(remote.path("status").asText("created"));
+
+            // Already dead at Razorpay — nothing to cancel, just reconcile.
+            if (remoteStatus.occupiesSlot()) {
+                razorpay.cancelSubscription(remoteId, false);
+            }
+        } catch (Exception e) {
+            log.warn("Could not retire abandoned subscription {} at Razorpay", remoteId, e);
+            throw new BadRequestException(
+                    "We could not close your previous unfinished checkout. Please try again in a "
+                            + "moment, or contact support if this keeps happening.");
+        }
+
+        existing.setStatus(SubscriptionStatus.CANCELLED);
+        subRepo.saveAndFlush(existing);
+        log.info("Superseded abandoned subscription {} for org {}", remoteId, existing.getOrgId());
     }
 
     /**
@@ -185,14 +246,24 @@ public class BillingService {
         Subscription sub = activeSubscription(orgId)
                 .orElseThrow(() -> new NotFoundException("No active subscription"));
 
-        JsonNode result = razorpay.cancelSubscription(
-                sub.getRazorpaySubscriptionId(), !immediately);
+        // "At the end of the period you have paid for" only means something
+        // while a paid period is actually running. A CREATED subscription was
+        // never authorised and a HALTED one has exhausted its retries — neither
+        // has a cycle to run out, Razorpay rejects cancel_at_cycle_end on them,
+        // and deferring would leave the row occupying the slot so the customer
+        // still could not buy anything. Cancelling those is always immediate,
+        // whatever the caller asked for, and there is no access to withdraw so
+        // no downgrade to perform.
+        boolean dormant = !sub.getStatus().grantsAccess();
+        boolean atCycleEnd = !immediately && !dormant;
+
+        JsonNode result = razorpay.cancelSubscription(sub.getRazorpaySubscriptionId(), atCycleEnd);
 
         applyRemoteState(sub, result);
-        sub.setCancelAtPeriodEnd(!immediately);
-        if (immediately) {
+        sub.setCancelAtPeriodEnd(atCycleEnd);
+        if (!atCycleEnd) {
             sub.setCancelledAt(Instant.now());
-            downgradeToFree(orgId);
+            if (!dormant) downgradeToFree(orgId);
         }
         return subRepo.save(sub);
     }
