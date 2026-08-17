@@ -74,14 +74,36 @@ agreemint:
     # Base64-encoded PKCS#12 containing the signing key and certificate. Unset
     # disables signing entirely: documents are still generated, still
     # fingerprinted, and still verifiable at /verify — they simply carry no
-    # embedded signature. Generate a self-signed pair with:
-    #   openssl req -x509 -newkey rsa:3072 -keyout k.pem -out c.pem -days 3650 -nodes \
-    #     -subj "/CN=Crixaa/O=Crixaa"
-    #   openssl pkcs12 -export -inkey k.pem -in c.pem -out signing.p12 -passout pass:CHANGEME
-    #   base64 -i signing.p12 | tr -d '\n'
+    # embedded signature.
+    #
+    # Generate it ON THE HOST THAT WILL HOLD IT. This is a private key: it must
+    # not travel through a chat window, an issue tracker or a build log, and it
+    # must never be committed. Run:
+    #
+    #   openssl req -x509 -newkey rsa:3072 -keyout key.pem -out cert.pem \
+    #     -days 3650 -nodes -subj "/CN=Crixaa/O=Crixaa/C=IN"
+    #   openssl pkcs12 -export -inkey key.pem -in cert.pem -out signing.p12 \
+    #     -passout pass:CHANGEME
+    #   base64 -w0 signing.p12          # Linux; on macOS: base64 -i signing.p12 | tr -d '\n'
+    #   rm key.pem                      # the .p12 now holds it; keep that backed up offline
+    #
+    # The last command prints one line — that is this variable's value, and the
+    # password above is SIGNING_KEYSTORE_PASSWORD.
+    #
+    # 3650 days is deliberate. Without an RFC 3161 timestamp authority (not
+    # wired up) a reader cannot establish that a signature was made while the
+    # certificate was still valid, so signatures start reading as questionable
+    # once it expires. A long window defers that; a timestamp server removes it.
+    #
+    # Back up signing.p12. Losing it does not invalidate documents already
+    # signed, but new ones carry a different certificate — and the fingerprint
+    # published below no longer matches, which to anyone checking looks exactly
+    # like impersonation.
+    #
     # Note a self-signed certificate makes readers show "validity unknown"
     # rather than a green tick. The fingerprint is published at
-    # /api/public/signing-certificate so recipients can confirm it is ours.
+    # /api/public/signing-certificate so recipients can confirm it is ours;
+    # publishing it somewhere they already trust is what makes it worth having.
     keystore-base64: ${SIGNING_KEYSTORE_BASE64:}
     keystore-password: ${SIGNING_KEYSTORE_PASSWORD:}
     reason: ${SIGNING_REASON:Issued by Crixaa}
