@@ -1,0 +1,34 @@
+-- Fix the column type of document_receipts.sha256: CHAR(64) -> VARCHAR(64).
+--
+-- V26 declared it CHAR(64). Postgres reports a CHAR column as `bpchar`, while
+-- Hibernate maps `@Column(length = 64) String` to `varchar(64)`, so schema
+-- validation refused to start the application:
+--
+--   Schema-validation: wrong column type encountered in column [sha256] in
+--   table [document_receipts]; found [bpchar (Types#CHAR)], but expecting
+--   [varchar(64) (Types#VARCHAR)]
+--
+-- CHAR was the wrong choice on its own merits too, quite apart from Hibernate.
+-- Postgres pads a CHAR value out to its declared width and compares with
+-- trailing spaces ignored — harmless for a digest that is always exactly 64
+-- characters, but it means the column's type is quietly asserting something
+-- that is not true of the data, and `sha256` is the one column in this schema
+-- where an unexpected comparison rule would be worst. Nothing else in the
+-- 27 migrations before this used CHAR; VARCHAR is the established convention.
+--
+-- ── Why a new migration instead of correcting V26 ───────────────────────────
+--
+-- V26 has already been applied. Flyway records a checksum per migration and
+-- refuses to start when an applied file changes, so editing it would turn a
+-- one-line type fix into a failed boot on every environment that already ran
+-- it. A fresh database now applies V26 and then this, and lands in the same
+-- place.
+--
+-- `USING btrim(...)` is belt and braces. The table cannot contain padded rows
+-- today — the application has never successfully started against it, so it is
+-- empty — but if this is ever applied to a populated table, CHAR semantics
+-- would have padded every value to 64 characters and the cast would carry that
+-- padding into VARCHAR, where it is significant and would break every lookup.
+
+ALTER TABLE document_receipts
+    ALTER COLUMN sha256 TYPE VARCHAR(64) USING btrim(sha256);
