@@ -60,6 +60,32 @@ agreemint:
     root: ${user.home}/.agreemint/storage
   cors:
     origins: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  # Document tamper-evidence.
+  verify:
+    # Public origin the printed verification mark points at. Set per environment
+    # so a staging document does not tell its reader to check production, where
+    # it would correctly fail to verify.
+    base-url: ${VERIFY_BASE_URL:https://crixaa.com}
+    # Per-IP ceiling on the unauthenticated verify endpoints. Nothing else
+    # limits anonymous traffic — the API-key filter short-circuits without a
+    # key — so this is the only budget those routes have.
+    per-ip-per-minute: ${VERIFY_RATE_LIMIT_RPM:30}
+  signing:
+    # Base64-encoded PKCS#12 containing the signing key and certificate. Unset
+    # disables signing entirely: documents are still generated, still
+    # fingerprinted, and still verifiable at /verify — they simply carry no
+    # embedded signature. Generate a self-signed pair with:
+    #   openssl req -x509 -newkey rsa:3072 -keyout k.pem -out c.pem -days 3650 -nodes \
+    #     -subj "/CN=Crixaa/O=Crixaa"
+    #   openssl pkcs12 -export -inkey k.pem -in c.pem -out signing.p12 -passout pass:CHANGEME
+    #   base64 -i signing.p12 | tr -d '\n'
+    # Note a self-signed certificate makes readers show "validity unknown"
+    # rather than a green tick. The fingerprint is published at
+    # /api/public/signing-certificate so recipients can confirm it is ours.
+    keystore-base64: ${SIGNING_KEYSTORE_BASE64:}
+    keystore-password: ${SIGNING_KEYSTORE_PASSWORD:}
+    reason: ${SIGNING_REASON:Issued by Crixaa}
+    location: ${SIGNING_LOCATION:}
   email:
     from-address: ${EMAIL_FROM:noreply@agreemint.com}
     from-name: ${EMAIL_FROM_NAME:Crixaa}

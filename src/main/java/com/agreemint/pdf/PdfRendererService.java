@@ -90,15 +90,29 @@ public class PdfRendererService {
     private final LayoutBehaviourResolver behaviourResolver;
     private final PdfFontRegistry fontRegistry;
     private final PixelParityProperties pixelParity;
+    private final VerificationMarkRenderer verificationMarkRenderer;
+    /**
+     * Public origin the printed mark points at. Injected rather than hardcoded
+     * so a staging deployment stamps its own host — a document that tells the
+     * reader to visit production and then fails to verify there would be worse
+     * than no mark at all.
+     */
+    private final String verifyBaseUrl;
 
     public PdfRendererService(ObjectMapper objectMapper,
                               LayoutBehaviourResolver behaviourResolver,
                               PdfFontRegistry fontRegistry,
-                              PixelParityProperties pixelParity) {
+                              PixelParityProperties pixelParity,
+                              @org.springframework.beans.factory.annotation.Value(
+                                      "${agreemint.verify.base-url:https://crixaa.com}") String verifyBaseUrl) {
         this.objectMapper = objectMapper;
         this.behaviourResolver = behaviourResolver;
         this.fontRegistry = fontRegistry;
         this.pixelParity = pixelParity;
+        this.verifyBaseUrl = verifyBaseUrl == null || verifyBaseUrl.isBlank()
+                ? "https://crixaa.com"
+                : verifyBaseUrl.replaceFirst("/+$", "");
+        this.verificationMarkRenderer = new VerificationMarkRenderer(fontRegistry);
     }
 
     /** True when pixel-parity rendering should be used for this render pass. */
@@ -137,6 +151,19 @@ public class PdfRendererService {
      *                  that the canvas and the PDF agree.
      */
     public byte[] render(JsonNode layoutJson, JsonNode data, boolean watermark) throws IOException {
+        return render(layoutJson, data, watermark, null);
+    }
+
+    /**
+     * Render, optionally recording the document's verification identity.
+     *
+     * @param mark identity to embed, or null for renders that are not issued
+     *             documents — the editor preview being the case that matters,
+     *             since a preview has no document row and must not carry a code
+     *             that resolves to nothing.
+     */
+    public byte[] render(JsonNode layoutJson, JsonNode data, boolean watermark, VerificationMark mark)
+            throws IOException {
         long startNanos = System.nanoTime();
         PageSpec pageSpec = readPage(layoutJson);
         List<JsonNode> perPageElements = pageElementArraysFromLayout(layoutJson);
@@ -148,6 +175,17 @@ public class PdfRendererService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
         PdfDocument pdfDoc = new PdfDocument(writer);
+        // Identity into the PDF's own metadata, always — cheap, invisible, and
+        // it makes an otherwise anonymous file self-describing. `setMoreInfo`
+        // is the only public route to custom Info entries in iText 7.2:
+        // PdfDocumentInfo.getPdfObject() is package-private.
+        if (mark != null) {
+            pdfDoc.getDocumentInfo().setMoreInfo("CrixaaDocumentId", mark.documentId().toString());
+            if (mark.code() != null) {
+                pdfDoc.getDocumentInfo().setMoreInfo("CrixaaVerificationCode", mark.code());
+            }
+            pdfDoc.getDocumentInfo().setMoreInfo("CrixaaVerifyUrl", verifyBaseUrl + "/verify");
+        }
         PageSize pageSize = pageSpec.pageSize();
         /*
          * layout.Document does not create a physical page until content is added. Code paths such as
@@ -209,6 +247,15 @@ public class PdfRendererService {
 
         if (watermark) {
             stampWatermark(pdfDoc);
+        }
+
+        // After the watermark on purpose: the watermark is a translucent
+        // diagonal across the middle of the page and the mark sits in the
+        // bottom-left corner, so they do not overlap — but if that ever changes,
+        // the mark being on top is the correct outcome. It is the one a
+        // recipient needs to be able to read.
+        if (mark != null && mark.visible()) {
+            verificationMarkRenderer.stamp(pdfDoc, mark, verifyBaseUrl);
         }
 
         document.close();

@@ -46,6 +46,7 @@ public class DocumentLifecycleService {
 
     private final GeneratedDocumentRepository documentRepo;
     private final DocumentLifecycleEventRepository eventRepo;
+    private final com.agreemint.repository.DocumentReceiptRepository receiptRepo;
     private final ApprovalWorkflowRepository workflowRepo;
     private final ApprovalStepRepository stepRepo;
     private final UserRepository userRepo;
@@ -59,6 +60,7 @@ public class DocumentLifecycleService {
     public DocumentLifecycleService(
             GeneratedDocumentRepository documentRepo,
             DocumentLifecycleEventRepository eventRepo,
+            com.agreemint.repository.DocumentReceiptRepository receiptRepo,
             ApprovalWorkflowRepository workflowRepo,
             ApprovalStepRepository stepRepo,
             UserRepository userRepo,
@@ -70,6 +72,7 @@ public class DocumentLifecycleService {
             WebhookService webhookService) {
         this.documentRepo = documentRepo;
         this.eventRepo = eventRepo;
+        this.receiptRepo = receiptRepo;
         this.workflowRepo = workflowRepo;
         this.stepRepo = stepRepo;
         this.userRepo = userRepo;
@@ -254,10 +257,17 @@ public class DocumentLifecycleService {
                 .map(this::buildWorkflowResponse)
                 .orElse(null);
 
+        // Null for anything generated before V26, which is correct rather than
+        // unfortunate: we cannot claim a digest for bytes we never fingerprinted.
+        String sha256 = receiptRepo.findFirstByDocumentIdOrderByIssuedAtAsc(documentId)
+                .map(com.agreemint.domain.DocumentReceipt::getSha256)
+                .orElse(null);
+
         return new DocumentDetailResponse(
                 singleResponse(doc),
                 timeline,
-                workflow
+                workflow,
+                sha256
         );
     }
 

@@ -53,7 +53,7 @@ class ParityRenderingTest {
         PixelParityProperties flag = new PixelParityProperties();
         flag.setEnabled(true);
         return new PdfRendererService(
-                mapper, new LayoutBehaviourResolver(mapper), registry, flag);
+                mapper, new LayoutBehaviourResolver(mapper), registry, flag, "https://crixaa.test");
     }
 
     @Test
@@ -110,7 +110,7 @@ class ParityRenderingTest {
         PixelParityProperties flag = new PixelParityProperties();
         flag.setEnabled(false);
         PdfRendererService svc = new PdfRendererService(
-                mapper, new LayoutBehaviourResolver(mapper), registry, flag);
+                mapper, new LayoutBehaviourResolver(mapper), registry, flag, "https://crixaa.test");
         ObjectNode el = textElement("Anything", 200f);
         // NOTE: we still run the layout pass off-flag in Phase 1 — the cost
         // gate will arrive in Phase 5. For now this just asserts the method

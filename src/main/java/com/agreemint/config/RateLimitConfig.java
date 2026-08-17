@@ -97,6 +97,26 @@ public class RateLimitConfig {
         return BucketConfiguration.builder().addLimit(limit).build();
     }
 
+    /**
+     * Per-IP bucket for the unauthenticated verification endpoint.
+     *
+     * <p>Needed because nothing else limits anonymous traffic:
+     * {@code ApiKeyAuthenticationFilter} short-circuits when no {@code X-Api-Key}
+     * header is present, so a {@code permitAll} route inherits no budget at all.
+     *
+     * <p>The endpoint answers "have you issued a file with this digest", so an
+     * unbounded one is an oracle someone could grind against. Guessing a
+     * SHA-256 is not a real threat, but paying for the database round trip is —
+     * this is a cheap ceiling on that, not a security control in itself.
+     */
+    public static BucketConfiguration perIpVerify(int perMinute) {
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(Math.max(1, perMinute))
+                .refillGreedy(Math.max(1, perMinute), Duration.ofMinutes(1))
+                .build();
+        return BucketConfiguration.builder().addLimit(limit).build();
+    }
+
     /** Per-day bucket for an entire org, at the system-wide default. */
     public BucketConfiguration perOrgDaily() {
         return perOrgDaily(null);

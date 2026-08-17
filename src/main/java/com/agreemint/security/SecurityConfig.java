@@ -84,6 +84,18 @@ public class SecurityConfig {
                 // check inside RazorpayWebhookController — which rejects the
                 // request outright when the webhook secret is unset.
                 .requestMatchers("/api/webhooks/razorpay").permitAll()
+                // Document verification. Deliberately public: the whole point is
+                // that a recipient with no relationship to us can check a PDF
+                // they were sent. It reads nothing but a digest they must
+                // already possess the file to compute, returns match/no-match
+                // and an issuance date, and never serves a document. Rate
+                // limited per IP inside the controller, because the API-key
+                // filter short-circuits without a key and would leave this
+                // route with no budget at all.
+                //
+                // Must stay above the /api/** rule below — that one authenticates
+                // everything it reaches, and matchers are evaluated in order.
+                .requestMatchers("/api/public/**").permitAll()
                 // Swagger UI & OpenAPI spec
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 // Static resources and health
