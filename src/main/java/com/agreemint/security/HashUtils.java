@@ -18,10 +18,23 @@ public final class HashUtils {
 
     /** SHA-256 hex digest of the input string (UTF-8). */
     public static String sha256(String input) {
+        return sha256(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * SHA-256 hex digest of raw bytes.
+     *
+     * <p>Used to fingerprint generated PDFs. Kept as a separate overload rather
+     * than routing binary content through the String form — doing that would
+     * decode the bytes as UTF-8 first, replacing every invalid sequence with
+     * U+FFFD, and a PDF is full of them. The digest would be of a corrupted
+     * transcription, stable enough to look correct and wrong in a way nothing
+     * would surface.
+     */
+    public static String sha256(byte[] input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
+            return HexFormat.of().formatHex(md.digest(input));
         } catch (NoSuchAlgorithmException e) {
             // SHA-256 is required by every JRE we target — this branch is unreachable.
             throw new IllegalStateException("SHA-256 unavailable", e);

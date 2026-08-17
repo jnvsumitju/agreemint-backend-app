@@ -138,7 +138,7 @@ class PdfRendererServiceMultiPageTest {
                 mapper,
                 new LayoutBehaviourResolver(mapper),
                 new PdfFontRegistry(),
-                new com.agreemint.config.PixelParityProperties());
+                new com.agreemint.config.PixelParityProperties(), "https://crixaa.test");
         byte[] pdf = svc.render(root, JsonNodeFactory.instance.objectNode());
 
         try (PdfReader reader = new PdfReader(new java.io.ByteArrayInputStream(pdf)); PdfDocument doc = new PdfDocument(reader)) {

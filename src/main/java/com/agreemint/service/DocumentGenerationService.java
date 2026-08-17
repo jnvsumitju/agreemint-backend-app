@@ -5,9 +5,14 @@ import com.agreemint.api.dto.GenerateResponse;
 import com.agreemint.api.dto.GeneratedDocumentResponse;
 import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.DocumentStatus;
+import com.agreemint.domain.DocumentReceipt;
 import com.agreemint.domain.GeneratedDocument;
 import com.agreemint.domain.TemplateVersion;
 import com.agreemint.pdf.PdfRendererService;
+import com.agreemint.pdf.PdfSigningService;
+import com.agreemint.pdf.VerificationMark;
+import com.agreemint.security.HashUtils;
+import com.agreemint.repository.DocumentReceiptRepository;
 import com.agreemint.repository.GeneratedDocumentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,6 +26,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -30,7 +36,9 @@ public class DocumentGenerationService {
 
     private final TemplateVersionService templateVersionService;
     private final GeneratedDocumentRepository generatedDocumentRepository;
+    private final DocumentReceiptRepository documentReceiptRepository;
     private final PdfRendererService pdfRendererService;
+    private final PdfSigningService pdfSigningService;
     private final R2StorageService r2;
     private final WebhookService webhookService;
     private final com.agreemint.billing.PlanGate planGate;
@@ -39,14 +47,18 @@ public class DocumentGenerationService {
     public DocumentGenerationService(
             TemplateVersionService templateVersionService,
             GeneratedDocumentRepository generatedDocumentRepository,
+            DocumentReceiptRepository documentReceiptRepository,
             PdfRendererService pdfRendererService,
+            PdfSigningService pdfSigningService,
             R2StorageService r2,
             WebhookService webhookService,
             com.agreemint.billing.PlanGate planGate,
             com.agreemint.billing.PdfQuotaService pdfQuota) {
         this.templateVersionService = templateVersionService;
         this.generatedDocumentRepository = generatedDocumentRepository;
+        this.documentReceiptRepository = documentReceiptRepository;
         this.pdfRendererService = pdfRendererService;
+        this.pdfSigningService = pdfSigningService;
         this.r2 = r2;
         this.webhookService = webhookService;
         this.planGate = planGate;
@@ -141,11 +153,49 @@ public class DocumentGenerationService {
         generatedDocumentRepository.save(doc);
         generatedDocumentRepository.flush();
 
+        // Assigned inside the try, read after it. Declared here so a FAILED
+        // generation leaves them null and no receipt is written — a receipt for
+        // a document that was never handed out would be a claim we cannot
+        // support.
+        String sha256 = null;
+        long byteSize = 0L;
+
+        // Every document gets a code, whether or not it is printed. It costs a
+        // stored random value, and it means turning the visible mark on for a
+        // template later needs no backfill for the documents already issued.
+        String verificationCode = VerificationCodes.generate();
+
+        // Read from the committed layout, so the choice travels with the
+        // template version rather than following the template's current
+        // settings — regenerating an old version must not silently start
+        // stamping a mark that version never had.
+        boolean visibleMark = version.getLayoutJson() != null
+                && version.getLayoutJson().path("page").path("verificationMark").asBoolean(false);
+
         try {
             // Free-plan documents carry a watermark. Anchored to the template's
             // org for the same reason the quota is — see governingOrgId above.
             boolean watermark = planGate.isFreeRestricted(governingOrgId);
-            byte[] pdf = pdfRendererService.render(version.getLayoutJson(), data, watermark);
+            byte[] rendered = pdfRendererService.render(
+                    version.getLayoutJson(), data, watermark,
+                    new VerificationMark(doc.getId(), verificationCode, visibleMark));
+
+            // Sign BEFORE hashing. A PAdES signature rewrites the file, so a
+            // digest taken first would describe bytes that never left the
+            // building — every issued document would fail its own verification.
+            // Returns the input unchanged when signing is disabled or fails.
+            byte[] pdf = pdfSigningService.sign(rendered);
+
+            // Fingerprint the bytes here, before anything else touches them.
+            // This is the only point where the complete PDF exists in one
+            // place, and — importantly — it is byte-for-byte what the caller
+            // receives: the browser endpoint streams the stored object straight
+            // through and the API endpoint presigns it, so neither rewrites a
+            // single byte. A digest taken here is therefore one the recipient
+            // can reproduce from the file in their hands.
+            sha256 = HashUtils.sha256(pdf);
+            byteSize = pdf.length;
+
             r2.putDocument(documentKey(doc.getId()), pdf, "application/pdf");
             // `fileUrl` stays as our own routing endpoint — the controller
             // redirects to a fresh presigned R2 URL on each hit, so the
@@ -167,26 +217,47 @@ public class DocumentGenerationService {
         }
         generatedDocumentRepository.save(doc);
 
+        // The tamper-evidence record. Same transaction as the document, so a
+        // rolled-back generation cannot leave a receipt behind claiming we
+        // issued something we did not.
+        if (sha256 != null) {
+            DocumentReceipt receipt = new DocumentReceipt();
+            receipt.setDocumentId(doc.getId());
+            receipt.setOrgId(doc.getOrgId());
+            receipt.setTemplateId(doc.getTemplate().getId());
+            receipt.setVersionId(doc.getVersion().getId());
+            receipt.setSha256(sha256);
+            receipt.setVerificationCode(verificationCode);
+            receipt.setByteSize(byteSize);
+            receipt.setIssuedAt(Instant.now());
+            documentReceiptRepository.save(receipt);
+        }
+
         // Webhook emit — fire-and-forget (persisted as PENDING; dispatcher picks up).
         UUID payloadOrgId = doc.getOrgId();
         if (payloadOrgId != null) {
+            // `sha256` rides along on the existing, already-HMAC-signed event.
+            // That hands integrators an out-of-band copy of the digest they can
+            // authenticate independently — so they are not relying on the same
+            // channel that delivered the file. Adding a field to a known event
+            // needs no change to WebhookService.KNOWN_EVENTS.
             webhookService.emit(payloadOrgId, "document.generated", java.util.Map.of(
                     "documentId", doc.getId().toString(),
                     "templateId", doc.getTemplate().getId().toString(),
                     "versionId", doc.getVersion().getId().toString(),
                     "status", doc.getStatus().name(),
                     "fileUrl", doc.getFileUrl() == null ? "" : doc.getFileUrl(),
+                    "sha256", sha256 == null ? "" : sha256,
                     "createdAt", doc.getCreatedAt() == null ? "" : doc.getCreatedAt().toString()
             ));
         }
 
-        return new GenerateResponse(doc.getId(), doc.getFileUrl());
+        return new GenerateResponse(doc.getId(), doc.getFileUrl(), sha256);
     }
 
     @Transactional(readOnly = true)
-    public GeneratedDocumentResponse getDocument(UUID id) {
-        GeneratedDocument d = generatedDocumentRepository.findById(id)
-                .orElseThrow(() -> new com.agreemint.api.NotFoundException("Document not found"));
+    public GeneratedDocumentResponse getDocument(UUID id, UUID actingOrgId) {
+        GeneratedDocument d = loadInOrg(id, actingOrgId);
         return new GeneratedDocumentResponse(
                 d.getId(),
                 d.getTemplate().getId(),
@@ -203,8 +274,11 @@ public class DocumentGenerationService {
      * server-to-server clients follow redirects without CORS preflights.
      */
     @Transactional(readOnly = true)
-    public URL resolvePresignedUrl(UUID documentId) {
-        assertDownloadable(documentId);
+    public URL resolvePresignedUrl(UUID documentId, UUID actingOrgId) {
+        // The v1 controller already calls assertSameOrg before reaching here.
+        // Checking again inside the service is deliberate: the tenant guard
+        // belongs with the data access, not only at one of its call sites.
+        assertDownloadable(loadInOrg(documentId, actingOrgId));
         return r2.presignDocumentGet(documentKey(documentId));
     }
 
@@ -214,14 +288,38 @@ public class DocumentGenerationService {
      * the response is same-origin and no CORS preflight hits R2.
      */
     @Transactional(readOnly = true)
-    public ResponseInputStream<GetObjectResponse> openDocumentStream(UUID documentId) {
-        assertDownloadable(documentId);
+    public ResponseInputStream<GetObjectResponse> openDocumentStream(UUID documentId, UUID actingOrgId) {
+        assertDownloadable(loadInOrg(documentId, actingOrgId));
         return r2.openDocument(documentKey(documentId));
     }
 
-    private void assertDownloadable(UUID documentId) {
+    /**
+     * Load a document, or behave as though it does not exist for anyone outside
+     * the owning workspace.
+     *
+     * <p>This existed only on the API-key surface ({@code assertSameOrg} in
+     * {@code PublicApiController}); the browser-facing
+     * {@code /api/documents/**} endpoints took a bare {@code UUID} and did a
+     * plain {@code findById}. Since {@code /api/**} only requires *a* valid
+     * session, any signed-in user of any workspace who came by a document id
+     * could read another tenant's metadata and stream their PDF — and the id is
+     * not a secret: it appears in {@code fileUrl}, in the R2 object key, in the
+     * {@code Content-Disposition} filename, and in the {@code document.generated}
+     * webhook payload.
+     *
+     * <p>404 rather than 403, deliberately: a 403 would confirm the document
+     * exists, which is the fact being protected.
+     */
+    private GeneratedDocument loadInOrg(UUID documentId, UUID actingOrgId) {
         GeneratedDocument d = generatedDocumentRepository.findById(documentId)
                 .orElseThrow(() -> new com.agreemint.api.NotFoundException("Document not found"));
+        if (actingOrgId == null || !actingOrgId.equals(d.getOrgId())) {
+            throw new com.agreemint.api.NotFoundException("Document not found");
+        }
+        return d;
+    }
+
+    private void assertDownloadable(GeneratedDocument d) {
         if (d.getStatus() != DocumentStatus.COMPLETED || d.getFileUrl() == null) {
             throw new com.agreemint.api.NotFoundException("PDF not available");
         }

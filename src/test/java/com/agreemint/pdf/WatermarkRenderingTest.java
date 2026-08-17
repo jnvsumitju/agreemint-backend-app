@@ -46,7 +46,7 @@ class WatermarkRenderingTest {
     private PdfRendererService service() {
         PixelParityProperties flag = new PixelParityProperties();
         flag.setEnabled(true);
-        return new PdfRendererService(M, new LayoutBehaviourResolver(M), registry, flag);
+        return new PdfRendererService(M, new LayoutBehaviourResolver(M), registry, flag, "https://crixaa.test");
     }
 
     private static String textOf(byte[] pdf) throws Exception {

@@ -110,8 +110,12 @@ public class PublicApiController {
         // and nothing else from our lifecycle tracking.
         GenerateResponse res = docService.generate(req, principal.userId(), principal.orgId(),
                 com.agreemint.domain.DocumentSource.API_GENERATED);
+        // The digest is passed straight through: only the fileUrl is rewritten
+        // for the public surface. An integrator storing this alongside their own
+        // record can prove the file is unaltered later without calling us.
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new GenerateResponse(res.documentId(), toPublicFileUrl(res.fileUrl())));
+                .body(new GenerateResponse(
+                        res.documentId(), toPublicFileUrl(res.fileUrl()), res.sha256()));
     }
 
     // ── Documents ────────────────────────────────────────────────────────────
@@ -123,10 +127,9 @@ public class PublicApiController {
             @PathVariable UUID id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        GeneratedDocumentResponse doc = docService.getDocument(id);
         UUID docOrg = docRepo.findById(id).map(d -> d.getOrgId()).orElse(null);
         assertSameOrg(principal, docOrg);
-        return toPublicResponse(doc);
+        return toPublicResponse(docService.getDocument(id, principal.orgId()));
     }
 
     @Operation(summary = "List generated documents, newest first",
@@ -167,7 +170,7 @@ public class PublicApiController {
     ) {
         UUID docOrg = docRepo.findById(id).map(d -> d.getOrgId()).orElse(null);
         assertSameOrg(principal, docOrg);
-        URL presigned = docService.resolvePresignedUrl(id);
+        URL presigned = docService.resolvePresignedUrl(id, principal.orgId());
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, presigned.toString())
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")

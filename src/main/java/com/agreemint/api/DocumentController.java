@@ -1,8 +1,10 @@
 package com.agreemint.api;
 
 import com.agreemint.api.dto.GeneratedDocumentResponse;
+import com.agreemint.security.UserPrincipal;
 import com.agreemint.service.DocumentGenerationService;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +29,10 @@ public class DocumentController {
     }
 
     @GetMapping("/{id}")
-    public GeneratedDocumentResponse get(@PathVariable UUID id) {
-        return documentGenerationService.getDocument(id);
+    public GeneratedDocumentResponse get(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id) {
+        return documentGenerationService.getDocument(id, principal.orgId());
     }
 
     /**
@@ -42,9 +46,11 @@ public class DocumentController {
      * body finishes writing, which also closes the underlying S3 stream.
      */
     @GetMapping("/{id}/file")
-    public ResponseEntity<InputStreamResource> file(@PathVariable UUID id) {
+    public ResponseEntity<InputStreamResource> file(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id) {
         ResponseInputStream<GetObjectResponse> s3Stream =
-                documentGenerationService.openDocumentStream(id);
+                documentGenerationService.openDocumentStream(id, principal.orgId());
         GetObjectResponse meta = s3Stream.response();
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

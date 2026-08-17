@@ -114,6 +114,7 @@ class DocumentExpiryTest {
 
         service = new DocumentLifecycleService(
                 documentRepo, eventRepo,
+                mock(com.agreemint.repository.DocumentReceiptRepository.class),
                 mock(ApprovalWorkflowRepository.class), mock(ApprovalStepRepository.class),
                 userRepo, mock(ProductRepository.class),
                 notificationService, activityService, emailService, frontend, webhookService);

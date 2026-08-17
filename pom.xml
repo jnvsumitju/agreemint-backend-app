@@ -78,6 +78,29 @@
             <artifactId>io</artifactId>
             <version>${itext.version}</version>
         </dependency>
+        <!--
+            PAdES digital signatures. Same AGPL terms as the iText modules
+            already in use, so no change in licensing posture. BouncyCastle
+            arrives transitively (kernel already declares bcpkix/bcprov 1.70),
+            which is why this is a single new artifact rather than three.
+        -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>sign</artifactId>
+            <version>${itext.version}</version>
+        </dependency>
+        <!--
+            QR encoding for the visible verification mark. `core` only — the
+            `javase` module exists to turn a BitMatrix into a BufferedImage,
+            and we do not want a raster: the matrix is drawn straight onto the
+            PDF canvas as vector rectangles, so the code stays sharp at any
+            zoom and at any print resolution.
+        -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
         <!-- WebSocket (STOMP over SockJS) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
