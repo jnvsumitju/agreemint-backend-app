@@ -64,18 +64,21 @@ public class PublicApiController {
     private final TemplateVersionService versionService;
     private final DocumentGenerationService docService;
     private final GeneratedDocumentRepository docRepo;
+    private final com.agreemint.service.TemplateService templateService;
 
     public PublicApiController(
             TemplateRepository templateRepo,
             TemplateVersionRepository versionRepo,
             TemplateVersionService versionService,
             DocumentGenerationService docService,
-            GeneratedDocumentRepository docRepo) {
+            GeneratedDocumentRepository docRepo,
+            com.agreemint.service.TemplateService templateService) {
         this.templateRepo = templateRepo;
         this.versionRepo = versionRepo;
         this.versionService = versionService;
         this.docService = docService;
         this.docRepo = docRepo;
+        this.templateService = templateService;
     }
 
     // ── Generate ─────────────────────────────────────────────────────────────
@@ -189,12 +192,11 @@ public class PublicApiController {
         Template t = templateRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Template not found"));
         assertSameOrg(principal, t.getOrgId());
-        // Product name is resolved by TemplateService.getResponse for the JWT
-        // path; the public API response surface intentionally omits it — the
-        // productId is enough for API consumers, they don't need our human
-        // label. Pass null for productName to keep the v1 contract stable.
-        return new TemplateResponse(t.getId(), t.getName(), t.getCreatedBy(),
-                t.getCreatedAt(), t.getProductId(), null);
+        // productName stays null here: the productId is enough for API
+        // consumers and they do not need our human label. Version and draft
+        // state ARE populated — an integration needs to know whether a template
+        // has a committed version before trying to generate from it.
+        return templateService.toPublicResponse(t);
     }
 
     @Operation(summary = "List committed versions of a template, newest first")

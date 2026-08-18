@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -31,15 +33,21 @@ public class TemplateService {
     private final ProductService productService;
     private final ProductRepository productRepository;
     private final TemplateVersionService templateVersionService;
+    private final com.agreemint.repository.TemplateVersionRepository templateVersionRepository;
+    private final com.agreemint.repository.TemplateDraftRepository templateDraftRepository;
 
     public TemplateService(TemplateRepository templateRepository,
                            ProductService productService,
                            ProductRepository productRepository,
-                           TemplateVersionService templateVersionService) {
+                           TemplateVersionService templateVersionService,
+                           com.agreemint.repository.TemplateVersionRepository templateVersionRepository,
+                           com.agreemint.repository.TemplateDraftRepository templateDraftRepository) {
         this.templateRepository = templateRepository;
         this.productService = productService;
         this.productRepository = productRepository;
         this.templateVersionService = templateVersionService;
+        this.templateVersionRepository = templateVersionRepository;
+        this.templateDraftRepository = templateDraftRepository;
     }
 
     /**
@@ -125,8 +133,9 @@ public class TemplateService {
                 ? templateRepository.findByOrgIdAndProductIdOrderByCreatedAtDesc(orgId, productId)
                 : templateRepository.findByOrgIdOrderByCreatedAtDesc(orgId);
         Map<UUID, String> productNames = productNameCache(rows);
+        VersionStatus status = versionStatus(rows.stream().map(Template::getId).toList());
         return rows.stream()
-                .map(t -> toResponse(t, productNames.get(t.getProductId())))
+                .map(t -> toResponse(t, productNames.get(t.getProductId()), status))
                 .toList();
     }
 
@@ -172,7 +181,12 @@ public class TemplateService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-        if (productIds.isEmpty()) return Map.of();
+        // HashMap, not Map.of(): the caller looks up `t.getProductId()`, which
+        // is null for any template not filed under a product, and the immutable
+        // map throws NullPointerException on a null key rather than returning
+        // null. A workspace where NO template belongs to a product therefore
+        // took this branch and 500'd the whole list.
+        if (productIds.isEmpty()) return new HashMap<>();
         Map<UUID, String> out = new HashMap<>();
         for (Product p : productRepository.findAllById(productIds)) {
             out.put(p.getId(), p.getName());
@@ -184,16 +198,51 @@ public class TemplateService {
         String productName = t.getProductId() == null
                 ? null
                 : productRepository.findById(t.getProductId()).map(Product::getName).orElse(null);
-        return toResponse(t, productName);
+        var status = versionStatus(List.of(t.getId()));
+        return toResponse(t, productName, status);
     }
 
-    private TemplateResponse toResponse(Template t, String productName) {
+    /**
+     * The v1 API shape: identical fields, {@code productName} deliberately null.
+     *
+     * <p>Lives here rather than being hand-built in the controller so version
+     * and draft state come from one place. Built by hand, the two paths could
+     * report different states for the same template — and the API's would be
+     * the one nobody notices is wrong.
+     */
+    @Transactional(readOnly = true)
+    public TemplateResponse toPublicResponse(Template t) {
+        return toResponse(t, null, versionStatus(List.of(t.getId())));
+    }
+
+    private TemplateResponse toResponse(Template t, String productName, VersionStatus status) {
         return new TemplateResponse(
                 t.getId(),
                 t.getName(),
                 t.getCreatedBy(),
                 t.getCreatedAt(),
                 t.getProductId(),
-                productName);
+                productName,
+                status.versions().get(t.getId()),
+                status.withDraft().contains(t.getId()));
+    }
+
+    /**
+     * Committed version and draft state for a set of templates, in two queries.
+     *
+     * @param versions highest committed version per template; absent means never committed
+     * @param withDraft templates holding editor changes that are in no version
+     */
+    private record VersionStatus(Map<UUID, Integer> versions, Set<UUID> withDraft) {}
+
+    private VersionStatus versionStatus(Collection<UUID> templateIds) {
+        if (templateIds.isEmpty()) return new VersionStatus(Map.of(), Set.of());
+        Map<UUID, Integer> versions = new HashMap<>();
+        for (Object[] row : templateVersionRepository.findMaxVersionByTemplateIds(templateIds)) {
+            versions.put((UUID) row[0], ((Number) row[1]).intValue());
+        }
+        return new VersionStatus(
+                versions,
+                Set.copyOf(templateDraftRepository.findTemplateIdsWithDraft(templateIds)));
     }
 }
