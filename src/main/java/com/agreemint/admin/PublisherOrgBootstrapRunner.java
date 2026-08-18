@@ -16,6 +16,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.Set;
 
 /**
  * Ensures the first-party publisher workspace exists and that staff can edit in it.
@@ -41,11 +43,15 @@ import java.util.List;
  *
  * <p>Runs after {@link StaffBootstrapRunner} ({@code @Order(0)}) so the accounts
  * it grants membership to have had their staff flag set in the same startup.
- * Idempotent, and it only ever RAISES a role: a staff member already holding
- * ADMIN keeps it, one holding something lower is raised to the configured role,
- * and nobody is ever demoted on a restart. Raising matters because the role was
- * DESIGNER first — without it, an account bootstrapped under the old default
- * would be stuck unable to invite anyone.
+ * Idempotent, and it NEVER modifies a membership that already exists — not to
+ * raise it, not to lower it. Once someone is in this workspace, their role is
+ * whatever an admin deliberately gave them, and a restart is not an opinion
+ * about that. The bootstrap's job ends at getting the first staff account in.
+ *
+ * <p>The consequence worth knowing: an account whose membership was created
+ * under an earlier {@code staff-role} keeps that role forever. To change it,
+ * either use the workspace's own member management, or delete the membership
+ * row and restart — an absent membership is recreated at the configured role.
  *
  * <p>Disabled unless {@code agreemint.publisher.enabled} is true, so a
  * development database never grows an org nobody asked for.
@@ -162,6 +168,47 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
         return org;
     }
 
+    /**
+     * The one case where an existing role is overridden: nobody can administer
+     * the workspace.
+     *
+     * <p>A workspace with no ADMIN cannot invite anyone or change any role, so
+     * it cannot be corrected from inside the product — the buttons that would
+     * fix it are the ones that require the role nobody has. That is a dead end
+     * rather than a preference, which is why it is worth a carve-out from
+     * "invited roles always win".
+     *
+     * <p>Narrow on purpose. It promotes exactly ONE account, not every staff
+     * member; it promotes to ADMIN specifically rather than to the configured
+     * {@code staff-role}, since a configured VIEWER would leave the workspace
+     * just as unadministrable; and it cannot fire again once any ADMIN exists,
+     * so a deliberate demotion of one admin among several is left alone.
+     */
+    private void ensureSomebodyCanAdminister(Organization org, List<User> staff) {
+        List<OrgMembership> members = membershipRepo.findByOrganizationId(org.getId());
+        if (members.stream().anyMatch(m -> m.getRole() == OrgRole.ADMIN)) return;
+        if (members.isEmpty()) return;
+
+        Set<UUID> staffIds = staff.stream().map(User::getId).collect(java.util.stream.Collectors.toSet());
+        // Deterministic by user id so repeated boots pick the same account
+        // rather than promoting a different person each restart.
+        OrgMembership promote = members.stream()
+                .filter(m -> m.getUser() != null && staffIds.contains(m.getUser().getId()))
+                .min(java.util.Comparator.comparing(m -> m.getUser().getId()))
+                .orElse(null);
+        if (promote == null) {
+            log.warn("[publisher-bootstrap] Workspace '{}' has no ADMIN and no staff member to "
+                    + "promote. Nobody can invite members or change roles in it.", slug);
+            return;
+        }
+        log.warn("[publisher-bootstrap] Workspace '{}' had no ADMIN — promoting staff account {} "
+                        + "from {} to ADMIN so the workspace can be administered. This is the only "
+                        + "case where an existing role is overridden.",
+                slug, promote.getUser().getEmail(), promote.getRole());
+        promote.setRole(OrgRole.ADMIN);
+        membershipRepo.save(promote);
+    }
+
     private void grantStaffMembership(Organization org) {
         List<User> staff = userRepo.findByStaffTrue();
         if (staff.isEmpty()) {
@@ -170,21 +217,14 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
             return;
         }
         int added = 0;
-        int raised = 0;
+        int kept = 0;
         for (User u : staff) {
             var existing = membershipRepo.findByUserIdAndOrganizationId(u.getId(), org.getId());
             if (existing.isPresent()) {
-                OrgMembership m = existing.get();
-                // Raise only. Enum order is ADMIN, DESIGNER, REVIEWER, VIEWER, so
-                // a LOWER ordinal is a higher privilege — comparing the wrong way
-                // round here would quietly demote every staff account on restart.
-                if (m.getRole() == null || m.getRole().ordinal() > staffRole.ordinal()) {
-                    log.info("[publisher-bootstrap] Raising {} from {} to {} in '{}'.",
-                            u.getEmail(), m.getRole(), staffRole, slug);
-                    m.setRole(staffRole);
-                    membershipRepo.save(m);
-                    raised++;
-                }
+                // Deliberately untouched. Whatever role this account holds was
+                // set by someone with the authority to set it, and a restart
+                // must not overrule that in either direction.
+                kept++;
                 continue;
             }
             OrgMembership m = new OrgMembership();
@@ -194,8 +234,10 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
             membershipRepo.save(m);
             added++;
         }
-        log.info("[publisher-bootstrap] Publisher workspace '{}': {} staff member(s) as {}, "
-                        + "{} newly added, {} raised.",
-                slug, staff.size(), staffRole, added, raised);
+        log.info("[publisher-bootstrap] Publisher workspace '{}': {} newly added as {}, "
+                        + "{} already members (roles left as set).",
+                slug, added, staffRole, kept);
+
+        ensureSomebodyCanAdminister(org, staff);
     }
 }

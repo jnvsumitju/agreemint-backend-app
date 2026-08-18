@@ -127,49 +127,40 @@ class PublisherOrgBootstrapRunnerTest {
     }
 
     @Test
-    void aStaffMemberBootstrappedUnderTheOldDesignerDefaultIsRaised() {
-        // The role was DESIGNER first. Without raising, an account created under
-        // that default would be permanently unable to invite anyone — which is
-        // the whole reason for the change.
+    void anInvitedRoleAlwaysWins() {
+        // The invariant: once an account is a member, the bootstrap has no
+        // opinion about its role. Someone invited into this workspace as a
+        // DESIGNER or a VIEWER stays that, restart after restart, whatever
+        // staff-role is configured — the role was set by someone with the
+        // authority to set it.
         Organization existing = new Organization();
         existing.setId(orgId);
         existing.setSlug("crixaa");
         existing.setPlan(OrgPlan.ENTERPRISE);
         when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
         when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
-        OrgMembership designer = new OrgMembership();
-        designer.setRole(OrgRole.DESIGNER);
-        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
-                .thenReturn(Optional.of(designer));
+        for (OrgRole held : OrgRole.values()) {
+            org.mockito.Mockito.reset(membershipRepo);
+            OrgMembership existingMembership = new OrgMembership();
+            existingMembership.setUser(staffUser());
+            existingMembership.setRole(held);
+            when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                    .thenReturn(Optional.of(existingMembership));
+            // Someone else already administers the workspace, so the no-admin
+            // carve-out cannot fire and this tests the ordinary rule.
+            OrgMembership someoneElse = new OrgMembership();
+            someoneElse.setUser(staffUser());
+            someoneElse.setRole(OrgRole.ADMIN);
+            when(membershipRepo.findByOrganizationId(any()))
+                    .thenReturn(List.of(existingMembership, someoneElse));
 
-        runner(true).run();
+            new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
+                    directTx(), true, "crixaa", "Crixaa", OrgRole.ADMIN).run();
 
-        ArgumentCaptor<OrgMembership> m = ArgumentCaptor.forClass(OrgMembership.class);
-        verify(membershipRepo).save(m.capture());
-        assertEquals(OrgRole.ADMIN, m.getValue().getRole());
-    }
-
-    @Test
-    void neverDemotesEvenIfConfiguredLower() {
-        // Enum order is ADMIN, DESIGNER, REVIEWER, VIEWER — a LOWER ordinal is a
-        // HIGHER privilege. Comparing the wrong way round would demote every
-        // staff account on restart, silently, which is far worse than the gap it
-        // would be trying to close.
-        Organization existing = new Organization();
-        existing.setId(orgId);
-        existing.setSlug("crixaa");
-        existing.setPlan(OrgPlan.ENTERPRISE);
-        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
-        when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
-        OrgMembership admin = new OrgMembership();
-        admin.setRole(OrgRole.ADMIN);
-        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
-                .thenReturn(Optional.of(admin));
-
-        new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
-                directTx(), true, "crixaa", "Crixaa", OrgRole.VIEWER).run();
-
-        verify(membershipRepo, never()).save(any());
+            verify(membershipRepo, never()).save(any());
+            assertEquals(held, existingMembership.getRole(),
+                    held + " must survive a restart untouched");
+        }
     }
 
     @Test
@@ -223,5 +214,88 @@ class PublisherOrgBootstrapRunnerTest {
                             org.springframework.transaction.support.DefaultTransactionStatus s) { }
                 });
         return t;
+    }
+
+    @Test
+    void promotesOneAccountWhenNobodyCanAdministerTheWorkspace() {
+        // The dead end this exists for: the only member holds DESIGNER, so the
+        // buttons that could fix the role are the ones requiring the role
+        // nobody has.
+        Organization existing = new Organization();
+        existing.setId(orgId);
+        existing.setSlug("crixaa");
+        existing.setPlan(OrgPlan.ENTERPRISE);
+        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
+
+        User staff = staffUser();
+        when(userRepo.findByStaffTrue()).thenReturn(List.of(staff));
+        OrgMembership designer = new OrgMembership();
+        designer.setUser(staff);
+        designer.setRole(OrgRole.DESIGNER);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(designer));
+        when(membershipRepo.findByOrganizationId(any())).thenReturn(List.of(designer));
+
+        runner(true).run();
+
+        ArgumentCaptor<OrgMembership> m = ArgumentCaptor.forClass(OrgMembership.class);
+        verify(membershipRepo).save(m.capture());
+        assertEquals(OrgRole.ADMIN, m.getValue().getRole());
+    }
+
+    @Test
+    void promotesToAdminEvenWhenStaffRoleIsConfiguredLower() {
+        // Promoting to a configured VIEWER would leave the workspace exactly as
+        // unadministrable as it was, which would make the carve-out pointless.
+        Organization existing = new Organization();
+        existing.setId(orgId);
+        existing.setSlug("crixaa");
+        existing.setPlan(OrgPlan.ENTERPRISE);
+        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
+
+        User staff = staffUser();
+        when(userRepo.findByStaffTrue()).thenReturn(List.of(staff));
+        OrgMembership viewer = new OrgMembership();
+        viewer.setUser(staff);
+        viewer.setRole(OrgRole.VIEWER);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(viewer));
+        when(membershipRepo.findByOrganizationId(any())).thenReturn(List.of(viewer));
+
+        new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
+                directTx(), true, "crixaa", "Crixaa", OrgRole.VIEWER).run();
+
+        ArgumentCaptor<OrgMembership> m = ArgumentCaptor.forClass(OrgMembership.class);
+        verify(membershipRepo).save(m.capture());
+        assertEquals(OrgRole.ADMIN, m.getValue().getRole());
+    }
+
+    @Test
+    void doesNotPromoteWhenAnAdminAlreadyExists() {
+        // Once anyone can administer the workspace, a deliberately demoted
+        // second admin is none of the bootstrap's business.
+        Organization existing = new Organization();
+        existing.setId(orgId);
+        existing.setSlug("crixaa");
+        existing.setPlan(OrgPlan.ENTERPRISE);
+        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
+
+        User staff = staffUser();
+        when(userRepo.findByStaffTrue()).thenReturn(List.of(staff));
+        OrgMembership demotedStaff = new OrgMembership();
+        demotedStaff.setUser(staff);
+        demotedStaff.setRole(OrgRole.VIEWER);
+        OrgMembership realAdmin = new OrgMembership();
+        realAdmin.setUser(staffUser());
+        realAdmin.setRole(OrgRole.ADMIN);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(demotedStaff));
+        when(membershipRepo.findByOrganizationId(any()))
+                .thenReturn(List.of(demotedStaff, realAdmin));
+
+        runner(true).run();
+
+        verify(membershipRepo, never()).save(any());
+        assertEquals(OrgRole.VIEWER, demotedStaff.getRole());
     }
 }
