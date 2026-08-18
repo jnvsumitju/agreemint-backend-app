@@ -29,6 +29,15 @@ public record TemplateResponse(
          * showing v2 whose newer edits are not in the v2 documents being
          * generated from it.
          */
-        boolean hasUncommittedChanges
+        boolean hasUncommittedChanges,
+        /**
+         * Preview image, or null when none has been rendered yet.
+         *
+         * <p>A short-lived presigned URL, minted per response. Never persisted:
+         * the signature expires, so a stored URL would be a link that silently
+         * stops working. Prefers the in-progress image over the committed one,
+         * so the list shows what the template looks like now.
+         */
+        String thumbnailUrl
 ) {
 }

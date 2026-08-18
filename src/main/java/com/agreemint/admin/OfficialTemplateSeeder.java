@@ -164,6 +164,14 @@ public class OfficialTemplateSeeder {
                     return templateRepo.save(t);
                 });
 
+        // Also on rows seeded before this column existed: it is what keys the
+        // published thumbnail, so a template without it never reaches the
+        // public bucket and its card on crixaa.com stays on the fallback image.
+        if (!slug.equals(template.getPublicSlug())) {
+            template.setPublicSlug(slug);
+            template = templateRepo.save(template);
+        }
+
         // Only commit a version when the content actually moved. Without this,
         // every restart would add an identical version and the History tab would
         // fill with changes nobody made.

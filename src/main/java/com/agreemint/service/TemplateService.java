@@ -36,19 +36,22 @@ public class TemplateService {
     private final TemplateVersionService templateVersionService;
     private final com.agreemint.repository.TemplateVersionRepository templateVersionRepository;
     private final com.agreemint.repository.TemplateDraftRepository templateDraftRepository;
+    private final R2StorageService storage;
 
     public TemplateService(TemplateRepository templateRepository,
                            ProductService productService,
                            ProductRepository productRepository,
                            TemplateVersionService templateVersionService,
                            com.agreemint.repository.TemplateVersionRepository templateVersionRepository,
-                           com.agreemint.repository.TemplateDraftRepository templateDraftRepository) {
+                           com.agreemint.repository.TemplateDraftRepository templateDraftRepository,
+                           R2StorageService storage) {
         this.templateRepository = templateRepository;
         this.productService = productService;
         this.productRepository = productRepository;
         this.templateVersionService = templateVersionService;
         this.templateVersionRepository = templateVersionRepository;
         this.templateDraftRepository = templateDraftRepository;
+        this.storage = storage;
     }
 
     /**
@@ -247,7 +250,8 @@ public class TemplateService {
                 productName,
                 t.getStatus(),
                 status.versions().get(t.getId()),
-                status.withDraft().contains(t.getId()));
+                status.withDraft().contains(t.getId()),
+                thumbnailUrl(t));
     }
 
     /**
@@ -257,6 +261,27 @@ public class TemplateService {
      * @param withDraft templates holding editor changes that are in no version
      */
     private record VersionStatus(Map<UUID, Integer> versions, Set<UUID> withDraft) {}
+
+    /**
+     * Short-lived read URL for a template's preview image.
+     *
+     * <p>The in-progress capture wins over the committed one: the list should
+     * show what the template looks like now, and the badge beside it already
+     * says whether that has been committed.
+     *
+     * <p>Signing failures return null rather than propagating — a list of
+     * templates must still render when object storage is unreachable.
+     */
+    private String thumbnailUrl(Template t) {
+        String key = t.getDraftThumbnailKey() != null ? t.getDraftThumbnailKey() : t.getThumbnailKey();
+        if (key == null || key.isBlank()) return null;
+        try {
+            return storage.presignThumbnailGet(key).toString();
+        } catch (Exception e) {
+            log.debug("template.thumbnail presign failed id={}: {}", t.getId(), e.toString());
+            return null;
+        }
+    }
 
     private VersionStatus versionStatus(Collection<UUID> templateIds) {
         if (templateIds.isEmpty()) return new VersionStatus(Map.of(), Set.of());

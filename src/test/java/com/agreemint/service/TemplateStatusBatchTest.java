@@ -63,7 +63,8 @@ class TemplateStatusBatchTest {
                 mock(ProductRepository.class),
                 mock(TemplateVersionService.class),
                 versionRepo,
-                draftRepo);
+                draftRepo,
+                mock(com.agreemint.service.R2StorageService.class));
 
         when(templateRepo.findByOrgIdOrderByCreatedAtDesc(orgId)).thenReturn(List.of(
                 template(committed, "Committed"),

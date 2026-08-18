@@ -40,8 +40,53 @@ public class R2Properties {
      */
     private String publicBaseUrl;
 
+    /**
+     * Private bucket holding template thumbnails.
+     *
+     * <p>Separate from {@code documents} because the retention story differs:
+     * a thumbnail is a derived, disposable image that can always be re-rendered
+     * from the layout, while a generated document is the artifact a customer
+     * relies on. Mixing them would make a lifecycle rule on one apply to the
+     * other.
+     */
+    private String bucketThumbnails;
+
+    /**
+     * Public bucket for the first-party templates' thumbnails.
+     *
+     * <p>crixaa.com reads these with no credentials, so ONLY the Crixaa
+     * publisher org's committed thumbnails ever land here — a customer's
+     * template preview in a world-readable bucket would be a data leak, and the
+     * bucket choice is the only thing standing between the two.
+     */
+    private String bucketThumbnailsPublic;
+
+    /** Public base URL of {@link #bucketThumbnailsPublic}. */
+    private String thumbnailsPublicBaseUrl;
+
     /** Minutes a presigned PDF URL is valid. Small — leaked URLs expire fast. */
     private int presignTtlMinutes = 5;
+
+    /**
+     * How long a published thumbnail may be cached, in seconds.
+     *
+     * <p>Tunable because the right value is a trade-off with no obviously
+     * correct answer. The object key is stable, so a new thumbnail overwrites
+     * the old one in place rather than getting a fresh URL — which means this
+     * is also how long a staff member's edit can stay invisible on crixaa.com
+     * after they commit it. An hour keeps the images out of the network tab for
+     * repeat visitors without making a correction feel lost.
+     */
+    private int thumbnailCacheSeconds = 3600;
+
+    public String getBucketThumbnails() { return bucketThumbnails; }
+    public void setBucketThumbnails(String v) { this.bucketThumbnails = v; }
+
+    public String getBucketThumbnailsPublic() { return bucketThumbnailsPublic; }
+    public void setBucketThumbnailsPublic(String v) { this.bucketThumbnailsPublic = v; }
+
+    public String getThumbnailsPublicBaseUrl() { return thumbnailsPublicBaseUrl; }
+    public void setThumbnailsPublicBaseUrl(String v) { this.thumbnailsPublicBaseUrl = v; }
 
     public String getAccountId() { return accountId; }
     public void setAccountId(String accountId) { this.accountId = accountId; }
@@ -63,6 +108,9 @@ public class R2Properties {
 
     public int getPresignTtlMinutes() { return presignTtlMinutes; }
     public void setPresignTtlMinutes(int presignTtlMinutes) { this.presignTtlMinutes = presignTtlMinutes; }
+
+    public int getThumbnailCacheSeconds() { return thumbnailCacheSeconds; }
+    public void setThumbnailCacheSeconds(int v) { this.thumbnailCacheSeconds = v; }
 
     /** Derived: {@code https://{accountId}.r2.cloudflarestorage.com}. */
     public String endpoint() {

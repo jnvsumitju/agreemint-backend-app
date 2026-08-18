@@ -238,6 +238,16 @@ agreemint:
     bucket-documents: ${R2_BUCKET_DOCUMENTS:agreemint-documents}
     bucket-public: ${R2_BUCKET_PUBLIC:agreemint-public}
     public-base-url: ${R2_PUBLIC_BASE_URL:}
+    # Template thumbnails. Private by default; only the first-party publisher
+    # org's committed thumbnails go to the public bucket, which crixaa.com
+    # reads without credentials.
+    bucket-thumbnails: ${R2_BUCKET_THUMBNAILS:agreemint-thumbnails}
+    bucket-thumbnails-public: ${R2_BUCKET_THUMBNAILS_PUBLIC:agreemint-thumbnails-public}
+    thumbnails-public-base-url: ${R2_THUMBNAILS_PUBLIC_BASE_URL:}
+    # Cache-Control written onto published thumbnails. Also the worst-case delay
+    # before a staff member's committed edit shows on crixaa.com, because the
+    # object key is stable and a new render overwrites it in place.
+    thumbnail-cache-seconds: ${R2_THUMBNAIL_CACHE_SECONDS:3600}
     presign-ttl-minutes: ${R2_PRESIGN_TTL_MINUTES:5}
 
 server:

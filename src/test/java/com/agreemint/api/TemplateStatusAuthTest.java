@@ -62,7 +62,7 @@ class TemplateStatusAuthTest {
         principal = new UserPrincipal(callerId, "someone@example.com", orgId, OrgRole.ADMIN);
         when(templateService.setStatus(any(), any())).thenReturn(
                 new TemplateResponse(templateId, "T", null, null, null, null,
-                        TemplateStatus.ACTIVE, 1, false));
+                        TemplateStatus.ACTIVE, 1, false, null));
     }
 
     @Test

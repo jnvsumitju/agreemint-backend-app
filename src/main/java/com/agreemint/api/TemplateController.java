@@ -167,6 +167,35 @@ public class TemplateController {
     /** Body for {@link #setStatus}. */
     public record SetStatusRequest(com.agreemint.domain.TemplateStatus status) {}
 
+    /**
+     * Refresh the in-progress preview image for a template being edited.
+     *
+     * <p>Called by the console at most once per sixty seconds, and only when
+     * the layout actually changed — the cost is a full PDF render plus a
+     * rasterise, so an editor left open on an untouched document must not keep
+     * paying it.
+     *
+     * <p>Returns 204 whatever happens. The image is decoration: a caller has
+     * nothing useful to do with a failure, and turning one into an error would
+     * put a red toast on the screen of someone who merely left the tab open.
+     */
+    @PostMapping("/{id}/thumbnail")
+    public ResponseEntity<Void> captureThumbnail(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("id") UUID templateId
+    ) {
+        if (principal == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        // Same roles as editing: this renders the caller's draft, so anyone who
+        // may not see the draft may not trigger a render of it either.
+        orgAuthz.assertTemplateAccess(principal.userId(), templateId,
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+        templateDraftService.captureDraftThumbnail(templateId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/versions")
     public List<TemplateVersionResponse> listVersions(@PathVariable("id") UUID templateId) {
         return templateVersionService.listVersions(templateId);

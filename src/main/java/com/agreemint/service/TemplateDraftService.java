@@ -31,6 +31,7 @@ public class TemplateDraftService {
     private final TemplateDraftRepository templateDraftRepository;
     private final TemplateVersionService templateVersionService;
     private final TemplateReviewService templateReviewService;
+    private final com.agreemint.service.TemplateThumbnailService thumbnailService;
     private final WebhookService webhookService;
 
     public TemplateDraftService(
@@ -38,12 +39,14 @@ public class TemplateDraftService {
             TemplateDraftRepository templateDraftRepository,
             TemplateVersionService templateVersionService,
             @Lazy TemplateReviewService templateReviewService,
-            WebhookService webhookService) {
+            WebhookService webhookService,
+            com.agreemint.service.TemplateThumbnailService thumbnailService) {
         this.templateRepository = templateRepository;
         this.templateDraftRepository = templateDraftRepository;
         this.templateVersionService = templateVersionService;
         this.templateReviewService = templateReviewService;
         this.webhookService = webhookService;
+        this.thumbnailService = thumbnailService;
     }
 
     @Transactional(readOnly = true)
@@ -164,6 +167,13 @@ public class TemplateDraftService {
         }
         CreateVersionRequest req = new CreateVersionRequest(d.getLayoutJson(), vars);
         TemplateVersionResponse created = templateVersionService.createVersion(templateId, req);
+
+        // Preview image for what was just committed. Deliberately AFTER the
+        // version is created and BEFORE nothing else depends on it — and the
+        // service swallows every failure internally, so a thumbnail that will
+        // not rasterise cannot cost the author their commit.
+        thumbnailService.captureCommitted(templateId, d.getLayoutJson(), vars);
+
         templateDraftRepository.deleteById(templateId);
 
         UUID orgId = templateRepository.findById(templateId).map(t -> t.getOrgId()).orElse(null);
@@ -176,6 +186,32 @@ public class TemplateDraftService {
             ));
         }
         return created;
+    }
+
+    /**
+     * Render the current draft into the in-progress preview.
+     *
+     * <p>Falls back to the latest committed version when there is no draft, so
+     * a template that has been committed and not touched since still gets an
+     * image rather than staying blank forever.
+     */
+    @Transactional
+    public void captureDraftThumbnail(UUID templateId) {
+        var draft = templateDraftRepository.findById(templateId);
+        if (draft.isPresent()) {
+            thumbnailService.captureDraft(templateId, draft.get().getLayoutJson(),
+                    draft.get().getVariables());
+            return;
+        }
+        // Null versionId already means "latest committed" to this resolver, so
+        // there is no need for a second way to ask the same question.
+        try {
+            var v = templateVersionService.getVersionEntity(templateId, null);
+            thumbnailService.captureCommitted(templateId, v.getLayoutJson(), v.getVariables());
+        } catch (RuntimeException e) {
+            // A template with no draft AND no version has nothing to draw.
+            // No logger on this class; nothing to capture is not noteworthy.
+        }
     }
 
     private TemplateDraftResponse toResponse(TemplateDraft d) {
