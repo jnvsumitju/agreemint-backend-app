@@ -18,6 +18,12 @@ DEEPSEEK_TIMEOUT_SECONDS ?= 1200
 R2_PRESIGN_TTL_MINUTES   ?= 5
 FEATURE_PIXEL_PARITY     ?= true
 RESEND_BASE_URL          ?= https://api.resend.com
+# Creates the Crixaa publisher workspace, grants every staff account DESIGNER in
+# it, and publishes the twenty free templates as first-party marketplace
+# listings. A default is required here, not optional: the app falls back to
+# false, and an unset make variable would pass `-e AGREEMINT_PUBLISHER_ENABLED=`
+# — an empty string that wins over the yml default and fails boolean binding.
+AGREEMINT_PUBLISHER_ENABLED ?= true
 
 # Docker network the backend attaches to so it can reach Postgres + Redis.
 # The compose stack sets `name: salesiq-data` and defines a network `salesiq`
@@ -78,6 +84,7 @@ run: build
 		-e DEEPSEEK_TIMEOUT_SECONDS=$(DEEPSEEK_TIMEOUT_SECONDS) \
 		-e FEATURE_PIXEL_PARITY=$(FEATURE_PIXEL_PARITY) \
 		-e "AGREEMINT_STAFF_EMAILS=$(AGREEMINT_STAFF_EMAILS)" \
+		-e AGREEMINT_PUBLISHER_ENABLED=$(AGREEMINT_PUBLISHER_ENABLED) \
 		-e RAZORPAY_KEY_ID=$(RAZORPAY_KEY_ID) \
 		-e RAZORPAY_KEY_SECRET=$(RAZORPAY_KEY_SECRET) \
 		-e RAZORPAY_WEBHOOK_SECRET=$(RAZORPAY_WEBHOOK_SECRET) \
