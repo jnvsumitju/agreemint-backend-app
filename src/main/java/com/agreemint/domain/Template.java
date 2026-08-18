@@ -37,6 +37,29 @@ public class Template {
     @Column(nullable = false, length = 16)
     private TemplateStatus status = TemplateStatus.DRAFT;
 
+    /** R2 key of the in-progress preview, refreshed while someone edits. */
+    @Column(name = "draft_thumbnail_key", length = 512)
+    private String draftThumbnailKey;
+
+    /** R2 key of the last committed version's preview. */
+    @Column(name = "thumbnail_key", length = 512)
+    private String thumbnailKey;
+
+    /** When a thumbnail was last rendered — the 60-second capture checks this. */
+    @Column(name = "thumbnail_updated_at")
+    private Instant thumbnailUpdatedAt;
+
+    /**
+     * Slug this template is published under on crixaa.com, e.g.
+     * {@code free-gst-invoice-template}. Null for every customer template.
+     *
+     * <p>Doubles as the switch for public thumbnails: only a template with a
+     * slug has a page to appear on, so only those are mirrored into the
+     * world-readable bucket. See {@code TemplateThumbnailService}.
+     */
+    @Column(name = "public_slug", length = 160)
+    private String publicSlug;
+
     @Column(name = "owner_id")
     private UUID ownerId;
 
@@ -56,6 +79,18 @@ public class Template {
 
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
+
+    public String getDraftThumbnailKey() { return draftThumbnailKey; }
+    public void setDraftThumbnailKey(String v) { this.draftThumbnailKey = v; }
+
+    public String getThumbnailKey() { return thumbnailKey; }
+    public void setThumbnailKey(String v) { this.thumbnailKey = v; }
+
+    public Instant getThumbnailUpdatedAt() { return thumbnailUpdatedAt; }
+    public void setThumbnailUpdatedAt(Instant v) { this.thumbnailUpdatedAt = v; }
+
+    public String getPublicSlug() { return publicSlug; }
+    public void setPublicSlug(String v) { this.publicSlug = v; }
 
     public TemplateStatus getStatus() {
         return status;

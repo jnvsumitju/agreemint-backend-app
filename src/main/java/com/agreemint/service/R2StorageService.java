@@ -55,17 +55,67 @@ public class R2StorageService {
         return publicUrl(key);
     }
 
+    /** Upload a template thumbnail to the PRIVATE thumbnails bucket. */
+    public void putThumbnail(String key, byte[] bytes, String contentType) {
+        put(props.getBucketThumbnails(), key, bytes, contentType);
+    }
+
+    /**
+     * Upload to the WORLD-READABLE thumbnails bucket and return its permanent URL.
+     *
+     * <p>Only for first-party templates. A customer's template preview here
+     * would be readable by anyone with the URL, and the bucket choice is the
+     * only thing separating the two — hence the separate method rather than a
+     * boolean on the one above.
+     */
+    public String putPublicThumbnail(String key, byte[] bytes, String contentType) {
+        put(props.getBucketThumbnailsPublic(), key, bytes, contentType, thumbnailCacheControl());
+        String base = props.getThumbnailsPublicBaseUrl();
+        if (base == null || base.isBlank()) return null;
+        return base.endsWith("/") ? base + key : base + "/" + key;
+    }
+
+    /** Short-lived read URL for a private thumbnail. */
+    public URL presignThumbnailGet(String key) {
+        return presignGet(props.getBucketThumbnails(), key);
+    }
+
+    /**
+     * How long a browser and the CDN may hold a published thumbnail.
+     *
+     * <p>Only the public bucket gets this. Objects in the private buckets are
+     * read through presigned URLs whose signature changes on every response, so
+     * the URL is never the same twice and a cache directive on them would be
+     * decoration — nothing could ever hit.
+     *
+     * <p>Clamped at zero into {@code no-cache} rather than emitting a negative
+     * max-age, which is malformed and would be ignored, leaving the object with
+     * whatever default the CDN picked. Setting the property to 0 is a plausible
+     * way to ask for "don't cache this while I debug it", and it should mean
+     * that.
+     */
+    String thumbnailCacheControl() {
+        int seconds = props.getThumbnailCacheSeconds();
+        return seconds <= 0 ? "no-cache" : "public, max-age=" + seconds;
+    }
+
     /** Shared helper — not public because callers should route through the
      *  bucket-specific methods so we don't get the buckets mixed up. */
     private void put(String bucket, String key, byte[] bytes, String contentType) {
-        s3.putObject(
-                PutObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(key)
-                        .contentType(contentType)
-                        .contentLength((long) bytes.length)
-                        .build(),
-                RequestBody.fromBytes(bytes));
+        put(bucket, key, bytes, contentType, null);
+    }
+
+    private void put(String bucket, String key, byte[] bytes, String contentType, String cacheControl) {
+        PutObjectRequest.Builder req = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType(contentType)
+                .contentLength((long) bytes.length);
+        // Left off entirely rather than sent empty: S3 stores whatever string
+        // it is given, and an empty Cache-Control header is not the same as no
+        // header — some intermediaries treat it as uncacheable.
+        if (cacheControl != null) req.cacheControl(cacheControl);
+        s3.putObject(req.build(), RequestBody.fromBytes(bytes));
     }
 
     /**
@@ -118,11 +168,16 @@ public class R2StorageService {
     }
 
     public URL presignDocumentGet(String key) {
+        return presignGet(props.getBucketDocuments(), key);
+    }
+
+    /** Shared signer. Bucket-specific wrappers keep callers from picking one. */
+    private URL presignGet(String bucket, String key) {
         int ttl = presignTtlMinutes();
         GetObjectPresignRequest req = GetObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(ttl))
                 .getObjectRequest(GetObjectRequest.builder()
-                        .bucket(props.getBucketDocuments())
+                        .bucket(bucket)
                         .key(key)
                         .build())
                 .build();

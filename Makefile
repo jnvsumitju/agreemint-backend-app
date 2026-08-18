@@ -16,6 +16,7 @@ DEEPSEEK_BASE_URL        ?= https://api.deepseek.com
 DEEPSEEK_MODEL           ?= deepseek-v4-pro
 DEEPSEEK_TIMEOUT_SECONDS ?= 1200
 R2_PRESIGN_TTL_MINUTES   ?= 5
+R2_THUMBNAIL_CACHE_SECONDS ?= 3600
 FEATURE_PIXEL_PARITY     ?= true
 RESEND_BASE_URL          ?= https://api.resend.com
 # Creates the Crixaa publisher workspace, grants every staff account DESIGNER in
@@ -24,6 +25,11 @@ RESEND_BASE_URL          ?= https://api.resend.com
 # false, and an unset make variable would pass `-e AGREEMINT_PUBLISHER_ENABLED=`
 # — an empty string that wins over the yml default and fails boolean binding.
 AGREEMINT_PUBLISHER_ENABLED ?= true
+# Thumbnail buckets. Defaults required for the same reason as everything else in
+# this block: an unset make variable expands to `-e VAR=`, and that empty string
+# beats the ${VAR:default} in application.yml.
+R2_BUCKET_THUMBNAILS        ?= agreemint-thumbnails
+R2_BUCKET_THUMBNAILS_PUBLIC ?= agreemint-thumbnails-public
 
 # Docker network the backend attaches to so it can reach Postgres + Redis.
 # The compose stack sets `name: salesiq-data` and defines a network `salesiq`
@@ -76,8 +82,12 @@ run: build
 		-e R2_SECRET_ACCESS_KEY=$(R2_SECRET_ACCESS_KEY) \
 		-e R2_BUCKET_DOCUMENTS=$(R2_BUCKET_DOCUMENTS) \
 		-e R2_BUCKET_PUBLIC=$(R2_BUCKET_PUBLIC) \
+		-e R2_BUCKET_THUMBNAILS=$(R2_BUCKET_THUMBNAILS) \
+		-e R2_BUCKET_THUMBNAILS_PUBLIC=$(R2_BUCKET_THUMBNAILS_PUBLIC) \
+		-e R2_THUMBNAILS_PUBLIC_BASE_URL=$(R2_THUMBNAILS_PUBLIC_BASE_URL) \
 		-e R2_PUBLIC_BASE_URL=$(R2_PUBLIC_BASE_URL) \
 		-e R2_PRESIGN_TTL_MINUTES=$(R2_PRESIGN_TTL_MINUTES) \
+		-e R2_THUMBNAIL_CACHE_SECONDS=$(R2_THUMBNAIL_CACHE_SECONDS) \
 		-e DEEPSEEK_API_KEY=$(DEEPSEEK_API_KEY) \
 		-e DEEPSEEK_BASE_URL=$(DEEPSEEK_BASE_URL) \
 		-e DEEPSEEK_MODEL=$(DEEPSEEK_MODEL) \
