@@ -55,7 +55,7 @@ class PublisherOrgBootstrapRunnerTest {
 
     private PublisherOrgBootstrapRunner runner(boolean enabled) {
         return new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
-                enabled, "crixaa", "Crixaa");
+                directTx(), enabled, "crixaa", "Crixaa");
     }
 
     private User staffUser() {
@@ -153,5 +153,27 @@ class PublisherOrgBootstrapRunnerTest {
         ArgumentCaptor<Organization> saved = ArgumentCaptor.forClass(Organization.class);
         verify(orgRepo).save(saved.capture());
         assertEquals(OrgPlan.ENTERPRISE, saved.getValue().getPlan());
+    }
+
+    /**
+     * A TransactionTemplate that just runs the callback.
+     *
+     * <p>Production isolates each unit of work so one failure cannot discard
+     * the rest; the tests care about that control flow, not about real
+     * transactions, so this keeps the call structure identical without a
+     * database.
+     */
+    private static org.springframework.transaction.support.TransactionTemplate directTx() {
+        var t = new org.springframework.transaction.support.TransactionTemplate(
+                new org.springframework.transaction.support.AbstractPlatformTransactionManager() {
+                    @Override protected Object doGetTransaction() { return new Object(); }
+                    @Override protected void doBegin(Object o,
+                            org.springframework.transaction.TransactionDefinition d) { }
+                    @Override protected void doCommit(
+                            org.springframework.transaction.support.DefaultTransactionStatus s) { }
+                    @Override protected void doRollback(
+                            org.springframework.transaction.support.DefaultTransactionStatus s) { }
+                });
+        return t;
     }
 }

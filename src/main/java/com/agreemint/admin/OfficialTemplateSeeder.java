@@ -57,21 +57,30 @@ public class OfficialTemplateSeeder {
     private final MarketplaceListingRepository listingRepo;
     private final ProductRepository productRepo;
     private final ObjectMapper objectMapper;
+    private final org.springframework.transaction.support.TransactionTemplate tx;
 
     public OfficialTemplateSeeder(TemplateRepository templateRepo,
                                   TemplateVersionRepository versionRepo,
                                   MarketplaceListingRepository listingRepo,
                                   ProductRepository productRepo,
-                                  ObjectMapper objectMapper) {
+                                  ObjectMapper objectMapper,
+                                  org.springframework.transaction.support.TransactionTemplate tx) {
         this.templateRepo = templateRepo;
         this.versionRepo = versionRepo;
         this.listingRepo = listingRepo;
         this.productRepo = productRepo;
         this.objectMapper = objectMapper;
+        this.tx = tx;
     }
 
-    /** @return how many listings were created or refreshed. */
-    @Transactional
+    /**
+     * @return how many listings were created or refreshed.
+     *
+     * <p>Each bundle commits in its own transaction. Wrapping the whole batch
+     * in one meant a single persistence failure marked it rollback-only while
+     * the loop cheerfully carried on and logged success — and everything was
+     * then discarded at commit, including the nineteen that were fine.
+     */
     public int seed(UUID publisherOrgId, String publisherName) {
         List<Resource> bundles = loadBundles();
         if (bundles.isEmpty()) {
@@ -79,11 +88,21 @@ public class OfficialTemplateSeeder {
                     + "Run the console's generate-try-templates script.");
             return 0;
         }
-        UUID productId = ensureProduct(publisherOrgId);
+        UUID productId = tx.execute(status -> ensureProduct(publisherOrgId));
         int touched = 0;
         for (Resource bundle : bundles) {
             try {
-                if (seedOne(bundle, publisherOrgId, publisherName, productId)) touched++;
+                Boolean changed = tx.execute(status -> {
+                    try {
+                        return seedOne(bundle, publisherOrgId, publisherName, productId);
+                    } catch (Exception e) {
+                        // Roll back just this bundle, then rethrow so the outer
+                        // catch can log which one and move to the next.
+                        status.setRollbackOnly();
+                        throw new IllegalStateException(e);
+                    }
+                });
+                if (Boolean.TRUE.equals(changed)) touched++;
             } catch (Exception e) {
                 // One malformed bundle must not stop the other nineteen, and must
                 // not abort startup. Loud, then carry on.

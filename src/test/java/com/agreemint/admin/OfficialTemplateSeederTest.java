@@ -46,7 +46,7 @@ class OfficialTemplateSeederTest {
         listingRepo = mock(MarketplaceListingRepository.class);
         productRepo = mock(ProductRepository.class);
         seeder = new OfficialTemplateSeeder(templateRepo, versionRepo, listingRepo,
-                productRepo, new ObjectMapper());
+                productRepo, new ObjectMapper(), directTx());
 
         Product product = new Product();
         product.setId(UUID.randomUUID());
@@ -200,5 +200,27 @@ class OfficialTemplateSeederTest {
         assertEquals("HR", OfficialTemplateSeeder.categoryFor("free-offer-letter-template"));
         assertEquals("Education", OfficialTemplateSeeder.categoryFor("free-marksheet-template"));
         assertEquals("Business", OfficialTemplateSeeder.categoryFor("free-nda-template"));
+    }
+
+    /**
+     * A TransactionTemplate that just runs the callback.
+     *
+     * <p>Production isolates each unit of work so one failure cannot discard
+     * the rest; the tests care about that control flow, not about real
+     * transactions, so this keeps the call structure identical without a
+     * database.
+     */
+    private static org.springframework.transaction.support.TransactionTemplate directTx() {
+        var t = new org.springframework.transaction.support.TransactionTemplate(
+                new org.springframework.transaction.support.AbstractPlatformTransactionManager() {
+                    @Override protected Object doGetTransaction() { return new Object(); }
+                    @Override protected void doBegin(Object o,
+                            org.springframework.transaction.TransactionDefinition d) { }
+                    @Override protected void doCommit(
+                            org.springframework.transaction.support.DefaultTransactionStatus s) { }
+                    @Override protected void doRollback(
+                            org.springframework.transaction.support.DefaultTransactionStatus s) { }
+                });
+        return t;
     }
 }
