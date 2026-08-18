@@ -137,6 +137,74 @@ public class PdfRendererService {
     }
 
     /**
+     * Split {@code value} into runs so every character is drawn by a font that
+     * actually has a glyph for it.
+     *
+     * <p>The families we ship are not interchangeable in coverage: JetBrains
+     * Mono has no U+20B9 (₹), so a totals column set in mono printed
+     * {@code ▯1,41,600.00} on Indian invoices while the same amount in Inter
+     * rendered fine. iText draws a missing glyph as notdef rather than
+     * substituting, so nothing upstream notices.
+     *
+     * <p>Characters the primary font covers keep it (returned as {@link Text}
+     * with no explicit font, so they inherit the paragraph's). Only the
+     * uncovered stretches are pinned to the fallback, which keeps the
+     * substitution as small as possible — an amount stays monospaced apart from
+     * its currency mark. Returns a single unpinned run when the primary covers
+     * everything, which is the overwhelmingly common case and allocates nothing
+     * extra.
+     *
+     * <p>Iterates by code point, not {@code char}, so glyphs outside the BMP are
+     * tested whole rather than as broken surrogate halves.
+     */
+    List<Text> splitForGlyphCoverage(String value, PdfFont primary, PdfFont fallback) {
+        if (value == null || value.isEmpty()) return List.of(new Text(""));
+        if (primary == null || fallback == null || primary == fallback) {
+            return List.of(new Text(value));
+        }
+        boolean anyMissing = false;
+        for (int i = 0; i < value.length(); ) {
+            int cp = value.codePointAt(i);
+            if (!primary.containsGlyph(cp) && fallback.containsGlyph(cp)) {
+                anyMissing = true;
+                break;
+            }
+            i += Character.charCount(cp);
+        }
+        if (!anyMissing) return List.of(new Text(value));
+
+        List<Text> out = new ArrayList<>();
+        StringBuilder buf = new StringBuilder();
+        boolean bufNeedsFallback = false;
+        for (int i = 0; i < value.length(); ) {
+            int cp = value.codePointAt(i);
+            int n = Character.charCount(cp);
+            boolean needsFallback = !primary.containsGlyph(cp) && fallback.containsGlyph(cp);
+            if (buf.length() > 0 && needsFallback != bufNeedsFallback) {
+                out.add(pinned(buf.toString(), bufNeedsFallback ? fallback : null));
+                buf.setLength(0);
+            }
+            bufNeedsFallback = needsFallback;
+            buf.appendCodePoint(cp);
+            i += n;
+        }
+        if (buf.length() > 0) out.add(pinned(buf.toString(), bufNeedsFallback ? fallback : null));
+        return out;
+    }
+
+    private Text pinned(String s, PdfFont font) {
+        Text t = new Text(s);
+        if (font != null) t.setFont(font);
+        return t;
+    }
+
+    /** Inter carries every symbol the other two families can miss, so it is the fallback. */
+    private PdfFont glyphFallbackFont(boolean bold, boolean italic) {
+        if (!parityOn() || fontRegistry == null) return null;
+        return fontRegistry.createFont(PdfFontRegistry.FAMILY_SANS, bold, italic);
+    }
+
+    /**
      * Render without a watermark. Retained as the default so existing callers
      * and the pixel-parity golden tests are unaffected by watermarking.
      */
@@ -696,9 +764,25 @@ public class PdfRendererService {
             return paragraphFromRuns(runs, data, rowContext, elementStyle, runIndexOut);
         }
         String raw = contentField == null || contentField.isNull() ? "" : contentField.asText("");
-        Paragraph p = new Paragraph(substitute(raw, data, rowContext));
+        String value = substitute(raw, data, rowContext);
+        Paragraph p = new Paragraph();
+        // Style first: the glyph split has to know which font the paragraph will
+        // actually draw with before it can tell what that font is missing.
         applyTextStyle(p, elementStyle);
+        for (Text run : splitForGlyphCoverage(value,
+                resolveParityFont(elementStyle, styleBold(elementStyle), styleItalic(elementStyle)),
+                glyphFallbackFont(styleBold(elementStyle), styleItalic(elementStyle)))) {
+            p.add(run);
+        }
         return p;
+    }
+
+    private static boolean styleBold(JsonNode style) {
+        return style != null && style.path("bold").asBoolean(false);
+    }
+
+    private static boolean styleItalic(JsonNode style) {
+        return style != null && style.path("italic").asBoolean(false);
     }
 
     private JsonNode resolveRichRuns(JsonNode contentField) {
@@ -798,6 +882,32 @@ public class PdfRendererService {
                     t.setUnderline(0.75f, -2f);
                 }
             } else {
+                // A run can hold characters its own family lacks (₹ in a mono
+                // run), so it may become several Texts — the covered stretches
+                // plus fallback-pinned ones. Every shard carries the run's full
+                // styling and its ordinal, so measurement still attributes them
+                // to the authored run.
+                boolean runBold = run.has("bold")
+                        ? run.path("bold").asBoolean()
+                        : styleBold(elementStyle);
+                boolean runItalic = run.has("italic")
+                        ? run.path("italic").asBoolean()
+                        : styleItalic(elementStyle);
+                List<Text> shards = splitForGlyphCoverage(textValue,
+                        resolveParityFont(elementStyle, runBold, runItalic),
+                        glyphFallbackFont(runBold, runItalic));
+                if (shards.size() > 1) {
+                    for (Text shard : shards) {
+                        // Capture the pinned fallback before the run style
+                        // overwrites it with the primary family.
+                        PdfFont pinnedFont = shard.<PdfFont>getProperty(Property.FONT);
+                        applyRunTextStyle(shard, run, elementStyle);
+                        if (pinnedFont != null) shard.setFont(pinnedFont);
+                        p.add(shard);
+                        if (runIndexOut != null) runIndexOut.put(shard, runOrdinal);
+                    }
+                    continue;
+                }
                 t = new Text(textValue);
                 applyRunTextStyle(t, run, elementStyle);
             }
@@ -1022,18 +1132,10 @@ public class PdfRendererService {
         // Weighted distribution: header = 1, body rows = rowWeights[i]
         float weightSum = 1f; // header
         for (float wRow : rowWeights) weightSum += wRow;
-        float headerRowHeight;
+        float[] distributed = distributeRowHeights(totalTableHeight, rowWeights, weightSum);
+        float headerRowHeight = distributed[0];
         float[] bodyRowHeights = new float[bodyRowCountForHeight];
-        if (totalTableHeight > 0f && weightSum > 0f) {
-            headerRowHeight = totalTableHeight / weightSum;
-            for (int i = 0; i < bodyRowCountForHeight; i++) {
-                bodyRowHeights[i] = (rowWeights[i] / weightSum) * totalTableHeight;
-            }
-        } else {
-            // Fall back: let iText size cells normally.
-            headerRowHeight = 0f;
-            for (int i = 0; i < bodyRowCountForHeight; i++) bodyRowHeights[i] = 0f;
-        }
+        System.arraycopy(distributed, 1, bodyRowHeights, 0, bodyRowCountForHeight);
 
         // Header paragraphs inherit the element's style (font, size, leading,
         // color) and force `bold`. In parity mode we also keep the font-family
@@ -2756,7 +2858,17 @@ public class PdfRendererService {
                 if (italic) p.setItalic();
             }
             float lineHeight = (float) style.path("lineHeight").asDouble(DEFAULT_LINE_HEIGHT);
-            p.setMultipliedLeading(lineHeight);
+            // Fixed, NOT multiplied. `lineHeight` is a CSS unitless line-height,
+            // which means `lineHeight × font-size`. iText's
+            // `setMultipliedLeading` multiplies the *font's* intrinsic line
+            // height instead — 1.451× the font size for Inter, 1.584× for
+            // JetBrains Mono — so feeding the CSS number straight into it made
+            // every PDF line box 45–58% taller than the canvas's, and the
+            // renderer clipped text the editor showed sitting comfortably
+            // inside its element. Content-independent: a one-character string
+            // overflowed by exactly as much as a full sentence.
+            // Guarded by LeadingParityTest.
+            p.setFixedLeading(fontSize * lineHeight);
         } else {
             if (bold) p.setBold();
             if (italic) p.setItalic();
@@ -3169,9 +3281,57 @@ public class PdfRendererService {
      */
     private Cell applyCellPadding(Cell cell) {
         if (parityOn()) {
-            return cell.setPaddingTop(2f).setPaddingBottom(2f).setPaddingLeft(4f).setPaddingRight(4f);
+            return cell.setPaddingTop(cellVertPaddingPt()).setPaddingBottom(cellVertPaddingPt())
+                    .setPaddingLeft(4f).setPaddingRight(4f);
         }
-        return cell.setPadding(4);
+        return cell.setPadding(cellVertPaddingPt());
+    }
+
+    /**
+     * Split an authored table height across header + body rows, returning the
+     * <em>content-box</em> height to hand each {@code Cell.setHeight}.
+     *
+     * <p>Index 0 is the header (weight 1 by convention); the rest follow
+     * {@code rowWeights}. The returned values are each row's share <em>minus</em>
+     * its chrome, because {@code Cell.setHeight} is content-box in iText and
+     * padding plus border are added on top. Passing the raw share instead
+     * printed every table {@code rowCount × (2×padding + border)} taller than
+     * its box — 143pt for a 118pt five-row table. Tables are anchored at their
+     * bottom edge, so that excess grew UPWARD and silently overlapped whatever
+     * sat above it; on the GST invoice it swallowed the reverse-charge band
+     * while the canvas showed it perfectly clear.
+     *
+     * <p>Returns all-zero when there is no authored height, which tells the
+     * caller to let iText size cells to their content instead.
+     */
+    float[] distributeRowHeights(float totalHeight, float[] rowWeights, float weightSum) {
+        float[] out = new float[rowWeights.length + 1];
+        if (totalHeight <= 0f || weightSum <= 0f) return out;
+        float rowChrome = 2f * cellVertPaddingPt() + cellBorderWidthPt();
+        out[0] = Math.max(1f, totalHeight / weightSum - rowChrome);
+        for (int i = 0; i < rowWeights.length; i++) {
+            out[i + 1] = Math.max(1f, (rowWeights[i] / weightSum) * totalHeight - rowChrome);
+        }
+        return out;
+    }
+
+    /** Chrome each row adds outside its content box: padding both sides + border. */
+    float rowChromePt() {
+        return 2f * cellVertPaddingPt() + cellBorderWidthPt();
+    }
+
+    /**
+     * Vertical padding a table cell carries, per side. Read by both
+     * {@link #applyCellPadding} and the row-height distribution, which has to
+     * subtract it — {@code Cell.setHeight} is content-box.
+     */
+    private float cellVertPaddingPt() {
+        return parityOn() ? 2f : 4f;
+    }
+
+    /** Cell border width, which {@code setHeight} likewise excludes. */
+    private float cellBorderWidthPt() {
+        return parityOn() ? 1f : 0.5f;
     }
 
     /**
