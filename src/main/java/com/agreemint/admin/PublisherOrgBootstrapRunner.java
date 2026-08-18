@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -57,6 +56,7 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
     private final OrgMembershipRepository membershipRepo;
     private final UserRepository userRepo;
     private final OfficialTemplateSeeder seeder;
+    private final org.springframework.transaction.support.TransactionTemplate tx;
     private final boolean enabled;
     private final String slug;
     private final String name;
@@ -66,6 +66,7 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
             OrgMembershipRepository membershipRepo,
             UserRepository userRepo,
             OfficialTemplateSeeder seeder,
+            org.springframework.transaction.support.TransactionTemplate tx,
             @Value("${agreemint.publisher.enabled:false}") boolean enabled,
             @Value("${agreemint.publisher.slug:crixaa}") String slug,
             @Value("${agreemint.publisher.name:Crixaa}") String name) {
@@ -73,18 +74,43 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
         this.membershipRepo = membershipRepo;
         this.userRepo = userRepo;
         this.seeder = seeder;
+        this.tx = tx;
         this.enabled = enabled;
         this.slug = slug;
         this.name = name;
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
-        if (!enabled) return;
-        Organization org = ensureOrg();
-        grantStaffMembership(org);
-        seeder.seed(org.getId(), name);
+        // Always says something. Returning silently when disabled made "flag
+        // off", "ran and changed nothing" and "never invoked" indistinguishable
+        // in a deployed environment — the only three things worth telling apart.
+        if (!enabled) {
+            log.info("[publisher-bootstrap] Disabled (agreemint.publisher.enabled=false). "
+                    + "Set AGREEMINT_PUBLISHER_ENABLED=true to create the '{}' workspace "
+                    + "and publish the free templates.", slug);
+            return;
+        }
+        log.info("[publisher-bootstrap] Enabled — ensuring workspace '{}'.", slug);
+
+        // Deliberately NOT @Transactional on this method. The seeder catches a
+        // failing bundle and carries on, which inside one big transaction is a
+        // trap: the first persistence error marks it rollback-only, the run
+        // logs success for the other nineteen, and then the commit throws and
+        // discards the workspace and memberships too. Separate transactions
+        // mean a bad bundle costs only itself.
+        Organization org = tx.execute(status -> {
+            Organization o = ensureOrg();
+            grantStaffMembership(o);
+            return o;
+        });
+        if (org == null) {
+            log.error("[publisher-bootstrap] Could not establish the publisher workspace.");
+            return;
+        }
+        int touched = seeder.seed(org.getId(), name);
+        log.info("[publisher-bootstrap] Done — workspace '{}' id={}, {} listing(s) touched.",
+                slug, org.getId(), touched);
     }
 
     /**
