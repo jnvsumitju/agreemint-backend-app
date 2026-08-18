@@ -17,6 +17,8 @@ public record TemplateResponse(
          * this template cannot produce output yet — which the list previously
          * gave no way to see.
          */
+        /** Lifecycle state set by an author: DRAFT, ACTIVE or ARCHIVED. */
+        com.agreemint.domain.TemplateStatus status,
         Integer versionNumber,
         /**
          * A draft exists, i.e. there are editor changes not in any version.

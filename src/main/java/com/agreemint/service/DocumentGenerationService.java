@@ -7,6 +7,9 @@ import com.agreemint.domain.DocumentSource;
 import com.agreemint.domain.DocumentStatus;
 import com.agreemint.domain.DocumentReceipt;
 import com.agreemint.domain.GeneratedDocument;
+import com.agreemint.domain.Template;
+import com.agreemint.domain.TemplateStatus;
+import com.agreemint.api.BadRequestException;
 import com.agreemint.domain.TemplateVersion;
 import com.agreemint.pdf.PdfRendererService;
 import com.agreemint.pdf.PdfSigningService;
@@ -113,6 +116,25 @@ public class DocumentGenerationService {
     public GenerateResponse generate(GenerateRequest request, UUID userId, UUID orgId, DocumentSource source) {
         TemplateVersion version = templateVersionService.getVersionEntity(
                 request.templateId(), request.versionId());
+
+        // Lifecycle gate. Deliberately here, in the single overload both the
+        // console and the v1 public API funnel through, rather than in each
+        // controller — a check duplicated per entry point is a check that gets
+        // forgotten when the next entry point is added.
+        //
+        // Note this gates GENERATION only. Preview stays open in every state:
+        // rendering a draft is how you get it finished, and blocking that would
+        // make DRAFT a state nobody could leave.
+        Template tpl = version.getTemplate();
+        if (tpl.getStatus() == null || !tpl.getStatus().allowsGeneration()) {
+            throw new BadRequestException(
+                    "This template is " + (tpl.getStatus() == null ? "not active" : tpl.getStatus().name().toLowerCase())
+                            + " — only active templates can generate documents."
+                            + (tpl.getStatus() == TemplateStatus.ARCHIVED
+                                ? " Restore it to use it again."
+                                : " Set it to Active when it is ready."));
+        }
+
         JsonNode data = request.data();
         if (data == null || data.isNull()) {
             data = JsonNodeFactory.instance.objectNode();
