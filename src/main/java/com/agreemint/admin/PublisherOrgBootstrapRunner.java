@@ -52,6 +52,9 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(PublisherOrgBootstrapRunner.class);
 
+    /** The environment variable operators actually set; the property is derived from it. */
+    private static final String ENV_VAR = "AGREEMINT_PUBLISHER_ENABLED";
+
     private final OrganizationRepository orgRepo;
     private final OrgMembershipRepository membershipRepo;
     private final UserRepository userRepo;
@@ -86,9 +89,21 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
         // off", "ran and changed nothing" and "never invoked" indistinguishable
         // in a deployed environment — the only three things worth telling apart.
         if (!enabled) {
-            log.info("[publisher-bootstrap] Disabled (agreemint.publisher.enabled=false). "
-                    + "Set AGREEMINT_PUBLISHER_ENABLED=true to create the '{}' workspace "
-                    + "and publish the free templates.", slug);
+            // Report the RAW environment variable next to the resolved property.
+            // "false" on its own cannot distinguish "the variable is not in this
+            // container" from "it is set but did not bind" — and the first is
+            // the common one, because Docker fixes a container's environment at
+            // creation, so adding -e and running `docker restart` changes
+            // nothing. Printing both makes the next boot self-diagnosing.
+            String raw = System.getenv(ENV_VAR);
+            log.warn("[publisher-bootstrap] Disabled — agreemint.publisher.enabled resolved to false"
+                    + " ({}={}). The '{}' workspace and the free templates will not be created."
+                    + (raw == null
+                        ? " That variable is not present in this process: if you added it with -e,"
+                          + " the container must be recreated, not restarted."
+                        : " The variable IS present, so this is a binding problem, not a missing"
+                          + " value — check for an application.yml or profile overriding it."),
+                    ENV_VAR, raw == null ? "<not set>" : raw, slug);
             return;
         }
         log.info("[publisher-bootstrap] Enabled — ensuring workspace '{}'.", slug);
