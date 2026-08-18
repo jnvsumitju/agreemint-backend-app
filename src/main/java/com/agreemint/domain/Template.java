@@ -13,6 +13,17 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "templates")
+/*
+ * Only the changed columns are written on update.
+ *
+ * Without this Hibernate emits a static all-column UPDATE from the snapshot it
+ * read at the start of the transaction, and the thumbnail columns are written
+ * out of band by bulk UPDATEs on a background thread that deliberately do not
+ * bump @Version. Any concurrent save — a status change, a rename — would
+ * therefore flush its stale copy of those columns back over a freshly rendered
+ * thumbnail, pass the version check, and silently lose the write.
+ */
+@org.hibernate.annotations.DynamicUpdate
 public class Template {
 
     @Id

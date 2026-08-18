@@ -58,19 +58,27 @@ public class OfficialTemplateSeeder {
     private final ProductRepository productRepo;
     private final ObjectMapper objectMapper;
     private final org.springframework.transaction.support.TransactionTemplate tx;
+    private final com.agreemint.service.TemplateThumbnailService thumbnails;
+    private final java.util.concurrent.Executor thumbnailExecutor;
 
     public OfficialTemplateSeeder(TemplateRepository templateRepo,
                                   TemplateVersionRepository versionRepo,
                                   MarketplaceListingRepository listingRepo,
                                   ProductRepository productRepo,
                                   ObjectMapper objectMapper,
-                                  org.springframework.transaction.support.TransactionTemplate tx) {
+                                  org.springframework.transaction.support.TransactionTemplate tx,
+                                  com.agreemint.service.TemplateThumbnailService thumbnails,
+                                  @org.springframework.beans.factory.annotation.Qualifier(
+                                          com.agreemint.config.ThumbnailExecutorConfig.EXECUTOR)
+                                  java.util.concurrent.Executor thumbnailExecutor) {
         this.templateRepo = templateRepo;
         this.versionRepo = versionRepo;
         this.listingRepo = listingRepo;
         this.productRepo = productRepo;
         this.objectMapper = objectMapper;
         this.tx = tx;
+        this.thumbnails = thumbnails;
+        this.thumbnailExecutor = thumbnailExecutor;
     }
 
     /**
@@ -111,7 +119,57 @@ public class OfficialTemplateSeeder {
         }
         log.info("[template-seed] {} of {} first-party listing(s) created or refreshed.",
                 touched, bundles.size());
+        captureMissingThumbnails(publisherOrgId);
         return touched;
+    }
+
+    /**
+     * Render preview images for seeded templates that have none.
+     *
+     * <p>Needed because this class writes versions straight to the repository
+     * rather than going through {@code commitDraft}, so it never publishes the
+     * event that normally triggers a render. Without this the free templates
+     * would have no thumbnail until a staff member opened each of the twenty in
+     * the editor and committed it by hand — and the public bucket that
+     * crixaa.com reads would simply stay empty.
+     *
+     * <p>Keyed on a missing thumbnail rather than on whether the bundle changed
+     * this boot. A template seeded before thumbnails existed is unchanged
+     * forever, so "changed" would never fire for exactly the templates that need
+     * it. Once one is rendered it is skipped on every later boot, which is what
+     * keeps this from re-rendering twenty PDFs on every restart.
+     *
+     * <p>Submitted to the thumbnail pool rather than run here: this is on the
+     * startup path, and twenty renders plus forty uploads would hold boot open
+     * for something no request is waiting on.
+     */
+    private void captureMissingThumbnails(UUID publisherOrgId) {
+        List<Template> pending = templateRepo.findByOrgId(publisherOrgId).stream()
+                .filter(t -> t.getPublicSlug() != null && !t.getPublicSlug().isBlank())
+                .filter(t -> t.getThumbnailKey() == null || t.getThumbnailKey().isBlank())
+                .toList();
+        if (pending.isEmpty()) return;
+
+        log.info("[template-seed] Queuing {} thumbnail render(s) for first-party templates.",
+                pending.size());
+        for (Template t : pending) {
+            UUID id = t.getId();
+            thumbnailExecutor.execute(() -> {
+                try {
+                    versionRepo.findFirstByTemplateOrderByVersionNumberDesc(t)
+                            .ifPresent(v -> thumbnails.captureCommitted(
+                                    id, v.getLayoutJson(), v.getVariables()));
+                } catch (Throwable th) {
+                    // The version lookup is outside captureCommitted's own
+                    // catch, and this runs on a bare pool thread: an escaping
+                    // exception goes to the default uncaught handler, i.e.
+                    // straight to stderr with no logger name, bypassing logback
+                    // and the log file entirely. A connection-pool timeout at
+                    // boot is a realistic way to hit it.
+                    log.warn("[template-seed] Thumbnail render failed for {}: {}", id, th.toString());
+                }
+            });
+        }
     }
 
     private List<Resource> loadBundles() {

@@ -27,12 +27,35 @@ import java.util.stream.Collectors;
 @Service
 public class TemplateDraftService {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(TemplateDraftService.class);
+
     private final TemplateRepository templateRepository;
     private final TemplateDraftRepository templateDraftRepository;
     private final TemplateVersionService templateVersionService;
     private final TemplateReviewService templateReviewService;
     private final com.agreemint.service.TemplateThumbnailService thumbnailService;
+    private final com.agreemint.repository.TemplateVersionRepository templateVersionRepository;
+    private final org.springframework.context.ApplicationEventPublisher events;
+    private final java.util.concurrent.Executor thumbnailExecutor;
     private final WebhookService webhookService;
+
+    /**
+     * Templates with a draft capture already queued or running.
+     *
+     * <p>Every open editor posts to the capture endpoint once a minute and the
+     * endpoint answers 204 before any work starts, so the client gets no
+     * backpressure and nothing stops it looping. Without this, one editor can
+     * fill the shared render queue on its own — and the queue is shared with
+     * the after-commit renders, which are not retried, so the flood would turn
+     * into permanently stale thumbnails for everyone else.
+     *
+     * <p>Coalescing rather than rate-limiting because a second capture of the
+     * same template while the first is still running would render the same
+     * bytes twice and race to write the same key.
+     */
+    private final java.util.Set<UUID> draftCapturesInFlight =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public TemplateDraftService(
             TemplateRepository templateRepository,
@@ -40,13 +63,21 @@ public class TemplateDraftService {
             TemplateVersionService templateVersionService,
             @Lazy TemplateReviewService templateReviewService,
             WebhookService webhookService,
-            com.agreemint.service.TemplateThumbnailService thumbnailService) {
+            com.agreemint.service.TemplateThumbnailService thumbnailService,
+            com.agreemint.repository.TemplateVersionRepository templateVersionRepository,
+            org.springframework.context.ApplicationEventPublisher events,
+            @org.springframework.beans.factory.annotation.Qualifier(
+                    com.agreemint.config.ThumbnailExecutorConfig.EXECUTOR)
+            java.util.concurrent.Executor thumbnailExecutor) {
         this.templateRepository = templateRepository;
         this.templateDraftRepository = templateDraftRepository;
         this.templateVersionService = templateVersionService;
         this.templateReviewService = templateReviewService;
         this.webhookService = webhookService;
         this.thumbnailService = thumbnailService;
+        this.templateVersionRepository = templateVersionRepository;
+        this.events = events;
+        this.thumbnailExecutor = thumbnailExecutor;
     }
 
     @Transactional(readOnly = true)
@@ -168,11 +199,15 @@ public class TemplateDraftService {
         CreateVersionRequest req = new CreateVersionRequest(d.getLayoutJson(), vars);
         TemplateVersionResponse created = templateVersionService.createVersion(templateId, req);
 
-        // Preview image for what was just committed. Deliberately AFTER the
-        // version is created and BEFORE nothing else depends on it — and the
-        // service swallows every failure internally, so a thumbnail that will
-        // not rasterise cannot cost the author their commit.
-        thumbnailService.captureCommitted(templateId, d.getLayoutJson(), vars);
+        // Preview image for what was just committed, rendered after this
+        // transaction commits rather than inside it. The render, the rasterise
+        // and the uploads used to run here, holding this transaction's database
+        // connection open while the author waited for a picture.
+        //
+        // Published rather than called: if the commit rolls back below this
+        // line, no event is dispatched and no thumbnail is made of a version
+        // that does not exist.
+        events.publishEvent(new TemplateCommittedEvent(templateId, created.id()));
 
         templateDraftRepository.deleteById(templateId);
 
@@ -194,23 +229,63 @@ public class TemplateDraftService {
      * <p>Falls back to the latest committed version when there is no draft, so
      * a template that has been committed and not touched since still gets an
      * image rather than staying blank forever.
+     *
+     * <p>Runs on the thumbnail pool, so the endpoint that triggers it answers
+     * immediately. It is called once a minute by every open editor and the
+     * caller ignores the response; making a browser hold a request open for a
+     * PDF render it will not look at buys nobody anything.
+     *
+     * <p>Deliberately NOT {@code @Transactional}: the repository calls below
+     * are individually transactional, and wrapping them would hold a pooled
+     * connection for the whole render. Both capture methods open their own
+     * short transaction for the row they update.
+     *
+     * <p>Submitted directly rather than via {@code @Async} so the coalescing
+     * check happens BEFORE the task is queued — an {@code @Async} method is
+     * already on the queue by the time its body could look.
      */
-    @Transactional
     public void captureDraftThumbnail(UUID templateId) {
-        var draft = templateDraftRepository.findById(templateId);
-        if (draft.isPresent()) {
-            thumbnailService.captureDraft(templateId, draft.get().getLayoutJson(),
-                    draft.get().getVariables());
+        if (!draftCapturesInFlight.add(templateId)) {
+            log.debug("[thumbnail] Draft capture already pending for {}; skipping", templateId);
             return;
         }
-        // Null versionId already means "latest committed" to this resolver, so
-        // there is no need for a second way to ask the same question.
         try {
-            var v = templateVersionService.getVersionEntity(templateId, null);
-            thumbnailService.captureCommitted(templateId, v.getLayoutJson(), v.getVariables());
+            thumbnailExecutor.execute(() -> {
+                try {
+                    renderDraftThumbnail(templateId);
+                } finally {
+                    draftCapturesInFlight.remove(templateId);
+                }
+            });
         } catch (RuntimeException e) {
-            // A template with no draft AND no version has nothing to draw.
-            // No logger on this class; nothing to capture is not noteworthy.
+            // A full queue rejects here; the handler logs it. Release the slot
+            // so the next minute's attempt is not blocked by a capture that
+            // never ran.
+            draftCapturesInFlight.remove(templateId);
+        }
+    }
+
+    private void renderDraftThumbnail(UUID templateId) {
+        try {
+            var draft = templateDraftRepository.findById(templateId);
+            if (draft.isPresent()) {
+                thumbnailService.captureDraft(templateId, draft.get().getLayoutJson(),
+                        draft.get().getVariables());
+                return;
+            }
+            // Latest committed version. The previous version of this asked
+            // getVersionEntity for a null versionId on the belief that null
+            // meant "latest" — it does not; that resolver calls findById(null),
+            // which throws IllegalArgumentException straight into the catch. So
+            // this branch never produced an image for any template, which is
+            // exactly the case it exists to cover.
+            templateRepository.findById(templateId)
+                    .flatMap(templateVersionRepository::findFirstByTemplateOrderByVersionNumberDesc)
+                    .ifPresent(v -> thumbnailService.captureCommitted(
+                            templateId, v.getLayoutJson(), v.getVariables()));
+        } catch (Throwable t) {
+            // On a pool thread there is no caller to receive this.
+            log.warn("[thumbnail] Draft capture failed for {}: {}", templateId, t.toString());
         }
     }
 
