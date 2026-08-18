@@ -245,32 +245,36 @@ class TemplateThumbnailPublishTest {
 
     @Test
     void committingReplacesTheCommittedKeyAndDropsTheDraftOne() {
-        Template t = template();
-        t.setDraftThumbnailKey("templates/" + templateId + ".png");
-        when(templateRepo.findById(templateId)).thenReturn(Optional.of(t));
         orgWithSlug("acme-industries");
 
         service.captureCommitted(templateId, mapper.createObjectNode(), null);
 
-        assertEquals(TemplateThumbnailService.privateKey(templateId), t.getThumbnailKey());
-        // commitDraft deletes the draft row, so a lingering draft key would make
-        // the list show an in-progress image for a template with no edits in it.
-        assertNull(t.getDraftThumbnailKey(), "the draft preview must not outlive the draft");
-        assertNotNull(t.getThumbnailUpdatedAt());
-        verify(templateRepo).save(t);
+        // Asserted on the repository call rather than on a mutated entity: this
+        // now runs on a background thread after the commit transaction closed,
+        // so it writes through a targeted UPDATE instead of loading the row and
+        // saving it — Template carries an @Version lock that a derived image
+        // must not contend for.
+        //
+        // The explicit null is the draft key being cleared. commitDraft deletes
+        // the draft row, so a lingering draft key would leave the list showing
+        // an in-progress image for a template that has no edits in it.
+        verify(templateRepo).updateThumbnailKeys(
+                eq(templateId),
+                eq(TemplateThumbnailService.privateKey(templateId)),
+                org.mockito.ArgumentMatchers.isNull(),
+                any());
+        verify(templateRepo, never()).save(any());
     }
 
     @Test
     void aDraftCaptureLeavesTheCommittedThumbnailAlone() {
-        Template t = template();
-        t.setThumbnailKey("templates/previously-committed.png");
-        when(templateRepo.findById(templateId)).thenReturn(Optional.of(t));
-
         service.captureDraft(templateId, mapper.createObjectNode(), null);
 
-        assertEquals("templates/previously-committed.png", t.getThumbnailKey(),
-                "an uncommitted edit must not overwrite what the last version looked like");
-        assertEquals(TemplateThumbnailService.privateKey(templateId), t.getDraftThumbnailKey());
+        // Only the draft column is in the UPDATE, so an uncommitted edit cannot
+        // overwrite what the last committed version looked like.
+        verify(templateRepo).updateDraftThumbnailKey(
+                eq(templateId), eq(TemplateThumbnailService.privateKey(templateId)), any());
+        verify(templateRepo, never()).updateThumbnailKeys(any(), any(), any(), any());
     }
 
     // ── survivability: a commit must not depend on an image ───────────────────
@@ -289,15 +293,12 @@ class TemplateThumbnailPublishTest {
     void aStorageFailureDoesNotPropagateAndLeavesNoKeyBehind() {
         doThrow(new RuntimeException("R2 unreachable"))
                 .when(storage).putThumbnail(any(), any(), any());
-        Template t = template();
-        when(templateRepo.findById(templateId)).thenReturn(Optional.of(t));
 
         assertDoesNotThrow(() -> service.captureCommitted(templateId, mapper.createObjectNode(), null));
 
         // Recording a key for an object that was never stored would produce a
         // presigned URL to nothing, which is worse than no thumbnail at all.
-        assertNull(t.getThumbnailKey());
-        verify(templateRepo, never()).save(any());
+        verify(templateRepo, never()).updateThumbnailKeys(any(), any(), any(), any());
     }
 
     @Test
@@ -305,21 +306,24 @@ class TemplateThumbnailPublishTest {
         orgWithSlug(PUBLISHER);
         when(storage.putPublicThumbnail(any(), any(), any()))
                 .thenThrow(new RuntimeException("public bucket denied"));
-        Template t = template();
-        when(templateRepo.findById(templateId)).thenReturn(Optional.of(t));
 
         assertDoesNotThrow(() -> service.captureCommitted(templateId, mapper.createObjectNode(), null));
 
-        assertEquals(TemplateThumbnailService.privateKey(templateId), t.getThumbnailKey(),
-                "the console's own thumbnail should survive a marketing-site upload failing");
+        // The private key is recorded BEFORE the public mirror is attempted, so
+        // the console's own thumbnail survives the marketing site's upload
+        // failing. Ordering, not luck.
+        verify(templateRepo).updateThumbnailKeys(
+                eq(templateId), eq(TemplateThumbnailService.privateKey(templateId)),
+                org.mockito.ArgumentMatchers.isNull(), any());
     }
 
     @Test
     void aDatabaseFailureRecordingTheKeyDoesNotPropagate() {
-        // The one that would actually cost a commit: captureCommitted joins the
-        // caller's transaction, so a save that blows up here surfaces inside
-        // commitDraft unless it is caught.
-        when(templateRepo.save(any())).thenThrow(new RuntimeException("constraint violation"));
+        // Now that this runs after the commit transaction, a database failure
+        // here can no longer cost anyone their version — but it must still not
+        // escape onto a pool thread, where nothing would report it.
+        when(templateRepo.updateThumbnailKeys(any(), any(), any(), any()))
+                .thenThrow(new RuntimeException("constraint violation"));
 
         assertDoesNotThrow(() -> service.captureCommitted(templateId, mapper.createObjectNode(), null));
     }

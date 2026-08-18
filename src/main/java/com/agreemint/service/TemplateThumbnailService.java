@@ -99,19 +99,25 @@ public class TemplateThumbnailService {
      * this runs from a sixty-second poll in every open editor, and a storage
      * blip should not put an error on the screen of someone who merely left a
      * tab open.
+     *
+     * <p>Not {@code @Transactional}, deliberately. The only write is a single
+     * bulk UPDATE that carries its own transaction, and wrapping the method
+     * would pin a pooled database connection across the render, the PNG encode
+     * and the upload to object storage — seconds of connection hold time for
+     * work that touches the database once.
      */
-    @org.springframework.transaction.annotation.Transactional
     public void captureDraft(UUID templateId, JsonNode layoutJson, JsonNode data) {
         try {
             byte[] png = renderPng(layoutJson, data);
             if (png == null) return;
             String key = putPrivate(templateId, png);
             if (key == null) return;
-            templateRepo.findById(templateId).ifPresent(t -> {
-                t.setDraftThumbnailKey(key);
-                t.setThumbnailUpdatedAt(java.time.Instant.now());
-                templateRepo.save(t);
-            });
+            // No existence check first: the UPDATE's row count already answers
+            // it, and a template deleted mid-render is not worth a second query
+            // on every capture.
+            if (templateRepo.updateDraftThumbnailKey(templateId, key, java.time.Instant.now()) == 0) {
+                log.debug("[thumbnail] Template {} gone before the draft key was recorded", templateId);
+            }
         } catch (Throwable th) {
             log.warn("[thumbnail] Draft capture failed for {}: {}", templateId, th.toString());
         }
@@ -127,8 +133,15 @@ public class TemplateThumbnailService {
      * <p>Clears the draft preview, because after a commit the draft no longer
      * exists — {@code commitDraft} deletes the row — so a stale in-progress
      * image would outlive the thing it depicted.
+     *
+     * <p>Not {@code @Transactional}, and that is load-bearing for the "never
+     * throws" contract as well as for connection hold time. With a transaction
+     * here, the bulk UPDATE would join it; a failed UPDATE marks the shared
+     * transaction rollback-only, the catch below swallows the original cause,
+     * and then the proxy throws UnexpectedRollbackException at commit — out of
+     * a method documented never to throw. Without one, each repository call
+     * stands alone and a failure lands in the catch where it belongs.
      */
-    @org.springframework.transaction.annotation.Transactional
     public void captureCommitted(UUID templateId, JsonNode layoutJson, JsonNode data) {
         try {
             BufferedImage page = rasterise(layoutJson, data);
@@ -138,10 +151,9 @@ public class TemplateThumbnailService {
             if (key == null) return;
 
             templateRepo.findById(templateId).ifPresent(t -> {
-                t.setThumbnailKey(key);
-                t.setDraftThumbnailKey(null);
-                t.setThumbnailUpdatedAt(java.time.Instant.now());
-                templateRepo.save(t);
+                // Clearing the draft key here is what stops a stale in-progress
+                // image outliving the draft row, which commitDraft deletes.
+                templateRepo.updateThumbnailKeys(templateId, key, null, java.time.Instant.now());
                 publishIfFirstParty(t, page);
             });
         } catch (Throwable th) {
@@ -191,7 +203,14 @@ public class TemplateThumbnailService {
     private BufferedImage rasterise(JsonNode layoutJson, JsonNode data) {
         if (layoutJson == null || layoutJson.isNull()) return null;
         try {
-            byte[] pdf = renderer.render(layoutJson, data == null ? JsonNodeFactory.instance.objectNode() : data);
+            // The single choke point for the shape conversion, so no caller can
+            // forget it. What is stored is the editor's flat form state —
+            // literal dotted keys, table rows as JSON strings — and handing
+            // that to the renderer produces a page where every dotted
+            // placeholder is empty and every data-bound table has no body,
+            // with nothing thrown and nothing logged. Idempotent, so passing
+            // an already-nested tree costs a walk and changes nothing.
+            byte[] pdf = renderer.render(layoutJson, com.agreemint.pdf.VariableDataTree.build(layoutJson, data));
             try (PDDocument doc = Loader.loadPDF(pdf)) {
                 if (doc.getNumberOfPages() == 0) return null;
                 return new PDFRenderer(doc).renderImageWithDPI(0, RASTER_DPI);

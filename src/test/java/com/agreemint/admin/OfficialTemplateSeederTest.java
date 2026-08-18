@@ -38,6 +38,7 @@ class OfficialTemplateSeederTest {
     private OfficialTemplateSeeder seeder;
 
     private final UUID orgId = UUID.randomUUID();
+    private com.agreemint.service.TemplateThumbnailService thumbnails;
 
     @BeforeEach
     void setUp() {
@@ -45,8 +46,13 @@ class OfficialTemplateSeederTest {
         versionRepo = mock(TemplateVersionRepository.class);
         listingRepo = mock(MarketplaceListingRepository.class);
         productRepo = mock(ProductRepository.class);
+        thumbnails = mock(com.agreemint.service.TemplateThumbnailService.class);
         seeder = new OfficialTemplateSeeder(templateRepo, versionRepo, listingRepo,
-                productRepo, new ObjectMapper(), directTx());
+                productRepo, new ObjectMapper(), directTx(), thumbnails,
+                // Run submitted work on the calling thread so the backfill is
+                // observable in-test; the real pool is asserted separately in
+                // TemplateThumbnailAsyncTest.
+                Runnable::run);
 
         Product product = new Product();
         product.setId(UUID.randomUUID());
@@ -200,6 +206,65 @@ class OfficialTemplateSeederTest {
         assertEquals("HR", OfficialTemplateSeeder.categoryFor("free-offer-letter-template"));
         assertEquals("Education", OfficialTemplateSeeder.categoryFor("free-marksheet-template"));
         assertEquals("Business", OfficialTemplateSeeder.categoryFor("free-nda-template"));
+    }
+
+    // ── thumbnail backfill ────────────────────────────────────────────────────
+
+    private Template seeded(String slug, String thumbnailKey) {
+        Template t = new Template();
+        t.setId(UUID.randomUUID());
+        t.setName(OfficialTemplateSeeder.titleFor(slug));
+        t.setOrgId(orgId);
+        t.setPublicSlug(slug);
+        t.setThumbnailKey(thumbnailKey);
+        TemplateVersion v = new TemplateVersion();
+        v.setLayoutJson(new ObjectMapper().createObjectNode());
+        v.setVariables(new ObjectMapper().createObjectNode());
+        when(versionRepo.findFirstByTemplateOrderByVersionNumberDesc(t))
+                .thenReturn(Optional.of(v));
+        return t;
+    }
+
+    @Test
+    void rendersThumbnailsForSeededTemplatesThatHaveNone() {
+        // This class writes versions straight to the repository instead of going
+        // through commitDraft, so it never publishes the event that normally
+        // triggers a render. Without this the twenty free templates would have
+        // no image until someone opened each one and committed it by hand, and
+        // the public bucket crixaa.com reads would stay empty.
+        Template missing = seeded("free-invoice-template", null);
+        when(templateRepo.findByOrgId(orgId)).thenReturn(java.util.List.of(missing));
+
+        seeder.seed(orgId, "Crixaa");
+
+        verify(thumbnails).captureCommitted(org.mockito.ArgumentMatchers.eq(missing.getId()),
+                any(), any());
+    }
+
+    @Test
+    void doesNotRerenderTemplatesThatAlreadyHaveOne() {
+        // Keyed on a missing thumbnail rather than on whether the bundle
+        // changed, so it must also stop once satisfied — otherwise every restart
+        // would re-render twenty PDFs and re-upload forty objects.
+        Template done = seeded("free-invoice-template", "templates/free-invoice-template.png");
+        when(templateRepo.findByOrgId(orgId)).thenReturn(java.util.List.of(done));
+
+        seeder.seed(orgId, "Crixaa");
+
+        verify(thumbnails, org.mockito.Mockito.never()).captureCommitted(any(), any(), any());
+    }
+
+    @Test
+    void skipsTemplatesWithNoPublicSlug() {
+        // A staff member's own template in the publisher workspace. It has no
+        // page on crixaa.com, and publishIfFirstParty would refuse it anyway.
+        Template staffOwn = seeded("free-invoice-template", null);
+        staffOwn.setPublicSlug(null);
+        when(templateRepo.findByOrgId(orgId)).thenReturn(java.util.List.of(staffOwn));
+
+        seeder.seed(orgId, "Crixaa");
+
+        verify(thumbnails, org.mockito.Mockito.never()).captureCommitted(any(), any(), any());
     }
 
     /**
