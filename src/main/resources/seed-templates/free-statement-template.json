@@ -1,0 +1,1363 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "ageing.current"
+      },
+      {
+        "key": "ageing.sixty"
+      },
+      {
+        "key": "ageing.thirty"
+      },
+      {
+        "key": "balances.closing"
+      },
+      {
+        "key": "balances.opening"
+      },
+      {
+        "key": "balances.payments"
+      },
+      {
+        "key": "company.address"
+      },
+      {
+        "key": "company.contact"
+      },
+      {
+        "key": "company.name"
+      },
+      {
+        "key": "customer.account_number"
+      },
+      {
+        "key": "customer.address"
+      },
+      {
+        "key": "customer.name"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "statement.date"
+      },
+      {
+        "key": "statement.number"
+      },
+      {
+        "key": "statement.period"
+      },
+      {
+        "key": "statement.remittance"
+      },
+      {
+        "key": "transactions"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 3,
+        "height": 34,
+        "style": {
+          "backgroundColor": "#4338ca"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 56,
+        "y": 44,
+        "width": 250,
+        "height": 23.2,
+        "content": "{{company.name}}",
+        "style": {
+          "fontSize": 16,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 56,
+        "y": 67.2,
+        "width": 270,
+        "height": 46,
+        "content": "{{company.address}}\n{{company.contact}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 321,
+        "y": 42,
+        "width": 230,
+        "height": 31.9,
+        "content": "STATEMENT",
+        "style": {
+          "fontSize": 22,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 321,
+        "y": 72,
+        "width": 82,
+        "height": 12.33,
+        "content": "Statement no.",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 405,
+        "y": 72,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{statement.number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 321,
+        "y": 85.33,
+        "width": 82,
+        "height": 12.33,
+        "content": "Period",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 405,
+        "y": 85.33,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{statement.period}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 321,
+        "y": 98.66,
+        "width": 82,
+        "height": 12.33,
+        "content": "Issued",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 405,
+        "y": 98.66,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{statement.date}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l011",
+        "type": "LINE",
+        "x": 44,
+        "y": 123.2,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 44,
+        "y": 141.2,
+        "width": 230,
+        "height": 12,
+        "content": "ACCOUNT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 154.2,
+        "width": 230,
+        "height": 16,
+        "content": "{{customer.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 171.2,
+        "width": 230,
+        "height": 46,
+        "content": "{{customer.address}}\nAccount {{customer.account_number}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "r015",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 219.2,
+        "width": 507,
+        "height": 30,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 4
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 54,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "OPENING BALANCE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 54,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{balances.opening}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 223,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "PAYMENTS RECEIVED",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 223,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{balances.payments}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 392,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "CLOSING BALANCE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 392,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{balances.closing}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb022",
+        "type": "TABLE",
+        "x": 44,
+        "y": 267.2,
+        "width": 507,
+        "height": 158,
+        "columns": [
+          {
+            "header": "Date",
+            "key": "date"
+          },
+          {
+            "header": "Reference",
+            "key": "reference"
+          },
+          {
+            "header": "Description",
+            "key": "description"
+          },
+          {
+            "header": "Debit",
+            "key": "debit"
+          },
+          {
+            "header": "Credit",
+            "key": "credit"
+          },
+          {
+            "header": "Balance",
+            "key": "balance"
+          }
+        ],
+        "columnWidths": [
+          1,
+          1.2,
+          2.4,
+          1,
+          1,
+          1.1
+        ],
+        "dataKey": "transactions",
+        "tablePreviewBodyRows": 6,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 309,
+        "y": 443.2,
+        "width": 145,
+        "height": 14,
+        "content": "Current",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 446,
+        "y": 443.2,
+        "width": 97,
+        "height": 14,
+        "content": "{{ageing.current}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 309,
+        "y": 459.2,
+        "width": 145,
+        "height": 14,
+        "content": "31–60 days",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 446,
+        "y": 459.2,
+        "width": 97,
+        "height": 14,
+        "content": "{{ageing.thirty}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 309,
+        "y": 475.2,
+        "width": 145,
+        "height": 14,
+        "content": "61–90 days",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t028",
+        "type": "TEXT",
+        "x": 446,
+        "y": 475.2,
+        "width": 97,
+        "height": 14,
+        "content": "{{ageing.sixty}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r031",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 301,
+        "y": 487.2,
+        "width": 250,
+        "height": 23.95,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 3
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 309,
+        "y": 491.2,
+        "width": 145,
+        "height": 14.5,
+        "content": "Amount due",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 446,
+        "y": 491.2,
+        "width": 97,
+        "height": 31.9,
+        "content": "{{balances.closing}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "JetBrains Mono",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 44,
+        "y": 535.15,
+        "width": 250,
+        "height": 12,
+        "content": "REMITTANCE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t033",
+        "type": "TEXT",
+        "x": 44,
+        "y": 548.15,
+        "width": 250,
+        "height": 58,
+        "content": "{{statement.remittance}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "l034",
+        "type": "LINE",
+        "x": 311,
+        "y": 569.15,
+        "width": 240,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t035",
+        "type": "TEXT",
+        "x": 311,
+        "y": 575.15,
+        "width": 240,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t036",
+        "type": "TEXT",
+        "x": 311,
+        "y": 589.15,
+        "width": 240,
+        "height": 24,
+        "content": "Accounts receivable, {{company.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l037",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t038",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "Please report any discrepancy within 15 days of the statement date.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 3,
+            "height": 34,
+            "style": {
+              "backgroundColor": "#4338ca"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 56,
+            "y": 44,
+            "width": 250,
+            "height": 23.2,
+            "content": "{{company.name}}",
+            "style": {
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 56,
+            "y": 67.2,
+            "width": 270,
+            "height": 46,
+            "content": "{{company.address}}\n{{company.contact}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 321,
+            "y": 42,
+            "width": 230,
+            "height": 31.9,
+            "content": "STATEMENT",
+            "style": {
+              "fontSize": 22,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 321,
+            "y": 72,
+            "width": 82,
+            "height": 12.33,
+            "content": "Statement no.",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 405,
+            "y": 72,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{statement.number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 321,
+            "y": 85.33,
+            "width": 82,
+            "height": 12.33,
+            "content": "Period",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 405,
+            "y": 85.33,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{statement.period}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 321,
+            "y": 98.66,
+            "width": 82,
+            "height": 12.33,
+            "content": "Issued",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 405,
+            "y": 98.66,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{statement.date}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l011",
+            "type": "LINE",
+            "x": 44,
+            "y": 123.2,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 44,
+            "y": 141.2,
+            "width": 230,
+            "height": 12,
+            "content": "ACCOUNT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 154.2,
+            "width": 230,
+            "height": 16,
+            "content": "{{customer.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 171.2,
+            "width": 230,
+            "height": 46,
+            "content": "{{customer.address}}\nAccount {{customer.account_number}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "r015",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 219.2,
+            "width": 507,
+            "height": 30,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 4
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 54,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "OPENING BALANCE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 54,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{balances.opening}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 223,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "PAYMENTS RECEIVED",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 223,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{balances.payments}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 392,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "CLOSING BALANCE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 392,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{balances.closing}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb022",
+            "type": "TABLE",
+            "x": 44,
+            "y": 267.2,
+            "width": 507,
+            "height": 158,
+            "columns": [
+              {
+                "header": "Date",
+                "key": "date"
+              },
+              {
+                "header": "Reference",
+                "key": "reference"
+              },
+              {
+                "header": "Description",
+                "key": "description"
+              },
+              {
+                "header": "Debit",
+                "key": "debit"
+              },
+              {
+                "header": "Credit",
+                "key": "credit"
+              },
+              {
+                "header": "Balance",
+                "key": "balance"
+              }
+            ],
+            "columnWidths": [
+              1,
+              1.2,
+              2.4,
+              1,
+              1,
+              1.1
+            ],
+            "dataKey": "transactions",
+            "tablePreviewBodyRows": 6,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 309,
+            "y": 443.2,
+            "width": 145,
+            "height": 14,
+            "content": "Current",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 446,
+            "y": 443.2,
+            "width": 97,
+            "height": 14,
+            "content": "{{ageing.current}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 309,
+            "y": 459.2,
+            "width": 145,
+            "height": 14,
+            "content": "31–60 days",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 446,
+            "y": 459.2,
+            "width": 97,
+            "height": 14,
+            "content": "{{ageing.thirty}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 309,
+            "y": 475.2,
+            "width": 145,
+            "height": 14,
+            "content": "61–90 days",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t028",
+            "type": "TEXT",
+            "x": 446,
+            "y": 475.2,
+            "width": 97,
+            "height": 14,
+            "content": "{{ageing.sixty}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r031",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 301,
+            "y": 487.2,
+            "width": 250,
+            "height": 23.95,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 3
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 309,
+            "y": 491.2,
+            "width": 145,
+            "height": 14.5,
+            "content": "Amount due",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 446,
+            "y": 491.2,
+            "width": 97,
+            "height": 31.9,
+            "content": "{{balances.closing}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "JetBrains Mono",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 44,
+            "y": 535.15,
+            "width": 250,
+            "height": 12,
+            "content": "REMITTANCE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t033",
+            "type": "TEXT",
+            "x": 44,
+            "y": 548.15,
+            "width": 250,
+            "height": 58,
+            "content": "{{statement.remittance}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "l034",
+            "type": "LINE",
+            "x": 311,
+            "y": 569.15,
+            "width": 240,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t035",
+            "type": "TEXT",
+            "x": 311,
+            "y": 575.15,
+            "width": 240,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t036",
+            "type": "TEXT",
+            "x": 311,
+            "y": 589.15,
+            "width": 240,
+            "height": 24,
+            "content": "Accounts receivable, {{company.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l037",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t038",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "Please report any discrepancy within 15 days of the statement date.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "ageing.current": "₹94,340.00",
+    "ageing.sixty": "₹0.00",
+    "ageing.thirty": "₹0.00",
+    "balances.closing": "₹94,340.00",
+    "balances.opening": "₹86,400.00",
+    "balances.payments": "₹86,400.00",
+    "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
+    "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
+    "company.name": "Northwind Traders Pvt Ltd",
+    "customer.account_number": "NW-CUST-01184",
+    "customer.address": "22 Residency Road, Bengaluru 560025",
+    "customer.name": "Halcyon Design Studio",
+    "signatory.name": "Ananya Rao",
+    "statement.date": "01 August 2026",
+    "statement.number": "STM-2026-08-0184",
+    "statement.period": "01 Jul – 31 Jul 2026",
+    "statement.remittance": "Bank transfer to Northwind Traders Pvt Ltd\nA/c 5010 2233 8891 · IFSC HDFC0000512\nQuote your account number with every payment.",
+    "transactions": "[{\"date\":\"01 Jul\",\"reference\":\"—\",\"description\":\"Opening balance\",\"debit\":\"\",\"credit\":\"\",\"balance\":\"₹86,400.00\"},{\"date\":\"04 Jul\",\"reference\":\"INV-0177\",\"description\":\"Design retainer — July\",\"debit\":\"₹59,000.00\",\"credit\":\"\",\"balance\":\"₹1,45,400.00\"},{\"date\":\"12 Jul\",\"reference\":\"RCP-0388\",\"description\":\"Payment received — NEFT\",\"debit\":\"\",\"credit\":\"₹86,400.00\",\"balance\":\"₹59,000.00\"},{\"date\":\"18 Jul\",\"reference\":\"INV-0181\",\"description\":\"Print collateral adaptation\",\"debit\":\"₹35,340.00\",\"credit\":\"\",\"balance\":\"₹94,340.00\"},{\"date\":\"26 Jul\",\"reference\":\"CN-0044\",\"description\":\"Credit note — reprint allowance\",\"debit\":\"\",\"credit\":\"₹0.00\",\"balance\":\"₹94,340.00\"},{\"date\":\"31 Jul\",\"reference\":\"—\",\"description\":\"Closing balance\",\"debit\":\"\",\"credit\":\"\",\"balance\":\"₹94,340.00\"}]"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

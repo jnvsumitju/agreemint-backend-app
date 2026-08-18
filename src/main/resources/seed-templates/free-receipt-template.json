@@ -1,0 +1,1257 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "company.address"
+      },
+      {
+        "key": "company.contact"
+      },
+      {
+        "key": "company.name"
+      },
+      {
+        "key": "customer.address"
+      },
+      {
+        "key": "customer.name"
+      },
+      {
+        "key": "line_items"
+      },
+      {
+        "key": "payment.date"
+      },
+      {
+        "key": "payment.method"
+      },
+      {
+        "key": "payment.reference"
+      },
+      {
+        "key": "receipt.date"
+      },
+      {
+        "key": "receipt.invoice_number"
+      },
+      {
+        "key": "receipt.note"
+      },
+      {
+        "key": "receipt.number"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "totals.balance"
+      },
+      {
+        "key": "totals.in_words"
+      },
+      {
+        "key": "totals.received"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 3,
+        "height": 34,
+        "style": {
+          "backgroundColor": "#4338ca"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 56,
+        "y": 44,
+        "width": 250,
+        "height": 23.2,
+        "content": "{{company.name}}",
+        "style": {
+          "fontSize": 16,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 56,
+        "y": 67.2,
+        "width": 270,
+        "height": 46,
+        "content": "{{company.address}}\n{{company.contact}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 321,
+        "y": 42,
+        "width": 230,
+        "height": 31.9,
+        "content": "RECEIPT",
+        "style": {
+          "fontSize": 22,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 321,
+        "y": 72,
+        "width": 82,
+        "height": 12.33,
+        "content": "Receipt no.",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 405,
+        "y": 72,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{receipt.number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 321,
+        "y": 85.33,
+        "width": 82,
+        "height": 12.33,
+        "content": "Date",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 405,
+        "y": 85.33,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{receipt.date}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 321,
+        "y": 98.66,
+        "width": 82,
+        "height": 12.33,
+        "content": "Against invoice",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 405,
+        "y": 98.66,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{receipt.invoice_number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l011",
+        "type": "LINE",
+        "x": 44,
+        "y": 123.2,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 44,
+        "y": 141.2,
+        "width": 230,
+        "height": 12,
+        "content": "RECEIVED FROM",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 154.2,
+        "width": 230,
+        "height": 16,
+        "content": "{{customer.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 171.2,
+        "width": 230,
+        "height": 46,
+        "content": "{{customer.address}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "r015",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 219.2,
+        "width": 507,
+        "height": 30,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 4
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 54,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "PAYMENT METHOD",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 54,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{payment.method}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 223,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "REFERENCE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 223,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{payment.reference}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 392,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "RECEIVED ON",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 392,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{payment.date}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb022",
+        "type": "TABLE",
+        "x": 44,
+        "y": 267.2,
+        "width": 507,
+        "height": 96,
+        "columns": [
+          {
+            "header": "Description",
+            "key": "description"
+          },
+          {
+            "header": "Period",
+            "key": "period"
+          },
+          {
+            "header": "Amount",
+            "key": "amount"
+          }
+        ],
+        "columnWidths": [
+          3,
+          1.4,
+          1.1
+        ],
+        "dataKey": "line_items",
+        "tablePreviewBodyRows": 3,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "r025",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 301,
+        "y": 377.2,
+        "width": 250,
+        "height": 23.95,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 3
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 309,
+        "y": 381.2,
+        "width": 145,
+        "height": 14.5,
+        "content": "Amount received",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 446,
+        "y": 381.2,
+        "width": 97,
+        "height": 31.9,
+        "content": "{{totals.received}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "JetBrains Mono",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 309,
+        "y": 409.15,
+        "width": 145,
+        "height": 14,
+        "content": "Balance outstanding",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 446,
+        "y": 409.15,
+        "width": 97,
+        "height": 14,
+        "content": "{{totals.balance}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t028",
+        "type": "TEXT",
+        "x": 44,
+        "y": 381.2,
+        "width": 240,
+        "height": 12,
+        "content": "AMOUNT IN WORDS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 44,
+        "y": 393.2,
+        "width": 240,
+        "height": 40,
+        "content": "{{totals.in_words}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.45,
+          "italic": true
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 44,
+        "y": 453.2,
+        "width": 250,
+        "height": 12,
+        "content": "NOTE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t031",
+        "type": "TEXT",
+        "x": 44,
+        "y": 466.2,
+        "width": 250,
+        "height": 58,
+        "content": "{{receipt.note}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "l032",
+        "type": "LINE",
+        "x": 311,
+        "y": 487.2,
+        "width": 240,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t033",
+        "type": "TEXT",
+        "x": 311,
+        "y": 493.2,
+        "width": 240,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t034",
+        "type": "TEXT",
+        "x": 311,
+        "y": 507.2,
+        "width": 240,
+        "height": 24,
+        "content": "Received by, {{company.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l035",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t036",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "This receipt confirms payment received and is valid without a physical signature.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 3,
+            "height": 34,
+            "style": {
+              "backgroundColor": "#4338ca"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 56,
+            "y": 44,
+            "width": 250,
+            "height": 23.2,
+            "content": "{{company.name}}",
+            "style": {
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 56,
+            "y": 67.2,
+            "width": 270,
+            "height": 46,
+            "content": "{{company.address}}\n{{company.contact}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 321,
+            "y": 42,
+            "width": 230,
+            "height": 31.9,
+            "content": "RECEIPT",
+            "style": {
+              "fontSize": 22,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 321,
+            "y": 72,
+            "width": 82,
+            "height": 12.33,
+            "content": "Receipt no.",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 405,
+            "y": 72,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{receipt.number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 321,
+            "y": 85.33,
+            "width": 82,
+            "height": 12.33,
+            "content": "Date",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 405,
+            "y": 85.33,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{receipt.date}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 321,
+            "y": 98.66,
+            "width": 82,
+            "height": 12.33,
+            "content": "Against invoice",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 405,
+            "y": 98.66,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{receipt.invoice_number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l011",
+            "type": "LINE",
+            "x": 44,
+            "y": 123.2,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 44,
+            "y": 141.2,
+            "width": 230,
+            "height": 12,
+            "content": "RECEIVED FROM",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 154.2,
+            "width": 230,
+            "height": 16,
+            "content": "{{customer.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 171.2,
+            "width": 230,
+            "height": 46,
+            "content": "{{customer.address}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "r015",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 219.2,
+            "width": 507,
+            "height": 30,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 4
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 54,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "PAYMENT METHOD",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 54,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{payment.method}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 223,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "REFERENCE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 223,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{payment.reference}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 392,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "RECEIVED ON",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 392,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{payment.date}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb022",
+            "type": "TABLE",
+            "x": 44,
+            "y": 267.2,
+            "width": 507,
+            "height": 96,
+            "columns": [
+              {
+                "header": "Description",
+                "key": "description"
+              },
+              {
+                "header": "Period",
+                "key": "period"
+              },
+              {
+                "header": "Amount",
+                "key": "amount"
+              }
+            ],
+            "columnWidths": [
+              3,
+              1.4,
+              1.1
+            ],
+            "dataKey": "line_items",
+            "tablePreviewBodyRows": 3,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "r025",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 301,
+            "y": 377.2,
+            "width": 250,
+            "height": 23.95,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 3
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 309,
+            "y": 381.2,
+            "width": 145,
+            "height": 14.5,
+            "content": "Amount received",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 446,
+            "y": 381.2,
+            "width": 97,
+            "height": 31.9,
+            "content": "{{totals.received}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "JetBrains Mono",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 309,
+            "y": 409.15,
+            "width": 145,
+            "height": 14,
+            "content": "Balance outstanding",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 446,
+            "y": 409.15,
+            "width": 97,
+            "height": 14,
+            "content": "{{totals.balance}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t028",
+            "type": "TEXT",
+            "x": 44,
+            "y": 381.2,
+            "width": 240,
+            "height": 12,
+            "content": "AMOUNT IN WORDS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 44,
+            "y": 393.2,
+            "width": 240,
+            "height": 40,
+            "content": "{{totals.in_words}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.45,
+              "italic": true
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 44,
+            "y": 453.2,
+            "width": 250,
+            "height": 12,
+            "content": "NOTE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t031",
+            "type": "TEXT",
+            "x": 44,
+            "y": 466.2,
+            "width": 250,
+            "height": 58,
+            "content": "{{receipt.note}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "l032",
+            "type": "LINE",
+            "x": 311,
+            "y": 487.2,
+            "width": 240,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t033",
+            "type": "TEXT",
+            "x": 311,
+            "y": 493.2,
+            "width": 240,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t034",
+            "type": "TEXT",
+            "x": 311,
+            "y": 507.2,
+            "width": 240,
+            "height": 24,
+            "content": "Received by, {{company.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l035",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t036",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "This receipt confirms payment received and is valid without a physical signature.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
+    "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
+    "company.name": "Northwind Traders Pvt Ltd",
+    "customer.address": "22 Residency Road, Bengaluru 560025",
+    "customer.name": "Halcyon Design Studio",
+    "line_items": "[{\"description\":\"Payment against invoice INV-2026-0184\",\"period\":\"Aug 2026\",\"amount\":\"₹1,41,600.00\"}]",
+    "payment.date": "16 Aug 2026",
+    "payment.method": "NEFT",
+    "payment.reference": "HDFCN26081612447",
+    "receipt.date": "16 Aug 2026",
+    "receipt.invoice_number": "INV-2026-0184",
+    "receipt.note": "Payment applied in full against the referenced invoice. No balance carried forward.",
+    "receipt.number": "RCP-2026-0392",
+    "signatory.name": "Ananya Rao",
+    "totals.balance": "₹0.00",
+    "totals.in_words": "One lakh forty-one thousand six hundred rupees only",
+    "totals.received": "₹1,41,600.00"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

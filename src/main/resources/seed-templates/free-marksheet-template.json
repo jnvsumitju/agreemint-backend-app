@@ -1,0 +1,1353 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "exam.academic_year"
+      },
+      {
+        "key": "exam.name"
+      },
+      {
+        "key": "exam.sheet_number"
+      },
+      {
+        "key": "institution.address"
+      },
+      {
+        "key": "institution.contact"
+      },
+      {
+        "key": "institution.name"
+      },
+      {
+        "key": "result.percentage"
+      },
+      {
+        "key": "result.status"
+      },
+      {
+        "key": "result.total"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "signatory.title"
+      },
+      {
+        "key": "student.dob"
+      },
+      {
+        "key": "student.enrolment_number"
+      },
+      {
+        "key": "student.name"
+      },
+      {
+        "key": "student.programme"
+      },
+      {
+        "key": "student.roll_number"
+      },
+      {
+        "key": "student.semester"
+      },
+      {
+        "key": "subjects"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 3,
+        "height": 34,
+        "style": {
+          "backgroundColor": "#a16207"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 56,
+        "y": 44,
+        "width": 250,
+        "height": 46.4,
+        "content": "{{institution.name}}",
+        "style": {
+          "fontSize": 16,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 56,
+        "y": 90.4,
+        "width": 270,
+        "height": 46,
+        "content": "{{institution.address}}\n{{institution.contact}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 321,
+        "y": 42,
+        "width": 230,
+        "height": 31.9,
+        "content": "MARKSHEET",
+        "style": {
+          "fontSize": 22,
+          "fontFamily": "Inter",
+          "color": "#a16207",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 321,
+        "y": 72,
+        "width": 82,
+        "height": 12.33,
+        "content": "Academic year",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 405,
+        "y": 72,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{exam.academic_year}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 321,
+        "y": 85.33,
+        "width": 82,
+        "height": 12.33,
+        "content": "Examination",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 405,
+        "y": 85.33,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{exam.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 321,
+        "y": 98.66,
+        "width": 82,
+        "height": 12.33,
+        "content": "Sheet no.",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 405,
+        "y": 98.66,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{exam.sheet_number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l011",
+        "type": "LINE",
+        "x": 44,
+        "y": 146.4,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 164.4,
+        "width": 507,
+        "height": 74,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 58,
+        "y": 176.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "STUDENT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 58,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.name}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 176.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "ROLL NUMBER",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.roll_number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 176.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "ENROLMENT NO.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.enrolment_number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 58,
+        "y": 206.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "PROGRAMME",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 58,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.programme}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 206.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "SEMESTER",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.semester}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 206.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "DATE OF BIRTH",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{student.dob}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 256.4,
+        "width": 507,
+        "height": 12,
+        "content": "SUBJECT RESULTS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#a16207",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb026",
+        "type": "TABLE",
+        "x": 44,
+        "y": 271.4,
+        "width": 507,
+        "height": 150,
+        "columns": [
+          {
+            "header": "Code",
+            "key": "code"
+          },
+          {
+            "header": "Subject",
+            "key": "subject"
+          },
+          {
+            "header": "Max",
+            "key": "max"
+          },
+          {
+            "header": "Obtained",
+            "key": "obtained"
+          },
+          {
+            "header": "Grade",
+            "key": "grade"
+          }
+        ],
+        "columnWidths": [
+          0.8,
+          3,
+          0.7,
+          0.9,
+          0.7
+        ],
+        "dataKey": "subjects",
+        "tablePreviewBodyRows": 6,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 299,
+        "y": 441.4,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Total marks",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t028",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 441.4,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{result.total}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 299,
+        "y": 457.4,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Percentage",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 457.4,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{result.percentage}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r033",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 291,
+        "y": 469.4,
+        "width": 260,
+        "height": 55.85,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 3
+        }
+      },
+      {
+        "id": "t031",
+        "type": "TEXT",
+        "x": 299,
+        "y": 473.4,
+        "width": 150.79999999999998,
+        "height": 14.5,
+        "content": "Result",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 473.4,
+        "width": 101.20000000000002,
+        "height": 47.85,
+        "content": "{{result.status}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "JetBrains Mono",
+          "color": "#a16207",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l034",
+        "type": "LINE",
+        "x": 311,
+        "y": 692,
+        "width": 240,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t035",
+        "type": "TEXT",
+        "x": 311,
+        "y": 698,
+        "width": 240,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t036",
+        "type": "TEXT",
+        "x": 311,
+        "y": 712,
+        "width": 240,
+        "height": 24,
+        "content": "{{signatory.title}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l037",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t038",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "Issued by the Office of the Controller of Examinations. Any correction must be requested within 30 days.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 3,
+            "height": 34,
+            "style": {
+              "backgroundColor": "#a16207"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 56,
+            "y": 44,
+            "width": 250,
+            "height": 46.4,
+            "content": "{{institution.name}}",
+            "style": {
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 56,
+            "y": 90.4,
+            "width": 270,
+            "height": 46,
+            "content": "{{institution.address}}\n{{institution.contact}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 321,
+            "y": 42,
+            "width": 230,
+            "height": 31.9,
+            "content": "MARKSHEET",
+            "style": {
+              "fontSize": 22,
+              "fontFamily": "Inter",
+              "color": "#a16207",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 321,
+            "y": 72,
+            "width": 82,
+            "height": 12.33,
+            "content": "Academic year",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 405,
+            "y": 72,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{exam.academic_year}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 321,
+            "y": 85.33,
+            "width": 82,
+            "height": 12.33,
+            "content": "Examination",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 405,
+            "y": 85.33,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{exam.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 321,
+            "y": 98.66,
+            "width": 82,
+            "height": 12.33,
+            "content": "Sheet no.",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 405,
+            "y": 98.66,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{exam.sheet_number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l011",
+            "type": "LINE",
+            "x": 44,
+            "y": 146.4,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 164.4,
+            "width": 507,
+            "height": 74,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 58,
+            "y": 176.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "STUDENT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 58,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.name}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 176.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "ROLL NUMBER",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.roll_number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 176.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "ENROLMENT NO.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.enrolment_number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 58,
+            "y": 206.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "PROGRAMME",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 58,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.programme}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 206.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "SEMESTER",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.semester}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 206.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "DATE OF BIRTH",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{student.dob}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 256.4,
+            "width": 507,
+            "height": 12,
+            "content": "SUBJECT RESULTS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#a16207",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb026",
+            "type": "TABLE",
+            "x": 44,
+            "y": 271.4,
+            "width": 507,
+            "height": 150,
+            "columns": [
+              {
+                "header": "Code",
+                "key": "code"
+              },
+              {
+                "header": "Subject",
+                "key": "subject"
+              },
+              {
+                "header": "Max",
+                "key": "max"
+              },
+              {
+                "header": "Obtained",
+                "key": "obtained"
+              },
+              {
+                "header": "Grade",
+                "key": "grade"
+              }
+            ],
+            "columnWidths": [
+              0.8,
+              3,
+              0.7,
+              0.9,
+              0.7
+            ],
+            "dataKey": "subjects",
+            "tablePreviewBodyRows": 6,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 299,
+            "y": 441.4,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Total marks",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t028",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 441.4,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{result.total}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 299,
+            "y": 457.4,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Percentage",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 457.4,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{result.percentage}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r033",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 291,
+            "y": 469.4,
+            "width": 260,
+            "height": 55.85,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 3
+            }
+          },
+          {
+            "id": "t031",
+            "type": "TEXT",
+            "x": 299,
+            "y": 473.4,
+            "width": 150.79999999999998,
+            "height": 14.5,
+            "content": "Result",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 473.4,
+            "width": 101.20000000000002,
+            "height": 47.85,
+            "content": "{{result.status}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "JetBrains Mono",
+              "color": "#a16207",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l034",
+            "type": "LINE",
+            "x": 311,
+            "y": 692,
+            "width": 240,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t035",
+            "type": "TEXT",
+            "x": 311,
+            "y": 698,
+            "width": 240,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t036",
+            "type": "TEXT",
+            "x": 311,
+            "y": 712,
+            "width": 240,
+            "height": 24,
+            "content": "{{signatory.title}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l037",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t038",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "Issued by the Office of the Controller of Examinations. Any correction must be requested within 30 days.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "exam.academic_year": "2025–26",
+    "exam.name": "End Semester Examination",
+    "exam.sheet_number": "MIT/EX/2026/44120",
+    "institution.address": "Bannerghatta Road, Bengaluru, Karnataka 560076",
+    "institution.contact": "exams@meridian.example · +91 80 2233 4455",
+    "institution.name": "Meridian Institute of Technology",
+    "result.percentage": "85.33%",
+    "result.status": "PASS — First Class with Distinction",
+    "result.total": "512 / 600",
+    "signatory.name": "Dr M. Raghavan",
+    "signatory.title": "Controller of Examinations",
+    "student.dob": "14 March 2004",
+    "student.enrolment_number": "MIT21CS0447",
+    "student.name": "Kavya Ramesh",
+    "student.programme": "B.Tech Computer Science",
+    "student.roll_number": "21CS0447",
+    "student.semester": "Semester VI",
+    "subjects": "[{\"code\":\"CS601\",\"subject\":\"Design and Analysis of Algorithms\",\"max\":\"100\",\"obtained\":\"88\",\"grade\":\"A\"},{\"code\":\"CS602\",\"subject\":\"Database Management Systems\",\"max\":\"100\",\"obtained\":\"91\",\"grade\":\"A+\"},{\"code\":\"CS603\",\"subject\":\"Computer Networks\",\"max\":\"100\",\"obtained\":\"79\",\"grade\":\"B+\"},{\"code\":\"CS604\",\"subject\":\"Operating Systems\",\"max\":\"100\",\"obtained\":\"86\",\"grade\":\"A\"},{\"code\":\"CS605\",\"subject\":\"Software Engineering\",\"max\":\"100\",\"obtained\":\"84\",\"grade\":\"A\"},{\"code\":\"CS691\",\"subject\":\"Mini Project\",\"max\":\"100\",\"obtained\":\"84\",\"grade\":\"A\"}]"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

@@ -1,0 +1,861 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "company.address"
+      },
+      {
+        "key": "company.contact"
+      },
+      {
+        "key": "company.name"
+      },
+      {
+        "key": "employee.id"
+      },
+      {
+        "key": "job.department"
+      },
+      {
+        "key": "job.docs_due"
+      },
+      {
+        "key": "job.joining_date"
+      },
+      {
+        "key": "job.location"
+      },
+      {
+        "key": "job.offer_date"
+      },
+      {
+        "key": "job.reporting_to"
+      },
+      {
+        "key": "job.title"
+      },
+      {
+        "key": "letter.date"
+      },
+      {
+        "key": "letter.reference"
+      },
+      {
+        "key": "recipient.address"
+      },
+      {
+        "key": "recipient.first_name"
+      },
+      {
+        "key": "recipient.name"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "signatory.title"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 3,
+        "height": 34,
+        "style": {
+          "backgroundColor": "#0f766e"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 56,
+        "y": 44,
+        "width": 250,
+        "height": 23.2,
+        "content": "{{company.name}}",
+        "style": {
+          "fontSize": 16,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 56,
+        "y": 67.2,
+        "width": 270,
+        "height": 46,
+        "content": "{{company.address}}\n{{company.contact}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 321,
+        "y": 42,
+        "width": 230,
+        "height": 31.9,
+        "content": "JOINING",
+        "style": {
+          "fontSize": 22,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 321,
+        "y": 72,
+        "width": 82,
+        "height": 12.33,
+        "content": "Reference",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 405,
+        "y": 72,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{letter.reference}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 321,
+        "y": 85.33,
+        "width": 82,
+        "height": 12.33,
+        "content": "Date",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 405,
+        "y": 85.33,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{letter.date}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l009",
+        "type": "LINE",
+        "x": 44,
+        "y": 123.2,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 44,
+        "y": 141.2,
+        "width": 507,
+        "height": 14,
+        "content": "{{letter.date}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 44,
+        "y": 165.2,
+        "width": 507,
+        "height": 16.68,
+        "content": "{{recipient.name}}",
+        "style": {
+          "fontSize": 11.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 44,
+        "y": 182.2,
+        "width": 507,
+        "height": 34,
+        "content": "{{recipient.address}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 225.2,
+        "width": 507,
+        "height": 16,
+        "content": "Subject: Confirmation of joining — {{job.title}}",
+        "style": {
+          "fontSize": 10.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 249.2,
+        "width": 507,
+        "height": 16,
+        "content": "Dear {{recipient.first_name}},",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 44,
+        "y": 271.2,
+        "width": 507,
+        "height": 52,
+        "content": "This letter confirms that you have joined {{company.name}} as {{job.title}} in the {{job.department}} department with effect from {{job.joining_date}}. Your employee identification number is {{employee.id}}.",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 44,
+        "y": 335.2,
+        "width": 507,
+        "height": 56,
+        "content": "You will report to {{job.reporting_to}} and will be based at our {{job.location}} office. Your terms of employment are as set out in your offer letter dated {{job.offer_date}}, which forms part of your contract with the company.",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 44,
+        "y": 403.2,
+        "width": 507,
+        "height": 12,
+        "content": "PLEASE COMPLETE BEFORE {{job.docs_due}}",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 418.2,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Submit original academic and experience certificates for verification."
+          },
+          {
+            "text": "Complete the payroll, provident fund and insurance enrolment forms."
+          },
+          {
+            "text": "Acknowledge the employee handbook and information security policy."
+          },
+          {
+            "text": "Provide two references we have not previously contacted."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 44,
+        "y": 522.2,
+        "width": 507,
+        "height": 43.5,
+        "content": "We are glad to have you with us and look forward to working together.\n\nYours sincerely,",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "l020",
+        "type": "LINE",
+        "x": 44,
+        "y": 583.7,
+        "width": 200,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 589.7,
+        "width": 200,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "left"
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 44,
+        "y": 603.7,
+        "width": 200,
+        "height": 24,
+        "content": "{{signatory.title}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "left"
+        }
+      },
+      {
+        "id": "l023",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 3,
+            "height": 34,
+            "style": {
+              "backgroundColor": "#0f766e"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 56,
+            "y": 44,
+            "width": 250,
+            "height": 23.2,
+            "content": "{{company.name}}",
+            "style": {
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 56,
+            "y": 67.2,
+            "width": 270,
+            "height": 46,
+            "content": "{{company.address}}\n{{company.contact}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 321,
+            "y": 42,
+            "width": 230,
+            "height": 31.9,
+            "content": "JOINING",
+            "style": {
+              "fontSize": 22,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 321,
+            "y": 72,
+            "width": 82,
+            "height": 12.33,
+            "content": "Reference",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 405,
+            "y": 72,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{letter.reference}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 321,
+            "y": 85.33,
+            "width": 82,
+            "height": 12.33,
+            "content": "Date",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 405,
+            "y": 85.33,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{letter.date}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l009",
+            "type": "LINE",
+            "x": 44,
+            "y": 123.2,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 44,
+            "y": 141.2,
+            "width": 507,
+            "height": 14,
+            "content": "{{letter.date}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 44,
+            "y": 165.2,
+            "width": 507,
+            "height": 16.68,
+            "content": "{{recipient.name}}",
+            "style": {
+              "fontSize": 11.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 44,
+            "y": 182.2,
+            "width": 507,
+            "height": 34,
+            "content": "{{recipient.address}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 225.2,
+            "width": 507,
+            "height": 16,
+            "content": "Subject: Confirmation of joining — {{job.title}}",
+            "style": {
+              "fontSize": 10.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 249.2,
+            "width": 507,
+            "height": 16,
+            "content": "Dear {{recipient.first_name}},",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 44,
+            "y": 271.2,
+            "width": 507,
+            "height": 52,
+            "content": "This letter confirms that you have joined {{company.name}} as {{job.title}} in the {{job.department}} department with effect from {{job.joining_date}}. Your employee identification number is {{employee.id}}.",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 44,
+            "y": 335.2,
+            "width": 507,
+            "height": 56,
+            "content": "You will report to {{job.reporting_to}} and will be based at our {{job.location}} office. Your terms of employment are as set out in your offer letter dated {{job.offer_date}}, which forms part of your contract with the company.",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 44,
+            "y": 403.2,
+            "width": 507,
+            "height": 12,
+            "content": "PLEASE COMPLETE BEFORE {{job.docs_due}}",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 418.2,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Submit original academic and experience certificates for verification."
+              },
+              {
+                "text": "Complete the payroll, provident fund and insurance enrolment forms."
+              },
+              {
+                "text": "Acknowledge the employee handbook and information security policy."
+              },
+              {
+                "text": "Provide two references we have not previously contacted."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 44,
+            "y": 522.2,
+            "width": 507,
+            "height": 43.5,
+            "content": "We are glad to have you with us and look forward to working together.\n\nYours sincerely,",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "l020",
+            "type": "LINE",
+            "x": 44,
+            "y": 583.7,
+            "width": 200,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 589.7,
+            "width": 200,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "left"
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 44,
+            "y": 603.7,
+            "width": 200,
+            "height": 24,
+            "content": "{{signatory.title}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "left"
+            }
+          },
+          {
+            "id": "l023",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "company.contact": "people@northwind.example · +91 80 4123 7788",
+    "company.name": "Northwind Traders Pvt Ltd",
+    "employee.id": "NW-2291",
+    "job.department": "Supply Chain",
+    "job.docs_due": "22 September 2026",
+    "job.joining_date": "15 September 2026",
+    "job.location": "Bengaluru",
+    "job.offer_date": "16 August 2026",
+    "job.reporting_to": "the Head of Supply Chain",
+    "job.title": "Senior Operations Analyst",
+    "letter.date": "15 September 2026",
+    "letter.reference": "NW/HR/JOIN/2026/0231",
+    "recipient.address": "18 Lakeview Apartments, Indiranagar\nBengaluru, Karnataka 560038",
+    "recipient.first_name": "Priya",
+    "recipient.name": "Ms Priya Nair",
+    "signatory.name": "Devika Menon",
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

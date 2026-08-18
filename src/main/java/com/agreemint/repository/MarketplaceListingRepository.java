@@ -10,10 +10,18 @@ public interface MarketplaceListingRepository extends JpaRepository<MarketplaceL
 
     List<MarketplaceListing> findByPublishedTrueOrderByCreatedAtDesc();
 
+    /** Official rows only — what a FREE-plan org is allowed to browse. */
+    List<MarketplaceListing> findByPublishedTrueAndOfficialTrueOrderByCreatedAtDesc();
+
+    List<MarketplaceListing> findByCategoryAndPublishedTrueAndOfficialTrue(String category);
+
     List<MarketplaceListing> findByCategoryAndPublishedTrue(String category);
 
     /** Is this template already live in the catalogue? */
     boolean existsBySourceTemplateIdAndPublishedTrue(UUID sourceTemplateId);
+
+    /** Re-seeding refreshes the existing listing in place rather than adding a second. */
+    java.util.Optional<MarketplaceListing> findFirstBySourceTemplateId(UUID sourceTemplateId);
 
     /** Every listing an org has published, withdrawn ones included. */
     List<MarketplaceListing> findByOrgIdOrderByCreatedAtDesc(UUID orgId);

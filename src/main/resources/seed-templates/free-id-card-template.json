@@ -1,0 +1,1511 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "card.academic_year"
+      },
+      {
+        "key": "card.number"
+      },
+      {
+        "key": "card.valid_until"
+      },
+      {
+        "key": "emergency.name"
+      },
+      {
+        "key": "emergency.phone"
+      },
+      {
+        "key": "emergency.relation"
+      },
+      {
+        "key": "institution.address"
+      },
+      {
+        "key": "institution.name"
+      },
+      {
+        "key": "student.blood_group"
+      },
+      {
+        "key": "student.name"
+      },
+      {
+        "key": "student.programme"
+      },
+      {
+        "key": "student.roll_number"
+      }
+    ],
+    "elements": [
+      {
+        "id": "t001",
+        "type": "TEXT",
+        "x": 44,
+        "y": 44,
+        "width": 507,
+        "height": 16,
+        "content": "Student identity card — cut and fold",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 44,
+        "y": 61,
+        "width": 507,
+        "height": 24,
+        "content": "Print at 100% scale (no \"fit to page\") and cut along the guides.",
+        "style": {
+          "fontSize": 8,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "l003",
+        "type": "LINE",
+        "x": 115.5,
+        "y": 130,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l004",
+        "type": "LINE",
+        "x": 127.5,
+        "y": 118,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l005",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 130,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l006",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 118,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l007",
+        "type": "LINE",
+        "x": 115.5,
+        "y": 344,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l008",
+        "type": "LINE",
+        "x": 127.5,
+        "y": 344,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l009",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 344,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l010",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 344,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "r011",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 127.5,
+        "y": 130,
+        "width": 340,
+        "height": 214,
+        "style": {
+          "backgroundColor": "#ffffff",
+          "borderWidth": 1,
+          "color": "#cbd5e1",
+          "borderRadius": 10
+        }
+      },
+      {
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 127.5,
+        "y": 130,
+        "width": 340,
+        "height": 46,
+        "style": {
+          "backgroundColor": "#a16207",
+          "borderRadius": 10
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 141.5,
+        "y": 140,
+        "width": 312,
+        "height": 15.95,
+        "content": "{{institution.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#ffffff",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 141.5,
+        "y": 156,
+        "width": 312,
+        "height": 12,
+        "content": "Student Identity Card · {{card.academic_year}}",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#e0e7ff",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "r015",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 143.5,
+        "y": 192,
+        "width": 78,
+        "height": 96,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderWidth": 1,
+          "color": "#e5e7eb",
+          "borderRadius": 4
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 233,
+        "width": 78,
+        "height": 14,
+        "content": "PHOTO",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#9ca3af",
+          "lineHeight": 1.45,
+          "align": "center",
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 233.5,
+        "y": 192,
+        "width": 218,
+        "height": 18.85,
+        "content": "{{student.name}}",
+        "style": {
+          "fontSize": 13,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 233.5,
+        "y": 214,
+        "width": 74,
+        "height": 12,
+        "content": "ROLL NO",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 309.5,
+        "y": 214,
+        "width": 142,
+        "height": 12.33,
+        "content": "{{student.roll_number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 233.5,
+        "y": 228,
+        "width": 74,
+        "height": 12,
+        "content": "PROGRAMME",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 309.5,
+        "y": 228,
+        "width": 142,
+        "height": 12.33,
+        "content": "{{student.programme}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 233.5,
+        "y": 242,
+        "width": 74,
+        "height": 12,
+        "content": "VALID UNTIL",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 309.5,
+        "y": 242,
+        "width": 142,
+        "height": 12.33,
+        "content": "{{card.valid_until}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 233.5,
+        "y": 256,
+        "width": 74,
+        "height": 12,
+        "content": "BLOOD GROUP",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 309.5,
+        "y": 256,
+        "width": 142,
+        "height": 12.33,
+        "content": "{{student.blood_group}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "l026",
+        "type": "LINE",
+        "x": 143.5,
+        "y": 314,
+        "width": 308,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 320,
+        "width": 308,
+        "height": 14,
+        "content": "Card no. {{card.number}} · Property of {{institution.name}}",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "l028",
+        "type": "LINE",
+        "x": 115.5,
+        "y": 418,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l029",
+        "type": "LINE",
+        "x": 127.5,
+        "y": 406,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l030",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 418,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l031",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 406,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l032",
+        "type": "LINE",
+        "x": 115.5,
+        "y": 632,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l033",
+        "type": "LINE",
+        "x": 127.5,
+        "y": 632,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "l034",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 632,
+        "width": 12,
+        "height": 0,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1"
+        }
+      },
+      {
+        "id": "l035",
+        "type": "LINE",
+        "x": 467.5,
+        "y": 632,
+        "width": 0,
+        "height": 12,
+        "strokeWidth": 0.5,
+        "style": {
+          "color": "#cbd5e1",
+          "rotation": 90
+        }
+      },
+      {
+        "id": "r036",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 127.5,
+        "y": 418,
+        "width": 340,
+        "height": 214,
+        "style": {
+          "backgroundColor": "#ffffff",
+          "borderWidth": 1,
+          "color": "#cbd5e1",
+          "borderRadius": 10
+        }
+      },
+      {
+        "id": "r037",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 127.5,
+        "y": 418,
+        "width": 340,
+        "height": 46,
+        "style": {
+          "backgroundColor": "#a16207",
+          "borderRadius": 10
+        }
+      },
+      {
+        "id": "t038",
+        "type": "TEXT",
+        "x": 141.5,
+        "y": 428,
+        "width": 312,
+        "height": 15.95,
+        "content": "{{institution.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#ffffff",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t039",
+        "type": "TEXT",
+        "x": 141.5,
+        "y": 444,
+        "width": 312,
+        "height": 12,
+        "content": "If found, please return to the address below",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#e0e7ff",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t040",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 480,
+        "width": 308,
+        "height": 18.85,
+        "content": "Emergency contact",
+        "style": {
+          "fontSize": 13,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t041",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 502,
+        "width": 74,
+        "height": 12,
+        "content": "NAME",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t042",
+        "type": "TEXT",
+        "x": 219.5,
+        "y": 502,
+        "width": 232,
+        "height": 12.33,
+        "content": "{{emergency.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t043",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 516,
+        "width": 74,
+        "height": 12,
+        "content": "RELATION",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t044",
+        "type": "TEXT",
+        "x": 219.5,
+        "y": 516,
+        "width": 232,
+        "height": 12.33,
+        "content": "{{emergency.relation}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t045",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 530,
+        "width": 74,
+        "height": 12,
+        "content": "PHONE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t046",
+        "type": "TEXT",
+        "x": 219.5,
+        "y": 530,
+        "width": 232,
+        "height": 12.33,
+        "content": "{{emergency.phone}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "t047",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 544,
+        "width": 74,
+        "height": 12,
+        "content": "ADDRESS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t048",
+        "type": "TEXT",
+        "x": 219.5,
+        "y": 544,
+        "width": 232,
+        "height": 12.33,
+        "content": "{{institution.address}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "l049",
+        "type": "LINE",
+        "x": 143.5,
+        "y": 602,
+        "width": 308,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t050",
+        "type": "TEXT",
+        "x": 143.5,
+        "y": 608,
+        "width": 308,
+        "height": 14,
+        "content": "This card is non-transferable and must be produced on demand.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "t001",
+            "type": "TEXT",
+            "x": 44,
+            "y": 44,
+            "width": 507,
+            "height": 16,
+            "content": "Student identity card — cut and fold",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 44,
+            "y": 61,
+            "width": 507,
+            "height": 24,
+            "content": "Print at 100% scale (no \"fit to page\") and cut along the guides.",
+            "style": {
+              "fontSize": 8,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "l003",
+            "type": "LINE",
+            "x": 115.5,
+            "y": 130,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l004",
+            "type": "LINE",
+            "x": 127.5,
+            "y": 118,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l005",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 130,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l006",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 118,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l007",
+            "type": "LINE",
+            "x": 115.5,
+            "y": 344,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l008",
+            "type": "LINE",
+            "x": 127.5,
+            "y": 344,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l009",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 344,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l010",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 344,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "r011",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 127.5,
+            "y": 130,
+            "width": 340,
+            "height": 214,
+            "style": {
+              "backgroundColor": "#ffffff",
+              "borderWidth": 1,
+              "color": "#cbd5e1",
+              "borderRadius": 10
+            }
+          },
+          {
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 127.5,
+            "y": 130,
+            "width": 340,
+            "height": 46,
+            "style": {
+              "backgroundColor": "#a16207",
+              "borderRadius": 10
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 141.5,
+            "y": 140,
+            "width": 312,
+            "height": 15.95,
+            "content": "{{institution.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#ffffff",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 141.5,
+            "y": 156,
+            "width": 312,
+            "height": 12,
+            "content": "Student Identity Card · {{card.academic_year}}",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#e0e7ff",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "r015",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 143.5,
+            "y": 192,
+            "width": 78,
+            "height": 96,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderWidth": 1,
+              "color": "#e5e7eb",
+              "borderRadius": 4
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 233,
+            "width": 78,
+            "height": 14,
+            "content": "PHOTO",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#9ca3af",
+              "lineHeight": 1.45,
+              "align": "center",
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 233.5,
+            "y": 192,
+            "width": 218,
+            "height": 18.85,
+            "content": "{{student.name}}",
+            "style": {
+              "fontSize": 13,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 233.5,
+            "y": 214,
+            "width": 74,
+            "height": 12,
+            "content": "ROLL NO",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 309.5,
+            "y": 214,
+            "width": 142,
+            "height": 12.33,
+            "content": "{{student.roll_number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 233.5,
+            "y": 228,
+            "width": 74,
+            "height": 12,
+            "content": "PROGRAMME",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 309.5,
+            "y": 228,
+            "width": 142,
+            "height": 12.33,
+            "content": "{{student.programme}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 233.5,
+            "y": 242,
+            "width": 74,
+            "height": 12,
+            "content": "VALID UNTIL",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 309.5,
+            "y": 242,
+            "width": 142,
+            "height": 12.33,
+            "content": "{{card.valid_until}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 233.5,
+            "y": 256,
+            "width": 74,
+            "height": 12,
+            "content": "BLOOD GROUP",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 309.5,
+            "y": 256,
+            "width": 142,
+            "height": 12.33,
+            "content": "{{student.blood_group}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "l026",
+            "type": "LINE",
+            "x": 143.5,
+            "y": 314,
+            "width": 308,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 320,
+            "width": 308,
+            "height": 14,
+            "content": "Card no. {{card.number}} · Property of {{institution.name}}",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "l028",
+            "type": "LINE",
+            "x": 115.5,
+            "y": 418,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l029",
+            "type": "LINE",
+            "x": 127.5,
+            "y": 406,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l030",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 418,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l031",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 406,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l032",
+            "type": "LINE",
+            "x": 115.5,
+            "y": 632,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l033",
+            "type": "LINE",
+            "x": 127.5,
+            "y": 632,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "l034",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 632,
+            "width": 12,
+            "height": 0,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1"
+            }
+          },
+          {
+            "id": "l035",
+            "type": "LINE",
+            "x": 467.5,
+            "y": 632,
+            "width": 0,
+            "height": 12,
+            "strokeWidth": 0.5,
+            "style": {
+              "color": "#cbd5e1",
+              "rotation": 90
+            }
+          },
+          {
+            "id": "r036",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 127.5,
+            "y": 418,
+            "width": 340,
+            "height": 214,
+            "style": {
+              "backgroundColor": "#ffffff",
+              "borderWidth": 1,
+              "color": "#cbd5e1",
+              "borderRadius": 10
+            }
+          },
+          {
+            "id": "r037",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 127.5,
+            "y": 418,
+            "width": 340,
+            "height": 46,
+            "style": {
+              "backgroundColor": "#a16207",
+              "borderRadius": 10
+            }
+          },
+          {
+            "id": "t038",
+            "type": "TEXT",
+            "x": 141.5,
+            "y": 428,
+            "width": 312,
+            "height": 15.95,
+            "content": "{{institution.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#ffffff",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t039",
+            "type": "TEXT",
+            "x": 141.5,
+            "y": 444,
+            "width": 312,
+            "height": 12,
+            "content": "If found, please return to the address below",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#e0e7ff",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t040",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 480,
+            "width": 308,
+            "height": 18.85,
+            "content": "Emergency contact",
+            "style": {
+              "fontSize": 13,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t041",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 502,
+            "width": 74,
+            "height": 12,
+            "content": "NAME",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t042",
+            "type": "TEXT",
+            "x": 219.5,
+            "y": 502,
+            "width": 232,
+            "height": 12.33,
+            "content": "{{emergency.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t043",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 516,
+            "width": 74,
+            "height": 12,
+            "content": "RELATION",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t044",
+            "type": "TEXT",
+            "x": 219.5,
+            "y": 516,
+            "width": 232,
+            "height": 12.33,
+            "content": "{{emergency.relation}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t045",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 530,
+            "width": 74,
+            "height": 12,
+            "content": "PHONE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t046",
+            "type": "TEXT",
+            "x": 219.5,
+            "y": 530,
+            "width": 232,
+            "height": 12.33,
+            "content": "{{emergency.phone}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "t047",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 544,
+            "width": 74,
+            "height": 12,
+            "content": "ADDRESS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t048",
+            "type": "TEXT",
+            "x": 219.5,
+            "y": 544,
+            "width": 232,
+            "height": 12.33,
+            "content": "{{institution.address}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "l049",
+            "type": "LINE",
+            "x": 143.5,
+            "y": 602,
+            "width": 308,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t050",
+            "type": "TEXT",
+            "x": 143.5,
+            "y": 608,
+            "width": 308,
+            "height": 14,
+            "content": "This card is non-transferable and must be produced on demand.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "card.academic_year": "2025–26",
+    "card.number": "MIT-ID-44120",
+    "card.valid_until": "30 June 2027",
+    "emergency.name": "Sunita Ramesh",
+    "emergency.phone": "+91 98450 22118",
+    "emergency.relation": "Mother",
+    "institution.address": "Bannerghatta Road, Bengaluru 560076",
+    "institution.name": "Meridian Institute of Technology",
+    "student.blood_group": "O+",
+    "student.name": "Kavya Ramesh",
+    "student.programme": "B.Tech Computer Science",
+    "student.roll_number": "21CS0447"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

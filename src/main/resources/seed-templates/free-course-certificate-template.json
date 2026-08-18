@@ -1,0 +1,813 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "certificate.date"
+      },
+      {
+        "key": "certificate.number"
+      },
+      {
+        "key": "cosignatory.name"
+      },
+      {
+        "key": "cosignatory.title"
+      },
+      {
+        "key": "course.credits"
+      },
+      {
+        "key": "course.end_date"
+      },
+      {
+        "key": "course.grade"
+      },
+      {
+        "key": "course.hours"
+      },
+      {
+        "key": "course.name"
+      },
+      {
+        "key": "course.start_date"
+      },
+      {
+        "key": "institution.name"
+      },
+      {
+        "key": "institution.tagline"
+      },
+      {
+        "key": "recipient.name"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "signatory.title"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 24,
+        "y": 24,
+        "width": 547,
+        "height": 794,
+        "style": {
+          "borderWidth": 3,
+          "color": "#a16207",
+          "borderRadius": 6
+        }
+      },
+      {
+        "id": "r002",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 34,
+        "y": 34,
+        "width": 527,
+        "height": 774,
+        "style": {
+          "borderWidth": 0.75,
+          "color": "#d4b483",
+          "borderRadius": 4
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 64,
+        "y": 118,
+        "width": 467,
+        "height": 22,
+        "content": "{{institution.name}}",
+        "style": {
+          "fontSize": 13,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 64,
+        "y": 140,
+        "width": 467,
+        "height": 14,
+        "content": "{{institution.tagline}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 64,
+        "y": 186,
+        "width": 467,
+        "height": 43.5,
+        "content": "Certificate of Completion",
+        "style": {
+          "fontSize": 30,
+          "fontFamily": "Source Serif 4",
+          "color": "#a16207",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 64,
+        "y": 234,
+        "width": 467,
+        "height": 16,
+        "content": "This is to certify that",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 64,
+        "y": 278,
+        "width": 467,
+        "height": 40,
+        "content": "{{recipient.name}}",
+        "style": {
+          "fontSize": 26,
+          "fontFamily": "Source Serif 4",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "l008",
+        "type": "LINE",
+        "x": 167.5,
+        "y": 320,
+        "width": 260,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#d4b483"
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 84,
+        "y": 346,
+        "width": 427,
+        "height": 74,
+        "content": "has successfully completed the course {{course.name}}, comprising {{course.hours}} of instruction and assessment, held from {{course.start_date}} to {{course.end_date}}.",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.7,
+          "align": "center"
+        }
+      },
+      {
+        "id": "r010",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 104,
+        "y": 442,
+        "width": 387,
+        "height": 40,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 4
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 104,
+        "y": 449,
+        "width": 129,
+        "height": 11,
+        "content": "GRADE",
+        "style": {
+          "fontSize": 7,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 104,
+        "y": 462,
+        "width": 129,
+        "height": 13.78,
+        "content": "{{course.grade}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 233,
+        "y": 449,
+        "width": 129,
+        "height": 11,
+        "content": "CREDITS",
+        "style": {
+          "fontSize": 7,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 233,
+        "y": 462,
+        "width": 129,
+        "height": 13.78,
+        "content": "{{course.credits}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 362,
+        "y": 449,
+        "width": 129,
+        "height": 11,
+        "content": "ISSUED",
+        "style": {
+          "fontSize": 7,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 362,
+        "y": 462,
+        "width": 129,
+        "height": 13.78,
+        "content": "{{certificate.date}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "l017",
+        "type": "LINE",
+        "x": 84,
+        "y": 674,
+        "width": 170,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 84,
+        "y": 680,
+        "width": 170,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 84,
+        "y": 694,
+        "width": 170,
+        "height": 24,
+        "content": "{{signatory.title}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "center"
+        }
+      },
+      {
+        "id": "l020",
+        "type": "LINE",
+        "x": 341,
+        "y": 674,
+        "width": 170,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 341,
+        "y": 680,
+        "width": 170,
+        "height": 14.5,
+        "content": "{{cosignatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 341,
+        "y": 694,
+        "width": 170,
+        "height": 24,
+        "content": "{{cosignatory.title}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "center"
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 44,
+        "y": 750,
+        "width": 507,
+        "height": 14,
+        "content": "Certificate no. {{certificate.number}}",
+        "style": {
+          "fontSize": 8,
+          "fontFamily": "JetBrains Mono",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 24,
+            "y": 24,
+            "width": 547,
+            "height": 794,
+            "style": {
+              "borderWidth": 3,
+              "color": "#a16207",
+              "borderRadius": 6
+            }
+          },
+          {
+            "id": "r002",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 34,
+            "y": 34,
+            "width": 527,
+            "height": 774,
+            "style": {
+              "borderWidth": 0.75,
+              "color": "#d4b483",
+              "borderRadius": 4
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 64,
+            "y": 118,
+            "width": 467,
+            "height": 22,
+            "content": "{{institution.name}}",
+            "style": {
+              "fontSize": 13,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 64,
+            "y": 140,
+            "width": 467,
+            "height": 14,
+            "content": "{{institution.tagline}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 64,
+            "y": 186,
+            "width": 467,
+            "height": 43.5,
+            "content": "Certificate of Completion",
+            "style": {
+              "fontSize": 30,
+              "fontFamily": "Source Serif 4",
+              "color": "#a16207",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 64,
+            "y": 234,
+            "width": 467,
+            "height": 16,
+            "content": "This is to certify that",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 64,
+            "y": 278,
+            "width": 467,
+            "height": 40,
+            "content": "{{recipient.name}}",
+            "style": {
+              "fontSize": 26,
+              "fontFamily": "Source Serif 4",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "l008",
+            "type": "LINE",
+            "x": 167.5,
+            "y": 320,
+            "width": 260,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#d4b483"
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 84,
+            "y": 346,
+            "width": 427,
+            "height": 74,
+            "content": "has successfully completed the course {{course.name}}, comprising {{course.hours}} of instruction and assessment, held from {{course.start_date}} to {{course.end_date}}.",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.7,
+              "align": "center"
+            }
+          },
+          {
+            "id": "r010",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 104,
+            "y": 442,
+            "width": 387,
+            "height": 40,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 4
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 104,
+            "y": 449,
+            "width": 129,
+            "height": 11,
+            "content": "GRADE",
+            "style": {
+              "fontSize": 7,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 104,
+            "y": 462,
+            "width": 129,
+            "height": 13.78,
+            "content": "{{course.grade}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 233,
+            "y": 449,
+            "width": 129,
+            "height": 11,
+            "content": "CREDITS",
+            "style": {
+              "fontSize": 7,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 233,
+            "y": 462,
+            "width": 129,
+            "height": 13.78,
+            "content": "{{course.credits}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 362,
+            "y": 449,
+            "width": 129,
+            "height": 11,
+            "content": "ISSUED",
+            "style": {
+              "fontSize": 7,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 362,
+            "y": 462,
+            "width": 129,
+            "height": 13.78,
+            "content": "{{certificate.date}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "l017",
+            "type": "LINE",
+            "x": 84,
+            "y": 674,
+            "width": 170,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 84,
+            "y": 680,
+            "width": 170,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 84,
+            "y": 694,
+            "width": 170,
+            "height": 24,
+            "content": "{{signatory.title}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "center"
+            }
+          },
+          {
+            "id": "l020",
+            "type": "LINE",
+            "x": 341,
+            "y": 674,
+            "width": 170,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 341,
+            "y": 680,
+            "width": 170,
+            "height": 14.5,
+            "content": "{{cosignatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 341,
+            "y": 694,
+            "width": 170,
+            "height": 24,
+            "content": "{{cosignatory.title}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "center"
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 44,
+            "y": 750,
+            "width": 507,
+            "height": 14,
+            "content": "Certificate no. {{certificate.number}}",
+            "style": {
+              "fontSize": 8,
+              "fontFamily": "JetBrains Mono",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "certificate.date": "08 August 2026",
+    "certificate.number": "MIT/CPE/2026/1174",
+    "cosignatory.name": "Prof. Leela Iyer",
+    "cosignatory.title": "Dean, Continuing Education",
+    "course.credits": "4",
+    "course.end_date": "31 July 2026",
+    "course.grade": "A",
+    "course.hours": "48 hours",
+    "course.name": "Applied Data Analysis with Python",
+    "course.start_date": "05 May 2026",
+    "institution.name": "Meridian Institute of Technology",
+    "institution.tagline": "Continuing Professional Education",
+    "recipient.name": "Kavya Ramesh",
+    "signatory.name": "Dr S. Venkataraman",
+    "signatory.title": "Course Director"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

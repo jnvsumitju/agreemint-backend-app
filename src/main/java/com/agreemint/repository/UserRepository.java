@@ -11,6 +11,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
 
+    /** Every internal staff account — used to seed publisher-org membership. */
+    java.util.List<User> findByStaffTrue();
+
     boolean existsByEmail(String email);
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);

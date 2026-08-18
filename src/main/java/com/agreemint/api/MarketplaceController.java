@@ -54,16 +54,23 @@ public class MarketplaceController {
         this.orgAuthz = orgAuthz;
     }
 
+    /**
+     * Browse. Degrades rather than refuses: an org without the marketplace plan
+     * still sees the first-party Crixaa listings, because those are free on
+     * every plan and a 403 would hide them from exactly the people they exist
+     * for. Third-party listings stay Starter+ and are filtered out in the query,
+     * so they are never serialised for a caller who may not see them.
+     */
     @GetMapping
     public List<MarketplaceListingResponse> list(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) String category
     ) {
-        planGate.requireAtLeast(principal.orgId(), REQUIRED_PLAN, FEATURE);
+        boolean officialOnly = !planGate.hasAtLeast(principal.orgId(), REQUIRED_PLAN);
         if (category != null && !category.isBlank()) {
-            return marketplaceService.listByCategory(category);
+            return marketplaceService.listByCategory(category, officialOnly);
         }
-        return marketplaceService.listPublished();
+        return marketplaceService.listPublished(officialOnly);
     }
 
     @GetMapping("/{id}")
@@ -71,8 +78,21 @@ public class MarketplaceController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID id
     ) {
-        planGate.requireAtLeast(principal.orgId(), REQUIRED_PLAN, FEATURE);
+        requirePlanUnlessOfficial(principal, id);
         return marketplaceService.getById(id);
+    }
+
+    /**
+     * Plan gate for a single listing: skipped for first-party rows, enforced for
+     * everything else.
+     *
+     * <p>Checked against the listing's own {@code official} flag rather than
+     * anything supplied by the caller — an id in the path is not a claim about
+     * what that id is.
+     */
+    private void requirePlanUnlessOfficial(UserPrincipal principal, UUID listingId) {
+        if (marketplaceService.isOfficial(listingId)) return;
+        planGate.requireAtLeast(principal.orgId(), REQUIRED_PLAN, FEATURE);
     }
 
     @PostMapping
@@ -149,10 +169,13 @@ public class MarketplaceController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID id
     ) {
-        planGate.requireAtLeast(principal.orgId(), REQUIRED_PLAN, FEATURE);
+        // Free on every plan for first-party listings; Starter+ otherwise.
+        requirePlanUnlessOfficial(principal, id);
         // Installing creates a template in the caller's workspace, so it needs
         // the same role as creating one. The plan gate alone let a VIEWER — who
         // cannot create a template through any other route — add one here.
+        // That role check is deliberately OUTSIDE the official exemption: a free
+        // listing changes which plans may install, never which roles may.
         orgAuthz.assertRole(principal.userId(), principal.orgId(),
                 OrgRole.ADMIN, OrgRole.DESIGNER);
         Template cloned = marketplaceService.cloneTemplate(

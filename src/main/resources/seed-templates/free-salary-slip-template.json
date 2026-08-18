@@ -1,0 +1,1491 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "company.address"
+      },
+      {
+        "key": "company.contact"
+      },
+      {
+        "key": "company.name"
+      },
+      {
+        "key": "deductions"
+      },
+      {
+        "key": "earnings"
+      },
+      {
+        "key": "employee.bank_account"
+      },
+      {
+        "key": "employee.department"
+      },
+      {
+        "key": "employee.designation"
+      },
+      {
+        "key": "employee.id"
+      },
+      {
+        "key": "employee.name"
+      },
+      {
+        "key": "employee.pan"
+      },
+      {
+        "key": "payslip.number"
+      },
+      {
+        "key": "payslip.pay_date"
+      },
+      {
+        "key": "payslip.period"
+      },
+      {
+        "key": "signatory.name"
+      },
+      {
+        "key": "signatory.title"
+      },
+      {
+        "key": "totals.deductions"
+      },
+      {
+        "key": "totals.gross"
+      },
+      {
+        "key": "totals.in_words"
+      },
+      {
+        "key": "totals.net"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 3,
+        "height": 34,
+        "style": {
+          "backgroundColor": "#0f766e"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 56,
+        "y": 44,
+        "width": 250,
+        "height": 23.2,
+        "content": "{{company.name}}",
+        "style": {
+          "fontSize": 16,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 56,
+        "y": 67.2,
+        "width": 270,
+        "height": 46,
+        "content": "{{company.address}}\n{{company.contact}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4
+        }
+      },
+      {
+        "id": "t004",
+        "type": "TEXT",
+        "x": 321,
+        "y": 42,
+        "width": 230,
+        "height": 31.9,
+        "content": "PAYSLIP",
+        "style": {
+          "fontSize": 22,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 321,
+        "y": 72,
+        "width": 82,
+        "height": 12.33,
+        "content": "Pay period",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 405,
+        "y": 72,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{payslip.period}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 321,
+        "y": 85.33,
+        "width": 82,
+        "height": 12.33,
+        "content": "Pay date",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 405,
+        "y": 85.33,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{payslip.pay_date}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 321,
+        "y": 98.66,
+        "width": 82,
+        "height": 12.33,
+        "content": "Slip no.",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 405,
+        "y": 98.66,
+        "width": 146,
+        "height": 12.33,
+        "content": "{{payslip.number}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l011",
+        "type": "LINE",
+        "x": 44,
+        "y": 123.2,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 141.2,
+        "width": 507,
+        "height": 74,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 58,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "EMPLOYEE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 58,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.name}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "EMPLOYEE ID",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.id}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "DESIGNATION",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.designation}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 58,
+        "y": 183.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "DEPARTMENT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 58,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.department}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 183.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "PAN",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 217.66666666666666,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.pan}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 183.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "BANK A/C",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.bank_account}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 233.2,
+        "width": 507,
+        "height": 12,
+        "content": "EARNINGS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb026",
+        "type": "TABLE",
+        "x": 44,
+        "y": 248.2,
+        "width": 507,
+        "height": 118,
+        "columns": [
+          {
+            "header": "Component",
+            "key": "component"
+          },
+          {
+            "header": "Amount",
+            "key": "amount"
+          }
+        ],
+        "columnWidths": [
+          3,
+          1
+        ],
+        "dataKey": "earnings",
+        "tablePreviewBodyRows": 5,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 386.2,
+        "width": 507,
+        "height": 12,
+        "content": "DEDUCTIONS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb028",
+        "type": "TABLE",
+        "x": 44,
+        "y": 401.2,
+        "width": 507,
+        "height": 100,
+        "columns": [
+          {
+            "header": "Component",
+            "key": "component"
+          },
+          {
+            "header": "Amount",
+            "key": "amount"
+          }
+        ],
+        "columnWidths": [
+          3,
+          1
+        ],
+        "dataKey": "deductions",
+        "tablePreviewBodyRows": 4,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 299,
+        "y": 521.2,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Gross earnings",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 521.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.gross}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t031",
+        "type": "TEXT",
+        "x": 299,
+        "y": 537.2,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Total deductions",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 537.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.deductions}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r035",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 291,
+        "y": 549.2,
+        "width": 260,
+        "height": 23.95,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 3
+        }
+      },
+      {
+        "id": "t033",
+        "type": "TEXT",
+        "x": 299,
+        "y": 553.2,
+        "width": 150.79999999999998,
+        "height": 14.5,
+        "content": "Net pay",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t034",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 553.2,
+        "width": 101.20000000000002,
+        "height": 15.95,
+        "content": "{{totals.net}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "JetBrains Mono",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t036",
+        "type": "TEXT",
+        "x": 44,
+        "y": 543.1500000000001,
+        "width": 230,
+        "height": 12,
+        "content": "IN WORDS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t037",
+        "type": "TEXT",
+        "x": 44,
+        "y": 555.1500000000001,
+        "width": 230,
+        "height": 40,
+        "content": "{{totals.in_words}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.45,
+          "italic": true
+        }
+      },
+      {
+        "id": "l038",
+        "type": "LINE",
+        "x": 311,
+        "y": 692,
+        "width": 240,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t039",
+        "type": "TEXT",
+        "x": 311,
+        "y": 698,
+        "width": 240,
+        "height": 14.5,
+        "content": "{{signatory.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t040",
+        "type": "TEXT",
+        "x": 311,
+        "y": 712,
+        "width": 240,
+        "height": 24,
+        "content": "{{signatory.title}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l041",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t042",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "This is a computer-generated payslip and does not require a signature.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 3,
+            "height": 34,
+            "style": {
+              "backgroundColor": "#0f766e"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 56,
+            "y": 44,
+            "width": 250,
+            "height": 23.2,
+            "content": "{{company.name}}",
+            "style": {
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 56,
+            "y": 67.2,
+            "width": 270,
+            "height": 46,
+            "content": "{{company.address}}\n{{company.contact}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4
+            }
+          },
+          {
+            "id": "t004",
+            "type": "TEXT",
+            "x": 321,
+            "y": 42,
+            "width": 230,
+            "height": 31.9,
+            "content": "PAYSLIP",
+            "style": {
+              "fontSize": 22,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 321,
+            "y": 72,
+            "width": 82,
+            "height": 12.33,
+            "content": "Pay period",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 405,
+            "y": 72,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{payslip.period}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 321,
+            "y": 85.33,
+            "width": 82,
+            "height": 12.33,
+            "content": "Pay date",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 405,
+            "y": 85.33,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{payslip.pay_date}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 321,
+            "y": 98.66,
+            "width": 82,
+            "height": 12.33,
+            "content": "Slip no.",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 405,
+            "y": 98.66,
+            "width": 146,
+            "height": 12.33,
+            "content": "{{payslip.number}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l011",
+            "type": "LINE",
+            "x": 44,
+            "y": 123.2,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 141.2,
+            "width": 507,
+            "height": 74,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 58,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "EMPLOYEE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 58,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.name}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "EMPLOYEE ID",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.id}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "DESIGNATION",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.designation}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 58,
+            "y": 183.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "DEPARTMENT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 58,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.department}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 183.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "PAN",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 217.66666666666666,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.pan}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 183.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "BANK A/C",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.bank_account}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 233.2,
+            "width": 507,
+            "height": 12,
+            "content": "EARNINGS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb026",
+            "type": "TABLE",
+            "x": 44,
+            "y": 248.2,
+            "width": 507,
+            "height": 118,
+            "columns": [
+              {
+                "header": "Component",
+                "key": "component"
+              },
+              {
+                "header": "Amount",
+                "key": "amount"
+              }
+            ],
+            "columnWidths": [
+              3,
+              1
+            ],
+            "dataKey": "earnings",
+            "tablePreviewBodyRows": 5,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 386.2,
+            "width": 507,
+            "height": 12,
+            "content": "DEDUCTIONS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb028",
+            "type": "TABLE",
+            "x": 44,
+            "y": 401.2,
+            "width": 507,
+            "height": 100,
+            "columns": [
+              {
+                "header": "Component",
+                "key": "component"
+              },
+              {
+                "header": "Amount",
+                "key": "amount"
+              }
+            ],
+            "columnWidths": [
+              3,
+              1
+            ],
+            "dataKey": "deductions",
+            "tablePreviewBodyRows": 4,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 299,
+            "y": 521.2,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Gross earnings",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 521.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.gross}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t031",
+            "type": "TEXT",
+            "x": 299,
+            "y": 537.2,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Total deductions",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 537.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.deductions}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r035",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 291,
+            "y": 549.2,
+            "width": 260,
+            "height": 23.95,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 3
+            }
+          },
+          {
+            "id": "t033",
+            "type": "TEXT",
+            "x": 299,
+            "y": 553.2,
+            "width": 150.79999999999998,
+            "height": 14.5,
+            "content": "Net pay",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t034",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 553.2,
+            "width": 101.20000000000002,
+            "height": 15.95,
+            "content": "{{totals.net}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "JetBrains Mono",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t036",
+            "type": "TEXT",
+            "x": 44,
+            "y": 543.1500000000001,
+            "width": 230,
+            "height": 12,
+            "content": "IN WORDS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t037",
+            "type": "TEXT",
+            "x": 44,
+            "y": 555.1500000000001,
+            "width": 230,
+            "height": 40,
+            "content": "{{totals.in_words}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.45,
+              "italic": true
+            }
+          },
+          {
+            "id": "l038",
+            "type": "LINE",
+            "x": 311,
+            "y": 692,
+            "width": 240,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t039",
+            "type": "TEXT",
+            "x": 311,
+            "y": 698,
+            "width": 240,
+            "height": 14.5,
+            "content": "{{signatory.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t040",
+            "type": "TEXT",
+            "x": 311,
+            "y": 712,
+            "width": 240,
+            "height": 24,
+            "content": "{{signatory.title}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l041",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t042",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "This is a computer-generated payslip and does not require a signature.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "company.contact": "payroll@northwind.example · +91 80 4123 7788",
+    "company.name": "Northwind Traders Pvt Ltd",
+    "deductions": "[{\"component\":\"Provident fund\",\"amount\":\"₹9,250.00\"},{\"component\":\"Professional tax\",\"amount\":\"₹200.00\"},{\"component\":\"Income tax (TDS)\",\"amount\":\"₹14,960.00\"},{\"component\":\"Insurance premium\",\"amount\":\"₹500.00\"}]",
+    "earnings": "[{\"component\":\"Basic salary\",\"amount\":\"₹77,083.00\"},{\"component\":\"House rent allowance\",\"amount\":\"₹38,542.00\"},{\"component\":\"Special allowance\",\"amount\":\"₹27,042.00\"},{\"component\":\"Conveyance\",\"amount\":\"₹6,000.00\"},{\"component\":\"Meal allowance\",\"amount\":\"₹5,500.00\"}]",
+    "employee.bank_account": "XXXX XXXX 8842",
+    "employee.department": "Supply Chain",
+    "employee.designation": "Senior Operations Analyst",
+    "employee.id": "NW-2291",
+    "employee.name": "Priya Nair",
+    "employee.pan": "AFZPN4471K",
+    "payslip.number": "PS/2026/07/0442",
+    "payslip.pay_date": "31 July 2026",
+    "payslip.period": "July 2026",
+    "signatory.name": "Devika Menon",
+    "signatory.title": "Head of People",
+    "totals.deductions": "₹24,910.00",
+    "totals.gross": "₹1,54,167.00",
+    "totals.in_words": "One lakh twenty-nine thousand two hundred fifty-seven rupees only",
+    "totals.net": "₹1,29,257.00"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}
