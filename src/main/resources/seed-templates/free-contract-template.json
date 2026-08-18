@@ -1,0 +1,1183 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "agreement.effective_date"
+      },
+      {
+        "key": "agreement.fees"
+      },
+      {
+        "key": "agreement.governing_law"
+      },
+      {
+        "key": "agreement.notice"
+      },
+      {
+        "key": "agreement.number"
+      },
+      {
+        "key": "agreement.scope"
+      },
+      {
+        "key": "agreement.term"
+      },
+      {
+        "key": "party_one.address"
+      },
+      {
+        "key": "party_one.name"
+      },
+      {
+        "key": "party_one.registration"
+      },
+      {
+        "key": "party_one.signatory"
+      },
+      {
+        "key": "party_two.address"
+      },
+      {
+        "key": "party_two.name"
+      },
+      {
+        "key": "party_two.registration"
+      },
+      {
+        "key": "party_two.signatory"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 507,
+        "height": 4,
+        "style": {
+          "backgroundColor": "#1d4ed8"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 44,
+        "y": 62,
+        "width": 507,
+        "height": 34.8,
+        "content": "Services Agreement",
+        "style": {
+          "fontSize": 24,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 44,
+        "y": 94,
+        "width": 507,
+        "height": 16,
+        "content": "This agreement records the terms on which the services described below will be provided.",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "r004",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 128,
+        "width": 507,
+        "height": 56,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 58,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "AGREEMENT NO.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 58,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{agreement.number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "EFFECTIVE DATE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{agreement.effective_date}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "TERM",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{agreement.term}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "GOVERNING LAW",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{agreement.governing_law}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "PARTY ONE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{party_one.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 44,
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{party_one.address}}\n{{party_one.registration}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 316,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "PARTY TWO",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 316,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{party_two.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 316,
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{party_two.address}}\n{{party_two.registration}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 44,
+        "y": 292,
+        "width": 507,
+        "height": 16,
+        "content": "1. Scope of services",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 44,
+        "y": 312,
+        "width": 507,
+        "height": 46,
+        "content": "{{agreement.scope}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 370,
+        "width": 507,
+        "height": 16,
+        "content": "2. Fees and payment",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 44,
+        "y": 390,
+        "width": 507,
+        "height": 40,
+        "content": "{{agreement.fees}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 44,
+        "y": 442,
+        "width": 507,
+        "height": 16,
+        "content": "3. Obligations",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li024",
+        "type": "LIST",
+        "x": 50,
+        "y": 462,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Each party shall perform its obligations with reasonable skill and care."
+          },
+          {
+            "text": "Neither party may assign this agreement without prior written consent."
+          },
+          {
+            "text": "Each party shall comply with applicable law in performing this agreement."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 539,
+        "width": 507,
+        "height": 16,
+        "content": "4. Termination",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 559,
+        "width": 507,
+        "height": 40,
+        "content": "Either party may terminate this agreement on {{agreement.notice}} written notice. Termination does not affect accrued rights or obligations that by their nature survive.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l027",
+        "type": "LINE",
+        "x": 44,
+        "y": 672,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "l028",
+        "type": "LINE",
+        "x": 44,
+        "y": 692,
+        "width": 210,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 44,
+        "y": 698,
+        "width": 210,
+        "height": 14.5,
+        "content": "{{party_one.signatory}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "left"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 44,
+        "y": 712,
+        "width": 210,
+        "height": 24,
+        "content": "{{party_one.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "left"
+        }
+      },
+      {
+        "id": "l031",
+        "type": "LINE",
+        "x": 341,
+        "y": 692,
+        "width": 210,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 341,
+        "y": 698,
+        "width": 210,
+        "height": 14.5,
+        "content": "{{party_two.signatory}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t033",
+        "type": "TEXT",
+        "x": 341,
+        "y": 712,
+        "width": 210,
+        "height": 24,
+        "content": "{{party_two.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l034",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t035",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "Executed in two counterparts, each of which is an original.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 507,
+            "height": 4,
+            "style": {
+              "backgroundColor": "#1d4ed8"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 44,
+            "y": 62,
+            "width": 507,
+            "height": 34.8,
+            "content": "Services Agreement",
+            "style": {
+              "fontSize": 24,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 44,
+            "y": 94,
+            "width": 507,
+            "height": 16,
+            "content": "This agreement records the terms on which the services described below will be provided.",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "r004",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 128,
+            "width": 507,
+            "height": 56,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 58,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "AGREEMENT NO.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 58,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{agreement.number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "EFFECTIVE DATE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{agreement.effective_date}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "TERM",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{agreement.term}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "GOVERNING LAW",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{agreement.governing_law}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "PARTY ONE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{party_one.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 44,
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{party_one.address}}\n{{party_one.registration}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 316,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "PARTY TWO",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 316,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{party_two.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 316,
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{party_two.address}}\n{{party_two.registration}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 44,
+            "y": 292,
+            "width": 507,
+            "height": 16,
+            "content": "1. Scope of services",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 44,
+            "y": 312,
+            "width": 507,
+            "height": 46,
+            "content": "{{agreement.scope}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 370,
+            "width": 507,
+            "height": 16,
+            "content": "2. Fees and payment",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 44,
+            "y": 390,
+            "width": 507,
+            "height": 40,
+            "content": "{{agreement.fees}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 44,
+            "y": 442,
+            "width": 507,
+            "height": 16,
+            "content": "3. Obligations",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li024",
+            "type": "LIST",
+            "x": 50,
+            "y": 462,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Each party shall perform its obligations with reasonable skill and care."
+              },
+              {
+                "text": "Neither party may assign this agreement without prior written consent."
+              },
+              {
+                "text": "Each party shall comply with applicable law in performing this agreement."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 539,
+            "width": 507,
+            "height": 16,
+            "content": "4. Termination",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 559,
+            "width": 507,
+            "height": 40,
+            "content": "Either party may terminate this agreement on {{agreement.notice}} written notice. Termination does not affect accrued rights or obligations that by their nature survive.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l027",
+            "type": "LINE",
+            "x": 44,
+            "y": 672,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "l028",
+            "type": "LINE",
+            "x": 44,
+            "y": 692,
+            "width": 210,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 44,
+            "y": 698,
+            "width": 210,
+            "height": 14.5,
+            "content": "{{party_one.signatory}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "left"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 44,
+            "y": 712,
+            "width": 210,
+            "height": 24,
+            "content": "{{party_one.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "left"
+            }
+          },
+          {
+            "id": "l031",
+            "type": "LINE",
+            "x": 341,
+            "y": 692,
+            "width": 210,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 341,
+            "y": 698,
+            "width": 210,
+            "height": 14.5,
+            "content": "{{party_two.signatory}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t033",
+            "type": "TEXT",
+            "x": 341,
+            "y": 712,
+            "width": 210,
+            "height": 24,
+            "content": "{{party_two.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l034",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t035",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "Executed in two counterparts, each of which is an original.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "agreement.effective_date": "01 September 2026",
+    "agreement.fees": "Fees are payable monthly in arrears within 30 days of a valid invoice, calculated at the rates set out in Schedule B.",
+    "agreement.governing_law": "India",
+    "agreement.notice": "60 days",
+    "agreement.number": "AGR-2026-0057",
+    "agreement.scope": "The Supplier shall provide warehousing, pick-and-pack fulfilment and last-mile dispatch services for the Customer across the Bengaluru metropolitan area, in accordance with the service levels set out in Schedule A.",
+    "agreement.term": "24 months",
+    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "party_one.name": "Northwind Traders Pvt Ltd",
+    "party_one.registration": "CIN U51909KA2016PTC091822",
+    "party_one.signatory": "Ananya Rao",
+    "party_two.address": "22 Residency Road, Bengaluru 560025",
+    "party_two.name": "Halcyon Design Studio LLP",
+    "party_two.registration": "LLPIN AAF-2291",
+    "party_two.signatory": "Meera Krishnan"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

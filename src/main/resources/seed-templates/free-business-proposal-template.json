@@ -1,0 +1,805 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "client.name"
+      },
+      {
+        "key": "company.name"
+      },
+      {
+        "key": "phases"
+      },
+      {
+        "key": "proposal.approach_one"
+      },
+      {
+        "key": "proposal.approach_three"
+      },
+      {
+        "key": "proposal.approach_two"
+      },
+      {
+        "key": "proposal.author"
+      },
+      {
+        "key": "proposal.date"
+      },
+      {
+        "key": "proposal.number"
+      },
+      {
+        "key": "proposal.problem"
+      },
+      {
+        "key": "proposal.summary"
+      },
+      {
+        "key": "proposal.title"
+      },
+      {
+        "key": "proposal.valid_until"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 507,
+        "height": 4,
+        "style": {
+          "backgroundColor": "#1d4ed8"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 44,
+        "y": 62,
+        "width": 507,
+        "height": 34.8,
+        "content": "{{proposal.title}}",
+        "style": {
+          "fontSize": 24,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 44,
+        "y": 94,
+        "width": 507,
+        "height": 16,
+        "content": "Prepared for {{client.name}} by {{company.name}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "r004",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 128,
+        "width": 507,
+        "height": 56,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 58,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "PROPOSAL NO.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 58,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{proposal.number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "DATE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{proposal.date}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "VALID UNTIL",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{proposal.valid_until}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "PREPARED BY",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{proposal.author}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 204,
+        "width": 507,
+        "height": 46,
+        "content": "{{proposal.summary}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 262,
+        "width": 507,
+        "height": 16,
+        "content": "The problem we are solving",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 44,
+        "y": 282,
+        "width": 507,
+        "height": 52,
+        "content": "{{proposal.problem}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 44,
+        "y": 346,
+        "width": 507,
+        "height": 16,
+        "content": "Our approach",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li017",
+        "type": "LIST",
+        "x": 50,
+        "y": 366,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "{{proposal.approach_one}}"
+          },
+          {
+            "text": "{{proposal.approach_two}}"
+          },
+          {
+            "text": "{{proposal.approach_three}}"
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 44,
+        "y": 443,
+        "width": 507,
+        "height": 16,
+        "content": "Investment",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb019",
+        "type": "TABLE",
+        "x": 44,
+        "y": 463,
+        "width": 507,
+        "height": 92,
+        "columns": [
+          {
+            "header": "Phase",
+            "key": "phase"
+          },
+          {
+            "header": "Deliverable",
+            "key": "deliverable"
+          },
+          {
+            "header": "Duration",
+            "key": "duration"
+          },
+          {
+            "header": "Fee",
+            "key": "fee"
+          }
+        ],
+        "columnWidths": [
+          1,
+          2.6,
+          1,
+          1.1
+        ],
+        "dataKey": "phases",
+        "tablePreviewBodyRows": 3,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "l020",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 507,
+            "height": 4,
+            "style": {
+              "backgroundColor": "#1d4ed8"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 44,
+            "y": 62,
+            "width": 507,
+            "height": 34.8,
+            "content": "{{proposal.title}}",
+            "style": {
+              "fontSize": 24,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 44,
+            "y": 94,
+            "width": 507,
+            "height": 16,
+            "content": "Prepared for {{client.name}} by {{company.name}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "r004",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 128,
+            "width": 507,
+            "height": 56,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 58,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "PROPOSAL NO.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 58,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{proposal.number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "DATE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{proposal.date}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "VALID UNTIL",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{proposal.valid_until}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "PREPARED BY",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{proposal.author}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 204,
+            "width": 507,
+            "height": 46,
+            "content": "{{proposal.summary}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 262,
+            "width": 507,
+            "height": 16,
+            "content": "The problem we are solving",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 44,
+            "y": 282,
+            "width": 507,
+            "height": 52,
+            "content": "{{proposal.problem}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 44,
+            "y": 346,
+            "width": 507,
+            "height": 16,
+            "content": "Our approach",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li017",
+            "type": "LIST",
+            "x": 50,
+            "y": 366,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "{{proposal.approach_one}}"
+              },
+              {
+                "text": "{{proposal.approach_two}}"
+              },
+              {
+                "text": "{{proposal.approach_three}}"
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 44,
+            "y": 443,
+            "width": 507,
+            "height": 16,
+            "content": "Investment",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb019",
+            "type": "TABLE",
+            "x": 44,
+            "y": 463,
+            "width": 507,
+            "height": 92,
+            "columns": [
+              {
+                "header": "Phase",
+                "key": "phase"
+              },
+              {
+                "header": "Deliverable",
+                "key": "deliverable"
+              },
+              {
+                "header": "Duration",
+                "key": "duration"
+              },
+              {
+                "header": "Fee",
+                "key": "fee"
+              }
+            ],
+            "columnWidths": [
+              1,
+              2.6,
+              1,
+              1.1
+            ],
+            "dataKey": "phases",
+            "tablePreviewBodyRows": 3,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "l020",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "client.name": "Halcyon Design Studio LLP",
+    "company.name": "Northwind Traders Pvt Ltd",
+    "phases": "[{\"phase\":\"Phase 1\",\"deliverable\":\"Baseline instrumentation and reporting\",\"duration\":\"4 weeks\",\"fee\":\"₹4,20,000\"},{\"phase\":\"Phase 2\",\"deliverable\":\"Handheld scanning rollout and training\",\"duration\":\"8 weeks\",\"fee\":\"₹11,60,000\"},{\"phase\":\"Phase 3\",\"deliverable\":\"Wave planning and dispatch integration\",\"duration\":\"6 weeks\",\"fee\":\"₹7,80,000\"}]",
+    "proposal.approach_one": "Instrument the existing process first, so improvements can be measured rather than assumed.",
+    "proposal.approach_three": "Introduce wave planning so dispatch cut-offs drive picking priority automatically.",
+    "proposal.approach_two": "Replace the paper pick list with handheld scanning, removing two of the three handoffs.",
+    "proposal.author": "Vikram Shetty",
+    "proposal.date": "16 August 2026",
+    "proposal.number": "PRP-2026-0033",
+    "proposal.problem": "Order picking is currently paper-driven, with three manual handoffs between receipt and dispatch. Each handoff is a point where orders stall, and none of them is instrumented — so the delay is visible only after the fact, in customer complaints.",
+    "proposal.summary": "This proposal sets out a phased programme to reduce order-to-dispatch time at the Hosur Road facility from an average of 38 hours to under 12, without expanding headcount.",
+    "proposal.title": "Warehouse Automation Programme",
+    "proposal.valid_until": "30 September 2026"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

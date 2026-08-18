@@ -1,0 +1,1149 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "agreement.confidentiality_period"
+      },
+      {
+        "key": "agreement.effective_date"
+      },
+      {
+        "key": "agreement.governing_law"
+      },
+      {
+        "key": "agreement.number"
+      },
+      {
+        "key": "agreement.purpose"
+      },
+      {
+        "key": "party_one.address"
+      },
+      {
+        "key": "party_one.name"
+      },
+      {
+        "key": "party_one.registration"
+      },
+      {
+        "key": "party_one.signatory"
+      },
+      {
+        "key": "party_two.address"
+      },
+      {
+        "key": "party_two.name"
+      },
+      {
+        "key": "party_two.registration"
+      },
+      {
+        "key": "party_two.signatory"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 507,
+        "height": 4,
+        "style": {
+          "backgroundColor": "#1d4ed8"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 44,
+        "y": 62,
+        "width": 507,
+        "height": 34.8,
+        "content": "Non-Disclosure Agreement",
+        "style": {
+          "fontSize": 24,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 44,
+        "y": 94,
+        "width": 507,
+        "height": 16,
+        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "r004",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 128,
+        "width": 507,
+        "height": 56,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 58,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "AGREEMENT NO.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 58,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{agreement.number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "EFFECTIVE DATE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{agreement.effective_date}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "CONFIDENTIALITY PERIOD",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{agreement.confidentiality_period}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "GOVERNING LAW",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 152,
+        "width": 109.75,
+        "height": 27.55,
+        "content": "{{agreement.governing_law}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "DISCLOSING PARTY",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{party_one.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 44,
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{party_one.address}}\n{{party_one.registration}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 316,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "RECEIVING PARTY",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 316,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{party_two.name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 316,
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{party_two.address}}\n{{party_two.registration}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 44,
+        "y": 292,
+        "width": 507,
+        "height": 48,
+        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t020",
+        "type": "TEXT",
+        "x": 44,
+        "y": 350,
+        "width": 507,
+        "height": 16,
+        "content": "1. Confidential information",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 370,
+        "width": 507,
+        "height": 46,
+        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 44,
+        "y": 428,
+        "width": 507,
+        "height": 16,
+        "content": "2. Obligations of the receiving party",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li023",
+        "type": "LIST",
+        "x": 50,
+        "y": 448,
+        "width": 495,
+        "height": 84,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Use the confidential information solely for the stated purpose."
+          },
+          {
+            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+          },
+          {
+            "text": "Protect it with at least the same care used for its own confidential information."
+          },
+          {
+            "text": "Return or destroy it on written request or on termination of this agreement."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 546,
+        "width": 507,
+        "height": 16,
+        "content": "3. Exclusions",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 566,
+        "width": 507,
+        "height": 46,
+        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l026",
+        "type": "LINE",
+        "x": 44,
+        "y": 672,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "l027",
+        "type": "LINE",
+        "x": 44,
+        "y": 692,
+        "width": 210,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t028",
+        "type": "TEXT",
+        "x": 44,
+        "y": 698,
+        "width": 210,
+        "height": 14.5,
+        "content": "{{party_one.signatory}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "left"
+        }
+      },
+      {
+        "id": "t029",
+        "type": "TEXT",
+        "x": 44,
+        "y": 712,
+        "width": 210,
+        "height": 24,
+        "content": "{{party_one.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "left"
+        }
+      },
+      {
+        "id": "l030",
+        "type": "LINE",
+        "x": 341,
+        "y": 692,
+        "width": 210,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#9ca3af"
+        }
+      },
+      {
+        "id": "t031",
+        "type": "TEXT",
+        "x": 341,
+        "y": 698,
+        "width": 210,
+        "height": 14.5,
+        "content": "{{party_two.signatory}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 341,
+        "y": 712,
+        "width": 210,
+        "height": 24,
+        "content": "{{party_two.name}}",
+        "style": {
+          "fontSize": 8.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.35,
+          "align": "right"
+        }
+      },
+      {
+        "id": "l033",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t034",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 507,
+            "height": 4,
+            "style": {
+              "backgroundColor": "#1d4ed8"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 44,
+            "y": 62,
+            "width": 507,
+            "height": 34.8,
+            "content": "Non-Disclosure Agreement",
+            "style": {
+              "fontSize": 24,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 44,
+            "y": 94,
+            "width": 507,
+            "height": 16,
+            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "r004",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 128,
+            "width": 507,
+            "height": 56,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 58,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "AGREEMENT NO.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 58,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{agreement.number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "EFFECTIVE DATE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{agreement.effective_date}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "CONFIDENTIALITY PERIOD",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{agreement.confidentiality_period}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "GOVERNING LAW",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 152,
+            "width": 109.75,
+            "height": 27.55,
+            "content": "{{agreement.governing_law}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "DISCLOSING PARTY",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{party_one.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 44,
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{party_one.address}}\n{{party_one.registration}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 316,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "RECEIVING PARTY",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 316,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{party_two.name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 316,
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{party_two.address}}\n{{party_two.registration}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 44,
+            "y": 292,
+            "width": 507,
+            "height": 48,
+            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t020",
+            "type": "TEXT",
+            "x": 44,
+            "y": 350,
+            "width": 507,
+            "height": 16,
+            "content": "1. Confidential information",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 370,
+            "width": 507,
+            "height": 46,
+            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 44,
+            "y": 428,
+            "width": 507,
+            "height": 16,
+            "content": "2. Obligations of the receiving party",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li023",
+            "type": "LIST",
+            "x": 50,
+            "y": 448,
+            "width": 495,
+            "height": 84,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Use the confidential information solely for the stated purpose."
+              },
+              {
+                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+              },
+              {
+                "text": "Protect it with at least the same care used for its own confidential information."
+              },
+              {
+                "text": "Return or destroy it on written request or on termination of this agreement."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 546,
+            "width": 507,
+            "height": 16,
+            "content": "3. Exclusions",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 566,
+            "width": 507,
+            "height": 46,
+            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l026",
+            "type": "LINE",
+            "x": 44,
+            "y": 672,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "l027",
+            "type": "LINE",
+            "x": 44,
+            "y": 692,
+            "width": 210,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t028",
+            "type": "TEXT",
+            "x": 44,
+            "y": 698,
+            "width": 210,
+            "height": 14.5,
+            "content": "{{party_one.signatory}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "left"
+            }
+          },
+          {
+            "id": "t029",
+            "type": "TEXT",
+            "x": 44,
+            "y": 712,
+            "width": 210,
+            "height": 24,
+            "content": "{{party_one.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "left"
+            }
+          },
+          {
+            "id": "l030",
+            "type": "LINE",
+            "x": 341,
+            "y": 692,
+            "width": 210,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#9ca3af"
+            }
+          },
+          {
+            "id": "t031",
+            "type": "TEXT",
+            "x": 341,
+            "y": 698,
+            "width": 210,
+            "height": 14.5,
+            "content": "{{party_two.signatory}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 341,
+            "y": 712,
+            "width": 210,
+            "height": 24,
+            "content": "{{party_two.name}}",
+            "style": {
+              "fontSize": 8.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.35,
+              "align": "right"
+            }
+          },
+          {
+            "id": "l033",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t034",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "agreement.confidentiality_period": "3 years",
+    "agreement.effective_date": "16 August 2026",
+    "agreement.governing_law": "India",
+    "agreement.number": "NDA-2026-0219",
+    "agreement.purpose": "a potential logistics partnership",
+    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "party_one.name": "Northwind Traders Pvt Ltd",
+    "party_one.registration": "CIN U51909KA2016PTC091822",
+    "party_one.signatory": "Ananya Rao",
+    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
+    "party_two.name": "Sterling Components Pvt Ltd",
+    "party_two.registration": "CIN U29253KA2011PTC058117",
+    "party_two.signatory": "K. Balasubramanian"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}

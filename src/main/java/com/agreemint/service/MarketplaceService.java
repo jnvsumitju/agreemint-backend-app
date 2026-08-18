@@ -38,18 +38,41 @@ public class MarketplaceService {
 
     @Transactional(readOnly = true)
     public List<MarketplaceListingResponse> listPublished() {
-        return listingRepo.findByPublishedTrueOrderByCreatedAtDesc()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return listPublished(false);
+    }
+
+    /**
+     * @param officialOnly restrict to first-party listings. Set for callers whose
+     *                     plan does not include the marketplace: rather than 403
+     *                     the whole page, they see the free Crixaa templates and
+     *                     nothing else. Filtering in the query, not after it, so
+     *                     third-party rows never leave the database.
+     */
+    @Transactional(readOnly = true)
+    public List<MarketplaceListingResponse> listPublished(boolean officialOnly) {
+        var rows = officialOnly
+                ? listingRepo.findByPublishedTrueAndOfficialTrueOrderByCreatedAtDesc()
+                : listingRepo.findByPublishedTrueOrderByCreatedAtDesc();
+        return rows.stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<MarketplaceListingResponse> listByCategory(String category) {
-        return listingRepo.findByCategoryAndPublishedTrue(category)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return listByCategory(category, false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MarketplaceListingResponse> listByCategory(String category, boolean officialOnly) {
+        var rows = officialOnly
+                ? listingRepo.findByCategoryAndPublishedTrueAndOfficialTrue(category)
+                : listingRepo.findByCategoryAndPublishedTrue(category);
+        return rows.stream().map(this::toResponse).toList();
+    }
+
+    /** True when the listing is first-party, i.e. reachable without the marketplace plan. */
+    @Transactional(readOnly = true)
+    public boolean isOfficial(UUID id) {
+        return listingRepo.findById(id).map(MarketplaceListing::isOfficial).orElse(false);
     }
 
     @Transactional(readOnly = true)
@@ -265,6 +288,9 @@ public class MarketplaceService {
                 m.getTags(),
                 m.getInstallCount(),
                 m.isPublished(),
+                m.isOfficial(),
+                // Deliberately withheld for third-party rows: see the field doc.
+                m.isOfficial() ? m.getSourceTemplateId() : null,
                 m.getCreatedAt()
         );
     }

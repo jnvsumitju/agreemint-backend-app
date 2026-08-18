@@ -83,11 +83,26 @@ public class MarketplaceListing {
     @Column(nullable = false)
     private boolean published = false;
 
+    /**
+     * First-party listing, published from the Crixaa org.
+     *
+     * <p>Drives the "from Crixaa" badge and ordering in the console, and lets a
+     * FREE-plan org browse and install this row while the rest of the
+     * marketplace stays a Starter+ feature. Ownership is otherwise identical to
+     * any other listing — these are published by a real org through the normal
+     * path, so nothing downstream needs to special-case them.
+     */
+    @Column(nullable = false)
+    private boolean official = false;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
+
+    public boolean isOfficial() { return official; }
+    public void setOfficial(boolean official) { this.official = official; }
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }

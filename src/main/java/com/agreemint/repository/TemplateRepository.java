@@ -10,6 +10,9 @@ public interface TemplateRepository extends JpaRepository<Template, UUID> {
 
     List<Template> findByOrgId(UUID orgId);
 
+    /** Stable identity for re-seeding the first-party catalogue. */
+    java.util.Optional<Template> findFirstByOrgIdAndName(UUID orgId, String name);
+
     /** Used to enforce the free-plan template cap. */
     long countByOrgId(UUID orgId);
 

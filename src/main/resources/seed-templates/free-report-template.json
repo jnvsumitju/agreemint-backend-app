@@ -1,0 +1,801 @@
+{
+  "__agreemint_template__": true,
+  "version": 2,
+  "layout": {
+    "page": {
+      "size": "A4",
+      "margin": 44,
+      "margins": {
+        "top": 44,
+        "right": 44,
+        "bottom": 44,
+        "left": 44
+      },
+      "orientation": "portrait"
+    },
+    "layoutSchemaVersion": 2,
+    "globalVariables": [
+      {
+        "key": "metrics"
+      },
+      {
+        "key": "report.author"
+      },
+      {
+        "key": "report.number"
+      },
+      {
+        "key": "report.observation_one"
+      },
+      {
+        "key": "report.observation_three"
+      },
+      {
+        "key": "report.observation_two"
+      },
+      {
+        "key": "report.period"
+      },
+      {
+        "key": "report.recommendations"
+      },
+      {
+        "key": "report.status"
+      },
+      {
+        "key": "report.subtitle"
+      },
+      {
+        "key": "report.summary"
+      },
+      {
+        "key": "report.title"
+      }
+    ],
+    "elements": [
+      {
+        "id": "r001",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 44,
+        "width": 507,
+        "height": 4,
+        "style": {
+          "backgroundColor": "#1d4ed8"
+        }
+      },
+      {
+        "id": "t002",
+        "type": "TEXT",
+        "x": 44,
+        "y": 62,
+        "width": 507,
+        "height": 34.8,
+        "content": "{{report.title}}",
+        "style": {
+          "fontSize": 24,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t003",
+        "type": "TEXT",
+        "x": 44,
+        "y": 94,
+        "width": 507,
+        "height": 16,
+        "content": "{{report.subtitle}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45
+        }
+      },
+      {
+        "id": "r004",
+        "type": "POLYGON",
+        "polygonKind": "rect",
+        "x": 44,
+        "y": 128,
+        "width": 507,
+        "height": 56,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
+        }
+      },
+      {
+        "id": "t005",
+        "type": "TEXT",
+        "x": 58,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "REPORT NO.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t006",
+        "type": "TEXT",
+        "x": 58,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{report.number}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t007",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "PERIOD",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t008",
+        "type": "TEXT",
+        "x": 177.75,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{report.period}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t009",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "PREPARED BY",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t010",
+        "type": "TEXT",
+        "x": 297.5,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{report.author}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t011",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 140,
+        "width": 109.75,
+        "height": 12,
+        "content": "STATUS",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t012",
+        "type": "TEXT",
+        "x": 417.25,
+        "y": 152,
+        "width": 109.75,
+        "height": 16,
+        "content": "{{report.status}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t013",
+        "type": "TEXT",
+        "x": 44,
+        "y": 204,
+        "width": 507,
+        "height": 48,
+        "content": "{{report.summary}}",
+        "style": {
+          "fontSize": 10,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 262,
+        "width": 507,
+        "height": 16,
+        "content": "Key figures",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb015",
+        "type": "TABLE",
+        "x": 44,
+        "y": 282,
+        "width": 507,
+        "height": 132,
+        "columns": [
+          {
+            "header": "Metric",
+            "key": "metric"
+          },
+          {
+            "header": "This period",
+            "key": "current"
+          },
+          {
+            "header": "Previous",
+            "key": "previous"
+          },
+          {
+            "header": "Change",
+            "key": "change"
+          }
+        ],
+        "columnWidths": [
+          2.4,
+          1.1,
+          1.1,
+          0.9
+        ],
+        "dataKey": "metrics",
+        "tablePreviewBodyRows": 5,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151"
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 44,
+        "y": 430,
+        "width": 507,
+        "height": 16,
+        "content": "Observations",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li017",
+        "type": "LIST",
+        "x": 50,
+        "y": 450,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "{{report.observation_one}}"
+          },
+          {
+            "text": "{{report.observation_two}}"
+          },
+          {
+            "text": "{{report.observation_three}}"
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 44,
+        "y": 527,
+        "width": 507,
+        "height": 16,
+        "content": "Recommended actions",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 44,
+        "y": 547,
+        "width": 507,
+        "height": 46,
+        "content": "{{report.recommendations}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l020",
+        "type": "LINE",
+        "x": 44,
+        "y": 768,
+        "width": 507,
+        "height": 0,
+        "strokeWidth": 1,
+        "style": {
+          "color": "#e5e7eb"
+        }
+      },
+      {
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 776,
+        "width": 507,
+        "height": 22,
+        "content": "Circulated to the leadership team. Figures are unaudited unless stated otherwise.",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.4,
+          "align": "center"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "page_1",
+        "name": "Page 1",
+        "elements": [
+          {
+            "id": "r001",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 44,
+            "width": 507,
+            "height": 4,
+            "style": {
+              "backgroundColor": "#1d4ed8"
+            }
+          },
+          {
+            "id": "t002",
+            "type": "TEXT",
+            "x": 44,
+            "y": 62,
+            "width": 507,
+            "height": 34.8,
+            "content": "{{report.title}}",
+            "style": {
+              "fontSize": 24,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t003",
+            "type": "TEXT",
+            "x": 44,
+            "y": 94,
+            "width": 507,
+            "height": 16,
+            "content": "{{report.subtitle}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "id": "r004",
+            "type": "POLYGON",
+            "polygonKind": "rect",
+            "x": 44,
+            "y": 128,
+            "width": 507,
+            "height": 56,
+            "style": {
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
+            }
+          },
+          {
+            "id": "t005",
+            "type": "TEXT",
+            "x": 58,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "REPORT NO.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t006",
+            "type": "TEXT",
+            "x": 58,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{report.number}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t007",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "PERIOD",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t008",
+            "type": "TEXT",
+            "x": 177.75,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{report.period}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t009",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "PREPARED BY",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t010",
+            "type": "TEXT",
+            "x": 297.5,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{report.author}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t011",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 140,
+            "width": 109.75,
+            "height": 12,
+            "content": "STATUS",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t012",
+            "type": "TEXT",
+            "x": 417.25,
+            "y": 152,
+            "width": 109.75,
+            "height": 16,
+            "content": "{{report.status}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t013",
+            "type": "TEXT",
+            "x": 44,
+            "y": 204,
+            "width": 507,
+            "height": 48,
+            "content": "{{report.summary}}",
+            "style": {
+              "fontSize": 10,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 262,
+            "width": 507,
+            "height": 16,
+            "content": "Key figures",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb015",
+            "type": "TABLE",
+            "x": 44,
+            "y": 282,
+            "width": 507,
+            "height": 132,
+            "columns": [
+              {
+                "header": "Metric",
+                "key": "metric"
+              },
+              {
+                "header": "This period",
+                "key": "current"
+              },
+              {
+                "header": "Previous",
+                "key": "previous"
+              },
+              {
+                "header": "Change",
+                "key": "change"
+              }
+            ],
+            "columnWidths": [
+              2.4,
+              1.1,
+              1.1,
+              0.9
+            ],
+            "dataKey": "metrics",
+            "tablePreviewBodyRows": 5,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151"
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 44,
+            "y": 430,
+            "width": 507,
+            "height": 16,
+            "content": "Observations",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li017",
+            "type": "LIST",
+            "x": 50,
+            "y": 450,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "{{report.observation_one}}"
+              },
+              {
+                "text": "{{report.observation_two}}"
+              },
+              {
+                "text": "{{report.observation_three}}"
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 44,
+            "y": 527,
+            "width": 507,
+            "height": 16,
+            "content": "Recommended actions",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 44,
+            "y": 547,
+            "width": 507,
+            "height": 46,
+            "content": "{{report.recommendations}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l020",
+            "type": "LINE",
+            "x": 44,
+            "y": 768,
+            "width": 507,
+            "height": 0,
+            "strokeWidth": 1,
+            "style": {
+              "color": "#e5e7eb"
+            }
+          },
+          {
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 776,
+            "width": 507,
+            "height": 22,
+            "content": "Circulated to the leadership team. Figures are unaudited unless stated otherwise.",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.4,
+              "align": "center"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variableValues": {
+    "metrics": "[{\"metric\":\"Orders dispatched\",\"current\":\"48,210\",\"previous\":\"40,844\",\"change\":\"+18.0%\"},{\"metric\":\"Cost per order\",\"current\":\"₹64.20\",\"previous\":\"₹68.30\",\"change\":\"−6.0%\"},{\"metric\":\"On-time dispatch\",\"current\":\"97.4%\",\"previous\":\"97.6%\",\"change\":\"−0.2pp\"},{\"metric\":\"Order accuracy\",\"current\":\"99.1%\",\"previous\":\"98.7%\",\"change\":\"+0.4pp\"},{\"metric\":\"Returns processed\",\"current\":\"2,118\",\"previous\":\"1,905\",\"change\":\"+11.2%\"}]",
+    "report.author": "R. Subramanian",
+    "report.number": "OPS-2026-Q2",
+    "report.observation_one": "Cost per order improved for the third consecutive quarter, but the rate of improvement is slowing.",
+    "report.observation_three": "Returns processing remains the longest single step at an average of 4.2 days.",
+    "report.observation_two": "All eleven missed cut-offs in June occurred on days when inbound receipts exceeded 400 units.",
+    "report.period": "Apr–Jun 2026",
+    "report.recommendations": "Add a second receiving bay before the festive peak, and instrument returns processing so the 4.2-day average can be broken down by cause rather than estimated.",
+    "report.status": "Final",
+    "report.subtitle": "Fulfilment performance, cost per order and service levels",
+    "report.summary": "Order volume grew 18% quarter on quarter while cost per order fell 6%, driven mainly by the consolidation of inbound freight. Service levels held steady, though the dispatch cut-off was missed on eleven occasions in June.",
+    "report.title": "Quarterly Operations Review"
+  },
+  "exportedAt": "2026-08-16T00:00:00.000Z"
+}
