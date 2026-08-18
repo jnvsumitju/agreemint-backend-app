@@ -14,5 +14,17 @@ public interface TemplateVersionRepository extends JpaRepository<TemplateVersion
 
     Optional<TemplateVersion> findFirstByTemplateOrderByVersionNumberDesc(Template template);
 
+    /**
+     * Highest version number per template, for a whole list in one query.
+     *
+     * <p>Per-template lookups would make the templates list N+1 — it is the
+     * first screen after login and already fans out for product names.
+     */
+    @org.springframework.data.jpa.repository.Query(
+            "select v.template.id, max(v.versionNumber) from TemplateVersion v "
+                    + "where v.template.id in :ids group by v.template.id")
+    java.util.List<Object[]> findMaxVersionByTemplateIds(
+            @org.springframework.data.repository.query.Param("ids") java.util.Collection<UUID> ids);
+
     boolean existsByTemplate_IdAndId(UUID templateId, UUID versionId);
 }
