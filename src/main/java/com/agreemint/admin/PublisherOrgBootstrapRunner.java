@@ -32,16 +32,20 @@ import java.util.List;
  * cross-tenant marketplace hole; a second one there would be worse, because it
  * would be deliberate.
  *
- * <p>DESIGNER, not ADMIN, on purpose: it can create, edit and publish templates,
- * which is the entire job, and cannot change billing, invite members, or remove
- * the workspace. Staff who need those already have the admin portal.
+ * <p>ADMIN, because the job includes inviting other people into this workspace
+ * with roles of their own. DESIGNER covers editing and publishing templates but
+ * cannot invite members, which would leave the publisher workspace permanently
+ * staffed by whoever the bootstrap happened to promote. Configurable via
+ * {@code agreemint.publisher.staff-role} for a deployment that wants it
+ * tighter.
  *
  * <p>Runs after {@link StaffBootstrapRunner} ({@code @Order(0)}) so the accounts
  * it grants membership to have had their staff flag set in the same startup.
- * Idempotent: re-running adopts the existing org, and only adds the memberships
- * that are missing. An existing membership is left exactly as it is — including
- * a hand-raised ADMIN — because silently demoting someone's access on restart
- * would be a nasty surprise.
+ * Idempotent, and it only ever RAISES a role: a staff member already holding
+ * ADMIN keeps it, one holding something lower is raised to the configured role,
+ * and nobody is ever demoted on a restart. Raising matters because the role was
+ * DESIGNER first — without it, an account bootstrapped under the old default
+ * would be stuck unable to invite anyone.
  *
  * <p>Disabled unless {@code agreemint.publisher.enabled} is true, so a
  * development database never grows an org nobody asked for.
@@ -63,6 +67,7 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
     private final boolean enabled;
     private final String slug;
     private final String name;
+    private final OrgRole staffRole;
 
     public PublisherOrgBootstrapRunner(
             OrganizationRepository orgRepo,
@@ -72,7 +77,8 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
             org.springframework.transaction.support.TransactionTemplate tx,
             @Value("${agreemint.publisher.enabled:false}") boolean enabled,
             @Value("${agreemint.publisher.slug:crixaa}") String slug,
-            @Value("${agreemint.publisher.name:Crixaa}") String name) {
+            @Value("${agreemint.publisher.name:Crixaa}") String name,
+            @Value("${agreemint.publisher.staff-role:ADMIN}") OrgRole staffRole) {
         this.orgRepo = orgRepo;
         this.membershipRepo = membershipRepo;
         this.userRepo = userRepo;
@@ -81,6 +87,7 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
         this.enabled = enabled;
         this.slug = slug;
         this.name = name;
+        this.staffRole = staffRole;
     }
 
     @Override
@@ -163,16 +170,32 @@ public class PublisherOrgBootstrapRunner implements CommandLineRunner {
             return;
         }
         int added = 0;
+        int raised = 0;
         for (User u : staff) {
-            if (membershipRepo.existsByUserIdAndOrganizationId(u.getId(), org.getId())) continue;
+            var existing = membershipRepo.findByUserIdAndOrganizationId(u.getId(), org.getId());
+            if (existing.isPresent()) {
+                OrgMembership m = existing.get();
+                // Raise only. Enum order is ADMIN, DESIGNER, REVIEWER, VIEWER, so
+                // a LOWER ordinal is a higher privilege — comparing the wrong way
+                // round here would quietly demote every staff account on restart.
+                if (m.getRole() == null || m.getRole().ordinal() > staffRole.ordinal()) {
+                    log.info("[publisher-bootstrap] Raising {} from {} to {} in '{}'.",
+                            u.getEmail(), m.getRole(), staffRole, slug);
+                    m.setRole(staffRole);
+                    membershipRepo.save(m);
+                    raised++;
+                }
+                continue;
+            }
             OrgMembership m = new OrgMembership();
             m.setUser(u);
             m.setOrganization(org);
-            m.setRole(OrgRole.DESIGNER);
+            m.setRole(staffRole);
             membershipRepo.save(m);
             added++;
         }
-        log.info("[publisher-bootstrap] Publisher workspace '{}': {} staff member(s), {} newly added.",
-                slug, staff.size(), added);
+        log.info("[publisher-bootstrap] Publisher workspace '{}': {} staff member(s) as {}, "
+                        + "{} newly added, {} raised.",
+                slug, staff.size(), staffRole, added, raised);
     }
 }
