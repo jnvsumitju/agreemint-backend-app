@@ -138,9 +138,11 @@ public class TemplateController {
     /**
      * Move a template between DRAFT / ACTIVE / ARCHIVED.
      *
-     * <p>Gated by the same roles as any other template write. A VIEWER or
-     * REVIEWER must not be able to archive a template out of use, and activating
-     * one is what permits document generation from it — both are edits.
+     * <p>ADMIN and REVIEWER only — deliberately NOT the same roles as an
+     * ordinary template write. Activating a template is what permits documents
+     * to be generated from it, which is an approval rather than an edit, so the
+     * person who builds a template does not sign it off: a DESIGNER can change
+     * every pixel of it and cannot put it into use. VIEWER has neither.
      */
     @PatchMapping("/{id}/status")
     public TemplateResponse setStatus(
@@ -158,7 +160,7 @@ public class TemplateController {
         log.info("PATCH /api/templates/{}/status -> {} user={}",
                 templateId, body.status(), principal.userId());
         orgAuthz.assertTemplateAccess(principal.userId(), templateId,
-                OrgRole.ADMIN, OrgRole.DESIGNER);
+                OrgRole.ADMIN, OrgRole.REVIEWER);
         return templateService.setStatus(templateId, body.status());
     }
 
