@@ -28,6 +28,15 @@ public class Template {
     @Column(name = "org_id")
     private UUID orgId;
 
+    /**
+     * Lifecycle state. New templates start {@link TemplateStatus#DRAFT}; the
+     * V30 migration backfilled every pre-existing row to ACTIVE so nothing in
+     * use stopped generating.
+     */
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private TemplateStatus status = TemplateStatus.DRAFT;
+
     @Column(name = "owner_id")
     private UUID ownerId;
 
@@ -47,6 +56,14 @@ public class Template {
 
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
+
+    public TemplateStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TemplateStatus status) {
+        this.status = status;
+    }
 
     public UUID getId() {
         return id;

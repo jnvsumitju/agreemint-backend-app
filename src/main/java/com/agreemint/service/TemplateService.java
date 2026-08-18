@@ -7,6 +7,7 @@ import com.agreemint.api.dto.CreateVersionRequest;
 import com.agreemint.api.dto.TemplateResponse;
 import com.agreemint.domain.Product;
 import com.agreemint.domain.Template;
+import com.agreemint.domain.TemplateStatus;
 import com.agreemint.repository.ProductRepository;
 import com.agreemint.repository.TemplateRepository;
 import org.slf4j.Logger;
@@ -171,6 +172,27 @@ public class TemplateService {
         log.info("template.delete ok id={}", templateId);
     }
 
+    /**
+     * Move a template between lifecycle states.
+     *
+     * <p>Any transition is allowed, including ARCHIVED straight back to ACTIVE.
+     * There is no state machine to get stuck in: the states describe intent, and
+     * an author who archived the wrong template should not have to walk it back
+     * through DRAFT to undo that.
+     *
+     * <p>The caller's right to write to this template is asserted by the
+     * controller, as with every other template mutation.
+     */
+    @Transactional
+    public TemplateResponse setStatus(UUID templateId, TemplateStatus next) {
+        Template t = templateRepository.findById(templateId)
+                .orElseThrow(() -> new NotFoundException("Template not found"));
+        t.setStatus(next);
+        templateRepository.save(t);
+        log.info("template.status id={} status={}", templateId, next);
+        return toResponse(t);
+    }
+
     // ── helpers ─────────────────────────────────────────────────────────────
 
     /** Batch-load the product names for a page of templates so the response
@@ -223,6 +245,7 @@ public class TemplateService {
                 t.getCreatedAt(),
                 t.getProductId(),
                 productName,
+                t.getStatus(),
                 status.versions().get(t.getId()),
                 status.withDraft().contains(t.getId()));
     }

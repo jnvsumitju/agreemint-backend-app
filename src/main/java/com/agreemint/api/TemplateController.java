@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -133,6 +134,36 @@ public class TemplateController {
         templateService.delete(templateId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Move a template between DRAFT / ACTIVE / ARCHIVED.
+     *
+     * <p>Gated by the same roles as any other template write. A VIEWER or
+     * REVIEWER must not be able to archive a template out of use, and activating
+     * one is what permits document generation from it — both are edits.
+     */
+    @PatchMapping("/{id}/status")
+    public TemplateResponse setStatus(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("id") UUID templateId,
+            @RequestBody SetStatusRequest body
+    ) {
+        if (principal == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        if (body == null || body.status() == null) {
+            throw new com.agreemint.api.BadRequestException("status is required");
+        }
+        log.info("PATCH /api/templates/{}/status -> {} user={}",
+                templateId, body.status(), principal.userId());
+        orgAuthz.assertTemplateAccess(principal.userId(), templateId,
+                OrgRole.ADMIN, OrgRole.DESIGNER);
+        return templateService.setStatus(templateId, body.status());
+    }
+
+    /** Body for {@link #setStatus}. */
+    public record SetStatusRequest(com.agreemint.domain.TemplateStatus status) {}
 
     @GetMapping("/{id}/versions")
     public List<TemplateVersionResponse> listVersions(@PathVariable("id") UUID templateId) {

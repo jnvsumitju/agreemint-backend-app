@@ -55,7 +55,7 @@ class PublisherOrgBootstrapRunnerTest {
 
     private PublisherOrgBootstrapRunner runner(boolean enabled) {
         return new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
-                directTx(), enabled, "crixaa", "Crixaa");
+                directTx(), enabled, "crixaa", "Crixaa", OrgRole.ADMIN);
     }
 
     private User staffUser() {
@@ -89,37 +89,85 @@ class PublisherOrgBootstrapRunnerTest {
     }
 
     @Test
-    void grantsStaffDesignerNotAdmin() {
+    void grantsStaffAdminSoTheyCanInviteOthers() {
         Organization existing = new Organization();
         existing.setId(orgId);
         existing.setSlug("crixaa");
         existing.setPlan(OrgPlan.ENTERPRISE);
         when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
         when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
-        when(membershipRepo.existsByUserIdAndOrganizationId(any(), any())).thenReturn(false);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any())).thenReturn(Optional.empty());
 
         runner(true).run();
 
         ArgumentCaptor<OrgMembership> m = ArgumentCaptor.forClass(OrgMembership.class);
         verify(membershipRepo).save(m.capture());
-        // DESIGNER can create, edit and publish templates — the entire job — and
-        // cannot touch billing, invite members, or delete the workspace.
-        assertEquals(OrgRole.DESIGNER, m.getValue().getRole());
+        // ADMIN, not DESIGNER: the job includes inviting other people into this
+        // workspace, and DESIGNER cannot invite.
+        assertEquals(OrgRole.ADMIN, m.getValue().getRole());
     }
 
     @Test
-    void existingMembershipIsLeftAlone() {
-        // Re-running must not demote someone whose role was raised by hand;
-        // silently changing access on a restart is a nasty surprise.
+    void anExistingAdminIsLeftAlone() {
+        // Steady state: nothing to change, so a restart writes nothing.
         Organization existing = new Organization();
         existing.setId(orgId);
         existing.setSlug("crixaa");
         existing.setPlan(OrgPlan.ENTERPRISE);
         when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
         when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
-        when(membershipRepo.existsByUserIdAndOrganizationId(any(), any())).thenReturn(true);
+        OrgMembership existingMembership = new OrgMembership();
+        existingMembership.setRole(OrgRole.ADMIN);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(existingMembership));
 
         runner(true).run();
+
+        verify(membershipRepo, never()).save(any());
+    }
+
+    @Test
+    void aStaffMemberBootstrappedUnderTheOldDesignerDefaultIsRaised() {
+        // The role was DESIGNER first. Without raising, an account created under
+        // that default would be permanently unable to invite anyone — which is
+        // the whole reason for the change.
+        Organization existing = new Organization();
+        existing.setId(orgId);
+        existing.setSlug("crixaa");
+        existing.setPlan(OrgPlan.ENTERPRISE);
+        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
+        when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
+        OrgMembership designer = new OrgMembership();
+        designer.setRole(OrgRole.DESIGNER);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(designer));
+
+        runner(true).run();
+
+        ArgumentCaptor<OrgMembership> m = ArgumentCaptor.forClass(OrgMembership.class);
+        verify(membershipRepo).save(m.capture());
+        assertEquals(OrgRole.ADMIN, m.getValue().getRole());
+    }
+
+    @Test
+    void neverDemotesEvenIfConfiguredLower() {
+        // Enum order is ADMIN, DESIGNER, REVIEWER, VIEWER — a LOWER ordinal is a
+        // HIGHER privilege. Comparing the wrong way round would demote every
+        // staff account on restart, silently, which is far worse than the gap it
+        // would be trying to close.
+        Organization existing = new Organization();
+        existing.setId(orgId);
+        existing.setSlug("crixaa");
+        existing.setPlan(OrgPlan.ENTERPRISE);
+        when(orgRepo.findBySlug("crixaa")).thenReturn(Optional.of(existing));
+        when(userRepo.findByStaffTrue()).thenReturn(List.of(staffUser()));
+        OrgMembership admin = new OrgMembership();
+        admin.setRole(OrgRole.ADMIN);
+        when(membershipRepo.findByUserIdAndOrganizationId(any(), any()))
+                .thenReturn(Optional.of(admin));
+
+        new PublisherOrgBootstrapRunner(orgRepo, membershipRepo, userRepo, seeder,
+                directTx(), true, "crixaa", "Crixaa", OrgRole.VIEWER).run();
 
         verify(membershipRepo, never()).save(any());
     }
