@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,40 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
+        "key": "loan.date"
       },
       {
-        "key": "agreement.effective_date"
+        "key": "loan.default_interest"
       },
       {
-        "key": "agreement.governing_law"
+        "key": "loan.first_due"
       },
       {
-        "key": "agreement.number"
+        "key": "loan.governing_law"
       },
       {
-        "key": "agreement.purpose"
+        "key": "loan.grace_period"
+      },
+      {
+        "key": "loan.interest"
+      },
+      {
+        "key": "loan.number"
+      },
+      {
+        "key": "loan.principal"
+      },
+      {
+        "key": "loan.purpose"
+      },
+      {
+        "key": "loan.repayment"
+      },
+      {
+        "key": "loan.security"
+      },
+      {
+        "key": "loan.term"
       },
       {
         "key": "party_one.address"
@@ -66,7 +87,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +97,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Loan Agreement",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +113,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "A private loan between two parties — amount, interest, repayment and default.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -136,7 +157,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{loan.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +173,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "EFFECTIVE DATE",
+        "content": "DATE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +188,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{loan.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +205,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "PRINCIPAL",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -199,8 +220,8 @@
         "x": 297.5,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "height": 16,
+        "content": "{{loan.principal}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +237,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "TERM",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -231,8 +252,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "height": 16,
+        "content": "{{loan.term}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +269,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "LENDER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +316,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "BORROWER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -341,8 +362,8 @@
         "x": 44,
         "y": 292,
         "width": 507,
-        "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "height": 46,
+        "content": "The lender lends and the borrower borrows {{loan.principal}} for {{loan.purpose}}, on the terms below.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,66 +378,32 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Interest and repayment",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t021",
-        "type": "TEXT",
-        "x": 44,
-        "y": 370,
-        "width": 507,
-        "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 44,
-        "y": 428,
-        "width": 507,
-        "height": 16,
-        "content": "2. Obligations of the receiving party",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#1d4ed8",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "li023",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 448,
+        "y": 370,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "Interest: {{loan.interest}}, calculated on the reducing balance."
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "Repayment: {{loan.repayment}}."
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "First instalment due: {{loan.first_due}}. Prepayment permitted without penalty."
           }
         ],
         "listItemSpacing": 7,
@@ -429,29 +416,29 @@
         }
       },
       {
-        "id": "t024",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 447,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "2. Security",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t025",
+        "id": "t023",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 467,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "{{loan.security}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +447,82 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 525,
+        "width": 507,
+        "height": 16,
+        "content": "3. Events of default",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li025",
+        "type": "LIST",
+        "x": 50,
+        "y": 545,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Failure to pay any instalment within {{loan.grace_period}} of its due date."
+          },
+          {
+            "text": "Any material misstatement made by the borrower in connection with this loan."
+          },
+          {
+            "text": "Insolvency of the borrower. On default the balance falls due, with interest at {{loan.default_interest}}."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 622,
+        "width": 507,
+        "height": 16,
+        "content": "4. General",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 642,
+        "width": 507,
+        "height": 30.4,
+        "content": "Governed by {{loan.governing_law}}. Variations must be in writing and signed by both parties.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +534,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,7 +546,7 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
@@ -501,7 +563,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +579,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +591,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +608,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +624,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +636,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Interest rates and enforcement are subject to law.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +666,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +676,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Loan Agreement",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +692,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "A private loan between two parties — amount, interest, repayment and default.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -674,7 +736,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{loan.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -690,7 +752,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "EFFECTIVE DATE",
+            "content": "DATE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -705,8 +767,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{loan.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +784,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "PRINCIPAL",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -737,8 +799,8 @@
             "x": 297.5,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "height": 16,
+            "content": "{{loan.principal}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +816,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "TERM",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -769,8 +831,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "height": 16,
+            "content": "{{loan.term}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +848,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "LENDER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +895,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "BORROWER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -879,8 +941,8 @@
             "x": 44,
             "y": 292,
             "width": 507,
-            "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "height": 46,
+            "content": "The lender lends and the borrower borrows {{loan.principal}} for {{loan.purpose}}, on the terms below.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,66 +957,32 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Interest and repayment",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t021",
-            "type": "TEXT",
-            "x": 44,
-            "y": 370,
-            "width": 507,
-            "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 44,
-            "y": 428,
-            "width": 507,
-            "height": 16,
-            "content": "2. Obligations of the receiving party",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#1d4ed8",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "li023",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 448,
+            "y": 370,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "Interest: {{loan.interest}}, calculated on the reducing balance."
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "Repayment: {{loan.repayment}}."
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "First instalment due: {{loan.first_due}}. Prepayment permitted without penalty."
               }
             ],
             "listItemSpacing": 7,
@@ -967,29 +995,29 @@
             }
           },
           {
-            "id": "t024",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 447,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "2. Security",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t025",
+            "id": "t023",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 467,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "{{loan.security}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1026,82 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 525,
+            "width": 507,
+            "height": 16,
+            "content": "3. Events of default",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li025",
+            "type": "LIST",
+            "x": 50,
+            "y": 545,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Failure to pay any instalment within {{loan.grace_period}} of its due date."
+              },
+              {
+                "text": "Any material misstatement made by the borrower in connection with this loan."
+              },
+              {
+                "text": "Insolvency of the borrower. On default the balance falls due, with interest at {{loan.default_interest}}."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 622,
+            "width": 507,
+            "height": 16,
+            "content": "4. General",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 642,
+            "width": 507,
+            "height": 30.4,
+            "content": "Governed by {{loan.governing_law}}. Variations must be in writing and signed by both parties.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1113,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,7 +1125,7 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
@@ -1039,7 +1142,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1158,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1170,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1187,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1203,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1215,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Interest rates and enforcement are subject to law.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1235,26 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "loan.date": "17 August 2026",
+    "loan.default_interest": "15% per annum from the date of default",
+    "loan.first_due": "05 October 2026",
+    "loan.governing_law": "the laws of India, with courts at Bengaluru having jurisdiction",
+    "loan.grace_period": "15 days",
+    "loan.interest": "11% per annum",
+    "loan.number": "LA-2026-0031",
+    "loan.principal": "₹12,00,000",
+    "loan.purpose": "working capital for the borrower’s design practice",
+    "loan.repayment": "36 equal monthly instalments of ₹39,290",
+    "loan.security": "The loan is unsecured. The borrower will not charge its receivables ahead of this loan while any amount is outstanding.",
+    "loan.term": "36 months",
+    "party_one.address": "9 Palm Grove, Whitefield, Bengaluru 560066",
+    "party_one.name": "Mr Suresh Prabhu",
+    "party_one.registration": "PAN ABCPP1234K",
+    "party_one.signatory": "Suresh Prabhu, Lender",
+    "party_two.address": "22 Residency Road, Bengaluru 560025",
+    "party_two.name": "Halcyon Design Studio LLP",
+    "party_two.registration": "LLPIN AAC-8812",
+    "party_two.signatory": "Nikhil Menon, Designated Partner"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

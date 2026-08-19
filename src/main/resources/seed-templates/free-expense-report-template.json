@@ -26,34 +26,34 @@
         "key": "company.name"
       },
       {
-        "key": "delivery.address"
+        "key": "employee.bank_account"
       },
       {
-        "key": "delivery.name"
+        "key": "employee.department"
       },
       {
-        "key": "line_items"
+        "key": "employee.id"
       },
       {
-        "key": "po.buyer"
+        "key": "employee.name"
       },
       {
-        "key": "po.conditions"
+        "key": "other"
       },
       {
-        "key": "po.date"
+        "key": "report.approver"
       },
       {
-        "key": "po.delivery_terms"
+        "key": "report.cost_centre"
       },
       {
-        "key": "po.number"
+        "key": "report.number"
       },
       {
-        "key": "po.payment_terms"
+        "key": "report.period"
       },
       {
-        "key": "po.required_by"
+        "key": "report.submitted"
       },
       {
         "key": "signatory.name"
@@ -62,22 +62,19 @@
         "key": "signatory.title"
       },
       {
-        "key": "totals.grand_total"
+        "key": "totals.in_words"
       },
       {
-        "key": "totals.subtotal"
+        "key": "totals.net"
       },
       {
-        "key": "totals.tax"
+        "key": "totals.other"
       },
       {
-        "key": "vendor.address"
+        "key": "totals.travel"
       },
       {
-        "key": "vendor.gstin"
-      },
-      {
-        "key": "vendor.name"
+        "key": "travel"
       }
     ],
     "elements": [
@@ -131,7 +128,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "content": "EXPENSE REPORT",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -148,7 +145,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "Report no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +161,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{report.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +177,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Period",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +193,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{report.period}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +209,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Submitted",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +225,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{report.submitted}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -250,33 +247,30 @@
         }
       },
       {
-        "id": "t012",
-        "type": "TEXT",
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
         "x": 44,
         "y": 141.2,
-        "width": 230,
-        "height": 12,
-        "content": "VENDOR",
+        "width": 507,
+        "height": 74,
         "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#4338ca",
-          "lineHeight": 1.45,
-          "bold": true
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
         }
       },
       {
         "id": "t013",
         "type": "TEXT",
-        "x": 44,
-        "y": 154.2,
-        "width": 230,
-        "height": 16,
-        "content": "{{vendor.name}}",
+        "x": 58,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "EMPLOYEE",
         "style": {
-          "fontSize": 11,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#111827",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -284,30 +278,31 @@
       {
         "id": "t014",
         "type": "TEXT",
-        "x": 44,
-        "y": 171.2,
-        "width": 230,
-        "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "x": 58,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.name}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t015",
         "type": "TEXT",
-        "x": 312,
-        "y": 141.2,
-        "width": 239,
+        "x": 217.66666666666666,
+        "y": 153.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVER TO",
+        "content": "EMPLOYEE ID",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#4338ca",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -315,13 +310,13 @@
       {
         "id": "t016",
         "type": "TEXT",
-        "x": 312,
-        "y": 154.2,
-        "width": 239,
-        "height": 16,
-        "content": "{{delivery.name}}",
+        "x": 217.66666666666666,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.id}}",
         "style": {
-          "fontSize": 11,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -331,39 +326,43 @@
       {
         "id": "t017",
         "type": "TEXT",
-        "x": 312,
-        "y": 171.2,
-        "width": 239,
-        "height": 46,
-        "content": "{{delivery.address}}",
+        "x": 377.3333333333333,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "DEPARTMENT",
         "style": {
-          "fontSize": 9,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
           "color": "#6b7280",
-          "lineHeight": 1.5
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "r018",
-        "type": "POLYGON",
-        "polygonKind": "rect",
-        "x": 44,
-        "y": 219.2,
-        "width": 507,
-        "height": 30,
+        "id": "t018",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.department}}",
         "style": {
-          "backgroundColor": "#f8fafc",
-          "borderRadius": 4
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t019",
         "type": "TEXT",
-        "x": 54,
-        "y": 226.2,
-        "width": 157,
+        "x": 58,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "COST CENTRE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -375,13 +374,13 @@
       {
         "id": "t020",
         "type": "TEXT",
-        "x": 54,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "x": 58,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{report.cost_centre}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -391,11 +390,11 @@
       {
         "id": "t021",
         "type": "TEXT",
-        "x": 223,
-        "y": 226.2,
-        "width": 157,
+        "x": 217.66666666666666,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVERY TERMS",
+        "content": "APPROVER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -407,13 +406,13 @@
       {
         "id": "t022",
         "type": "TEXT",
-        "x": 223,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "x": 217.66666666666666,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{report.approver}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -423,11 +422,11 @@
       {
         "id": "t023",
         "type": "TEXT",
-        "x": 392,
-        "y": 226.2,
-        "width": 157,
+        "x": 377.3333333333333,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "BUYER CONTACT",
+        "content": "REIMBURSE TO",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -439,13 +438,13 @@
       {
         "id": "t024",
         "type": "TEXT",
-        "x": 392,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.buyer}}",
+        "x": 377.3333333333333,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.bank_account}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -453,28 +452,36 @@
         }
       },
       {
-        "id": "tb025",
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 233.2,
+        "width": 507,
+        "height": 12,
+        "content": "TRAVEL AND ACCOMMODATION",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb026",
         "type": "TABLE",
         "x": 44,
-        "y": 267.2,
+        "y": 248.2,
         "width": 507,
-        "height": 118,
+        "height": 100,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
+            "header": "Date",
+            "key": "date"
           },
           {
-            "header": "Description",
+            "header": "Particulars",
             "key": "description"
-          },
-          {
-            "header": "Qty",
-            "key": "qty"
-          },
-          {
-            "header": "Unit price",
-            "key": "rate"
           },
           {
             "header": "Amount",
@@ -483,12 +490,10 @@
         ],
         "columnWidths": [
           1,
-          2.8,
-          0.6,
-          1,
+          3,
           1.1
         ],
-        "dataKey": "line_items",
+        "dataKey": "travel",
         "tablePreviewBodyRows": 4,
         "tableRowBackgrounds": {
           "-1": "#f8fafc"
@@ -500,64 +505,83 @@
         }
       },
       {
-        "id": "t026",
-        "type": "TEXT",
-        "x": 309,
-        "y": 403.2,
-        "width": 145,
-        "height": 14,
-        "content": "Subtotal",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
         "id": "t027",
         "type": "TEXT",
-        "x": 446,
-        "y": 403.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.subtotal}}",
+        "x": 44,
+        "y": 368.2,
+        "width": 507,
+        "height": 12,
+        "content": "OTHER EXPENSES",
         "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#4338ca",
           "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
+          "bold": true
         }
       },
       {
-        "id": "t028",
-        "type": "TEXT",
-        "x": 309,
-        "y": 419.2,
-        "width": 145,
-        "height": 14,
-        "content": "Tax",
+        "id": "tb028",
+        "type": "TABLE",
+        "x": 44,
+        "y": 383.2,
+        "width": 507,
+        "height": 82,
+        "columns": [
+          {
+            "header": "Date",
+            "key": "date"
+          },
+          {
+            "header": "Particulars",
+            "key": "description"
+          },
+          {
+            "header": "Amount",
+            "key": "amount"
+          }
+        ],
+        "columnWidths": [
+          1,
+          3,
+          1.1
+        ],
+        "dataKey": "other",
+        "tablePreviewBodyRows": 3,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
+          "color": "#374151"
         }
       },
       {
         "id": "t029",
         "type": "TEXT",
-        "x": 446,
-        "y": 419.2,
-        "width": 97,
+        "x": 299,
+        "y": 485.2,
+        "width": 150.79999999999998,
         "height": 14,
-        "content": "{{totals.tax}}",
+        "content": "Travel and accommodation",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 485.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.travel}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -568,12 +592,46 @@
         }
       },
       {
-        "id": "r032",
+        "id": "t031",
+        "type": "TEXT",
+        "x": 299,
+        "y": 501.2,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Other expenses",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 501.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.other}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r035",
         "type": "POLYGON",
         "polygonKind": "rect",
-        "x": 301,
-        "y": 431.2,
-        "width": 250,
+        "x": 291,
+        "y": 513.2,
+        "width": 260,
         "height": 23.95,
         "style": {
           "backgroundColor": "#f8fafc",
@@ -581,13 +639,13 @@
         }
       },
       {
-        "id": "t030",
+        "id": "t033",
         "type": "TEXT",
-        "x": 309,
-        "y": 435.2,
-        "width": 145,
+        "x": 299,
+        "y": 517.2,
+        "width": 150.79999999999998,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Total reimbursable",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -598,13 +656,13 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t034",
         "type": "TEXT",
-        "x": 446,
-        "y": 435.2,
-        "width": 97,
-        "height": 31.9,
-        "content": "{{totals.grand_total}}",
+        "x": 441.79999999999995,
+        "y": 517.2,
+        "width": 101.20000000000002,
+        "height": 15.95,
+        "content": "{{totals.net}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "JetBrains Mono",
@@ -615,13 +673,13 @@
         }
       },
       {
-        "id": "t033",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
-        "y": 479.15,
-        "width": 250,
+        "y": 507.1500000000001,
+        "width": 230,
         "height": 12,
-        "content": "CONDITIONS",
+        "content": "IN WORDS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -631,25 +689,26 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t037",
         "type": "TEXT",
         "x": 44,
-        "y": 492.15,
-        "width": 250,
-        "height": 58,
-        "content": "{{po.conditions}}",
+        "y": 519.1500000000001,
+        "width": 230,
+        "height": 40,
+        "content": "{{totals.in_words}}",
         "style": {
-          "fontSize": 8.5,
+          "fontSize": 9,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
+          "color": "#374151",
+          "lineHeight": 1.45,
+          "italic": true
         }
       },
       {
-        "id": "l035",
+        "id": "l038",
         "type": "LINE",
         "x": 311,
-        "y": 513.15,
+        "y": 692,
         "width": 240,
         "height": 0,
         "strokeWidth": 1,
@@ -658,10 +717,10 @@
         }
       },
       {
-        "id": "t036",
+        "id": "t039",
         "type": "TEXT",
         "x": 311,
-        "y": 519.15,
+        "y": 698,
         "width": 240,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -675,10 +734,10 @@
         }
       },
       {
-        "id": "t037",
+        "id": "t040",
         "type": "TEXT",
         "x": 311,
-        "y": 533.15,
+        "y": 712,
         "width": 240,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -691,7 +750,7 @@
         }
       },
       {
-        "id": "l038",
+        "id": "l041",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -703,13 +762,13 @@
         }
       },
       {
-        "id": "t039",
+        "id": "t042",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Claims must be submitted within 30 days of the expense date, with receipts.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -774,7 +833,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "content": "EXPENSE REPORT",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -791,7 +850,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "Report no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +866,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{report.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +882,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Period",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +898,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{report.period}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +914,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Submitted",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +930,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{report.submitted}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -893,33 +952,30 @@
             }
           },
           {
-            "id": "t012",
-            "type": "TEXT",
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
             "x": 44,
             "y": 141.2,
-            "width": 230,
-            "height": 12,
-            "content": "VENDOR",
+            "width": 507,
+            "height": 74,
             "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#4338ca",
-              "lineHeight": 1.45,
-              "bold": true
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
             }
           },
           {
             "id": "t013",
             "type": "TEXT",
-            "x": 44,
-            "y": 154.2,
-            "width": 230,
-            "height": 16,
-            "content": "{{vendor.name}}",
+            "x": 58,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "EMPLOYEE",
             "style": {
-              "fontSize": 11,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#111827",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -927,30 +983,31 @@
           {
             "id": "t014",
             "type": "TEXT",
-            "x": 44,
-            "y": 171.2,
-            "width": 230,
-            "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "x": 58,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.name}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t015",
             "type": "TEXT",
-            "x": 312,
-            "y": 141.2,
-            "width": 239,
+            "x": 217.66666666666666,
+            "y": 153.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVER TO",
+            "content": "EMPLOYEE ID",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#4338ca",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -958,13 +1015,13 @@
           {
             "id": "t016",
             "type": "TEXT",
-            "x": 312,
-            "y": 154.2,
-            "width": 239,
-            "height": 16,
-            "content": "{{delivery.name}}",
+            "x": 217.66666666666666,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.id}}",
             "style": {
-              "fontSize": 11,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -974,39 +1031,43 @@
           {
             "id": "t017",
             "type": "TEXT",
-            "x": 312,
-            "y": 171.2,
-            "width": 239,
-            "height": 46,
-            "content": "{{delivery.address}}",
+            "x": 377.3333333333333,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "DEPARTMENT",
             "style": {
-              "fontSize": 9,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
               "color": "#6b7280",
-              "lineHeight": 1.5
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "r018",
-            "type": "POLYGON",
-            "polygonKind": "rect",
-            "x": 44,
-            "y": 219.2,
-            "width": 507,
-            "height": 30,
+            "id": "t018",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.department}}",
             "style": {
-              "backgroundColor": "#f8fafc",
-              "borderRadius": 4
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t019",
             "type": "TEXT",
-            "x": 54,
-            "y": 226.2,
-            "width": 157,
+            "x": 58,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "COST CENTRE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1018,13 +1079,13 @@
           {
             "id": "t020",
             "type": "TEXT",
-            "x": 54,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "x": 58,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{report.cost_centre}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1034,11 +1095,11 @@
           {
             "id": "t021",
             "type": "TEXT",
-            "x": 223,
-            "y": 226.2,
-            "width": 157,
+            "x": 217.66666666666666,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVERY TERMS",
+            "content": "APPROVER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1050,13 +1111,13 @@
           {
             "id": "t022",
             "type": "TEXT",
-            "x": 223,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "x": 217.66666666666666,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{report.approver}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1066,11 +1127,11 @@
           {
             "id": "t023",
             "type": "TEXT",
-            "x": 392,
-            "y": 226.2,
-            "width": 157,
+            "x": 377.3333333333333,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "BUYER CONTACT",
+            "content": "REIMBURSE TO",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1082,13 +1143,13 @@
           {
             "id": "t024",
             "type": "TEXT",
-            "x": 392,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.buyer}}",
+            "x": 377.3333333333333,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.bank_account}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1096,28 +1157,36 @@
             }
           },
           {
-            "id": "tb025",
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 233.2,
+            "width": 507,
+            "height": 12,
+            "content": "TRAVEL AND ACCOMMODATION",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb026",
             "type": "TABLE",
             "x": 44,
-            "y": 267.2,
+            "y": 248.2,
             "width": 507,
-            "height": 118,
+            "height": 100,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
+                "header": "Date",
+                "key": "date"
               },
               {
-                "header": "Description",
+                "header": "Particulars",
                 "key": "description"
-              },
-              {
-                "header": "Qty",
-                "key": "qty"
-              },
-              {
-                "header": "Unit price",
-                "key": "rate"
               },
               {
                 "header": "Amount",
@@ -1126,12 +1195,10 @@
             ],
             "columnWidths": [
               1,
-              2.8,
-              0.6,
-              1,
+              3,
               1.1
             ],
-            "dataKey": "line_items",
+            "dataKey": "travel",
             "tablePreviewBodyRows": 4,
             "tableRowBackgrounds": {
               "-1": "#f8fafc"
@@ -1143,64 +1210,83 @@
             }
           },
           {
-            "id": "t026",
-            "type": "TEXT",
-            "x": 309,
-            "y": 403.2,
-            "width": 145,
-            "height": 14,
-            "content": "Subtotal",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
             "id": "t027",
             "type": "TEXT",
-            "x": 446,
-            "y": 403.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.subtotal}}",
+            "x": 44,
+            "y": 368.2,
+            "width": 507,
+            "height": 12,
+            "content": "OTHER EXPENSES",
             "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#4338ca",
               "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
+              "bold": true
             }
           },
           {
-            "id": "t028",
-            "type": "TEXT",
-            "x": 309,
-            "y": 419.2,
-            "width": 145,
-            "height": 14,
-            "content": "Tax",
+            "id": "tb028",
+            "type": "TABLE",
+            "x": 44,
+            "y": 383.2,
+            "width": 507,
+            "height": 82,
+            "columns": [
+              {
+                "header": "Date",
+                "key": "date"
+              },
+              {
+                "header": "Particulars",
+                "key": "description"
+              },
+              {
+                "header": "Amount",
+                "key": "amount"
+              }
+            ],
+            "columnWidths": [
+              1,
+              3,
+              1.1
+            ],
+            "dataKey": "other",
+            "tablePreviewBodyRows": 3,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
+              "color": "#374151"
             }
           },
           {
             "id": "t029",
             "type": "TEXT",
-            "x": 446,
-            "y": 419.2,
-            "width": 97,
+            "x": 299,
+            "y": 485.2,
+            "width": 150.79999999999998,
             "height": 14,
-            "content": "{{totals.tax}}",
+            "content": "Travel and accommodation",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 485.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.travel}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1211,12 +1297,46 @@
             }
           },
           {
-            "id": "r032",
+            "id": "t031",
+            "type": "TEXT",
+            "x": 299,
+            "y": 501.2,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Other expenses",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 501.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.other}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r035",
             "type": "POLYGON",
             "polygonKind": "rect",
-            "x": 301,
-            "y": 431.2,
-            "width": 250,
+            "x": 291,
+            "y": 513.2,
+            "width": 260,
             "height": 23.95,
             "style": {
               "backgroundColor": "#f8fafc",
@@ -1224,13 +1344,13 @@
             }
           },
           {
-            "id": "t030",
+            "id": "t033",
             "type": "TEXT",
-            "x": 309,
-            "y": 435.2,
-            "width": 145,
+            "x": 299,
+            "y": 517.2,
+            "width": 150.79999999999998,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Total reimbursable",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1241,13 +1361,13 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t034",
             "type": "TEXT",
-            "x": 446,
-            "y": 435.2,
-            "width": 97,
-            "height": 31.9,
-            "content": "{{totals.grand_total}}",
+            "x": 441.79999999999995,
+            "y": 517.2,
+            "width": 101.20000000000002,
+            "height": 15.95,
+            "content": "{{totals.net}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "JetBrains Mono",
@@ -1258,13 +1378,13 @@
             }
           },
           {
-            "id": "t033",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
-            "y": 479.15,
-            "width": 250,
+            "y": 507.1500000000001,
+            "width": 230,
             "height": 12,
-            "content": "CONDITIONS",
+            "content": "IN WORDS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1274,25 +1394,26 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t037",
             "type": "TEXT",
             "x": 44,
-            "y": 492.15,
-            "width": 250,
-            "height": 58,
-            "content": "{{po.conditions}}",
+            "y": 519.1500000000001,
+            "width": 230,
+            "height": 40,
+            "content": "{{totals.in_words}}",
             "style": {
-              "fontSize": 8.5,
+              "fontSize": 9,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
+              "color": "#374151",
+              "lineHeight": 1.45,
+              "italic": true
             }
           },
           {
-            "id": "l035",
+            "id": "l038",
             "type": "LINE",
             "x": 311,
-            "y": 513.15,
+            "y": 692,
             "width": 240,
             "height": 0,
             "strokeWidth": 1,
@@ -1301,10 +1422,10 @@
             }
           },
           {
-            "id": "t036",
+            "id": "t039",
             "type": "TEXT",
             "x": 311,
-            "y": 519.15,
+            "y": 698,
             "width": 240,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -1318,10 +1439,10 @@
             }
           },
           {
-            "id": "t037",
+            "id": "t040",
             "type": "TEXT",
             "x": 311,
-            "y": 533.15,
+            "y": 712,
             "width": 240,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -1334,7 +1455,7 @@
             }
           },
           {
-            "id": "l038",
+            "id": "l041",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1346,13 +1467,13 @@
             }
           },
           {
-            "id": "t039",
+            "id": "t042",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Claims must be submitted within 30 days of the expense date, with receipts.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1369,24 +1490,23 @@
     "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
     "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "employee.bank_account": "HDFC ••••4417",
+    "employee.department": "Field Sales",
+    "employee.id": "NW-2291",
+    "employee.name": "Rahul Sharma",
+    "other": "[{\"date\":\"05 Jul\",\"description\":\"Client lunch — 3 attendees\",\"amount\":\"₹3,250.00\"},{\"date\":\"12 Jul\",\"description\":\"Printing — proposal copies\",\"amount\":\"₹1,400.00\"},{\"date\":\"22 Jul\",\"description\":\"Mobile data top-up\",\"amount\":\"₹1,500.00\"}]",
+    "report.approver": "Devika Menon, Regional Head",
+    "report.cost_centre": "Sales — South",
+    "report.number": "EXP-2026-0128",
+    "report.period": "01–31 July 2026",
+    "report.submitted": "05 August 2026",
+    "signatory.name": "Devika Menon",
+    "signatory.title": "Regional Head, Sales",
+    "totals.in_words": "Thirty-four thousand five hundred fifty rupees only",
+    "totals.net": "₹34,550.00",
+    "totals.other": "₹6,150.00",
+    "totals.travel": "₹28,400.00",
+    "travel": "[{\"date\":\"04 Jul\",\"description\":\"Flight BLR–HYD, economy\",\"amount\":\"₹8,900.00\"},{\"date\":\"04 Jul\",\"description\":\"Hotel — 2 nights, Hyderabad\",\"amount\":\"₹12,400.00\"},{\"date\":\"06 Jul\",\"description\":\"Flight HYD–BLR, economy\",\"amount\":\"₹6,100.00\"},{\"date\":\"18 Jul\",\"description\":\"Cab — client visits, Chennai\",\"amount\":\"₹1,000.00\"}]"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

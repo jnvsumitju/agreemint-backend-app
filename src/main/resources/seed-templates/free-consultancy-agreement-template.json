@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,40 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
+        "key": "agreement.cure_period"
       },
       {
         "key": "agreement.effective_date"
       },
       {
+        "key": "agreement.fees"
+      },
+      {
         "key": "agreement.governing_law"
+      },
+      {
+        "key": "agreement.invoicing"
+      },
+      {
+        "key": "agreement.ip"
+      },
+      {
+        "key": "agreement.notice"
       },
       {
         "key": "agreement.number"
       },
       {
-        "key": "agreement.purpose"
+        "key": "agreement.payment_terms"
+      },
+      {
+        "key": "agreement.scope"
+      },
+      {
+        "key": "agreement.services"
+      },
+      {
+        "key": "agreement.term"
       },
       {
         "key": "party_one.address"
@@ -66,7 +87,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +97,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Consultancy Agreement",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +113,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "An engagement of an independent consultant — scope, fees, IP and termination.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -184,7 +205,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "INITIAL TERM",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -199,8 +220,8 @@
         "x": 297.5,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "height": 16,
+        "content": "{{agreement.term}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +269,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "CLIENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +316,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "CONSULTANT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -341,8 +362,8 @@
         "x": 44,
         "y": 292,
         "width": 507,
-        "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "height": 46,
+        "content": "The client engages the consultant to provide {{agreement.services}}, to be performed with reasonable skill and care.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,11 +378,11 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Services and time commitment",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -373,7 +394,7 @@
         "y": 370,
         "width": 507,
         "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+        "content": "{{agreement.scope}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -388,11 +409,11 @@
         "y": 428,
         "width": 507,
         "height": 16,
-        "content": "2. Obligations of the receiving party",
+        "content": "2. Fees and expenses",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -407,16 +428,16 @@
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "Fees: {{agreement.fees}}."
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "Invoicing: {{agreement.invoicing}}, payable {{agreement.payment_terms}}."
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
+            "text": "Expenses: pre-approved and reimbursed at cost against receipts."
           },
           {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "Taxes: the consultant is responsible for their own tax and statutory obligations."
           }
         ],
         "listItemSpacing": 7,
@@ -435,23 +456,70 @@
         "y": 546,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "3. Status, IP and confidentiality",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t025",
+        "id": "li025",
+        "type": "LIST",
+        "x": 50,
+        "y": 566,
+        "width": 495,
+        "height": 84,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "The consultant is an independent contractor and not an employee, agent or partner of the client."
+          },
+          {
+            "text": "Intellectual property created in performing the services: {{agreement.ip}}."
+          },
+          {
+            "text": "Each party keeps the other’s confidential information confidential during and after the term."
+          },
+          {
+            "text": "The consultant may work for others provided there is no conflict with this engagement."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t026",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 664,
+        "width": 507,
+        "height": 16,
+        "content": "4. Termination",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 684,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "Either party may terminate on {{agreement.notice}} written notice, or for material breach not remedied within {{agreement.cure_period}}.",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +528,7 @@
         }
       },
       {
-        "id": "l026",
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +540,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,12 +552,12 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
         "width": 210,
-        "height": 14.5,
+        "height": 29,
         "content": "{{party_one.signatory}}",
         "style": {
           "fontSize": 10,
@@ -501,7 +569,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +585,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +597,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +614,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +630,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +642,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Contractor status is judged on the working reality, not the label.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +672,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +682,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Consultancy Agreement",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +698,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "An engagement of an independent consultant — scope, fees, IP and termination.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -722,7 +790,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "INITIAL TERM",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -737,8 +805,8 @@
             "x": 297.5,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "height": 16,
+            "content": "{{agreement.term}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +854,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "CLIENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +901,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "CONSULTANT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -879,8 +947,8 @@
             "x": 44,
             "y": 292,
             "width": 507,
-            "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "height": 46,
+            "content": "The client engages the consultant to provide {{agreement.services}}, to be performed with reasonable skill and care.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,11 +963,11 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Services and time commitment",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -911,7 +979,7 @@
             "y": 370,
             "width": 507,
             "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+            "content": "{{agreement.scope}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -926,11 +994,11 @@
             "y": 428,
             "width": 507,
             "height": 16,
-            "content": "2. Obligations of the receiving party",
+            "content": "2. Fees and expenses",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -945,16 +1013,16 @@
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "Fees: {{agreement.fees}}."
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "Invoicing: {{agreement.invoicing}}, payable {{agreement.payment_terms}}."
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
+                "text": "Expenses: pre-approved and reimbursed at cost against receipts."
               },
               {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "Taxes: the consultant is responsible for their own tax and statutory obligations."
               }
             ],
             "listItemSpacing": 7,
@@ -973,23 +1041,70 @@
             "y": 546,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "3. Status, IP and confidentiality",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t025",
+            "id": "li025",
+            "type": "LIST",
+            "x": 50,
+            "y": 566,
+            "width": 495,
+            "height": 84,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "The consultant is an independent contractor and not an employee, agent or partner of the client."
+              },
+              {
+                "text": "Intellectual property created in performing the services: {{agreement.ip}}."
+              },
+              {
+                "text": "Each party keeps the other’s confidential information confidential during and after the term."
+              },
+              {
+                "text": "The consultant may work for others provided there is no conflict with this engagement."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t026",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 664,
+            "width": 507,
+            "height": 16,
+            "content": "4. Termination",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 684,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "Either party may terminate on {{agreement.notice}} written notice, or for material breach not remedied within {{agreement.cure_period}}.",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1113,7 @@
             }
           },
           {
-            "id": "l026",
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1125,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,12 +1137,12 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
             "width": 210,
-            "height": 14.5,
+            "height": 29,
             "content": "{{party_one.signatory}}",
             "style": {
               "fontSize": 10,
@@ -1039,7 +1154,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1170,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1182,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1199,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1215,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1227,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Contractor status is judged on the working reality, not the label.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1247,26 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
+    "agreement.cure_period": "15 days",
+    "agreement.effective_date": "01 September 2026",
+    "agreement.fees": "₹1,80,000 per month, exclusive of applicable taxes",
+    "agreement.governing_law": "India, courts at Bengaluru",
+    "agreement.invoicing": "monthly in arrears",
+    "agreement.ip": "vests in the client on payment; the consultant keeps pre-existing materials",
+    "agreement.notice": "one month’s",
+    "agreement.number": "CA-2026-0064",
+    "agreement.payment_terms": "within 30 days of a valid invoice",
+    "agreement.scope": "The consultant will review warehouse and distribution processes across two sites and support implementation. Expected commitment is eight days a month, two of them on site.",
+    "agreement.services": "supply-chain advisory and process design services",
+    "agreement.term": "12 months",
     "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "party_one.registration": "CIN U51909KA2015PTC081234",
+    "party_one.signatory": "Devika Menon, Chief Operating Officer",
+    "party_two.address": "Level 6, Cyber Towers, Hitec City, Hyderabad 500081",
+    "party_two.name": "Mr K. Subramanian",
+    "party_two.registration": "PAN MNOPS7890Q · GSTIN 36MNOPS7890Q1ZR",
+    "party_two.signatory": "K. Subramanian, Consultant"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

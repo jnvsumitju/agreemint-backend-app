@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Finance",
+  "category": "Business",
   "layout": {
     "page": {
       "size": "A4",
@@ -26,58 +26,46 @@
         "key": "company.name"
       },
       {
-        "key": "delivery.address"
+        "key": "customer.address"
       },
       {
-        "key": "delivery.name"
+        "key": "customer.name"
       },
       {
         "key": "line_items"
       },
       {
-        "key": "po.buyer"
+        "key": "packing.cartons"
       },
       {
-        "key": "po.conditions"
+        "key": "packing.date"
       },
       {
-        "key": "po.date"
+        "key": "packing.dimensions"
       },
       {
-        "key": "po.delivery_terms"
+        "key": "packing.gross_weight"
       },
       {
-        "key": "po.number"
+        "key": "packing.handling"
       },
       {
-        "key": "po.payment_terms"
+        "key": "packing.invoice_reference"
       },
       {
-        "key": "po.required_by"
+        "key": "packing.net_weight"
+      },
+      {
+        "key": "packing.number"
+      },
+      {
+        "key": "shipping.address"
+      },
+      {
+        "key": "shipping.name"
       },
       {
         "key": "signatory.name"
-      },
-      {
-        "key": "signatory.title"
-      },
-      {
-        "key": "totals.grand_total"
-      },
-      {
-        "key": "totals.subtotal"
-      },
-      {
-        "key": "totals.tax"
-      },
-      {
-        "key": "vendor.address"
-      },
-      {
-        "key": "vendor.gstin"
-      },
-      {
-        "key": "vendor.name"
       }
     ],
     "elements": [
@@ -131,7 +119,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "content": "PACKING LIST",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -148,7 +136,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "Packing list no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +152,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{packing.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +168,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Date",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +184,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{packing.date}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +200,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Invoice ref.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +216,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{packing.invoice_reference}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -256,7 +244,7 @@
         "y": 141.2,
         "width": 230,
         "height": 12,
-        "content": "VENDOR",
+        "content": "CONSIGNEE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -272,7 +260,7 @@
         "y": 154.2,
         "width": 230,
         "height": 16,
-        "content": "{{vendor.name}}",
+        "content": "{{customer.name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -288,7 +276,7 @@
         "y": 171.2,
         "width": 230,
         "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "content": "{{customer.address}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -319,7 +307,7 @@
         "y": 154.2,
         "width": 239,
         "height": 16,
-        "content": "{{delivery.name}}",
+        "content": "{{shipping.name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -335,7 +323,7 @@
         "y": 171.2,
         "width": 239,
         "height": 46,
-        "content": "{{delivery.address}}",
+        "content": "{{shipping.address}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -363,7 +351,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "TOTAL CARTONS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -379,7 +367,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "content": "{{packing.cartons}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -395,7 +383,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "DELIVERY TERMS",
+        "content": "GROSS WEIGHT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -411,7 +399,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "content": "{{packing.gross_weight}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -427,7 +415,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "BUYER CONTACT",
+        "content": "DIMENSIONS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -443,7 +431,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.buyer}}",
+        "content": "{{packing.dimensions}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -461,35 +449,30 @@
         "height": 118,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
+            "header": "Contents",
+            "key": "description"
           },
           {
-            "header": "Description",
-            "key": "description"
+            "header": "Carton",
+            "key": "carton"
           },
           {
             "header": "Qty",
             "key": "qty"
           },
           {
-            "header": "Unit price",
-            "key": "rate"
-          },
-          {
-            "header": "Amount",
-            "key": "amount"
+            "header": "Weight",
+            "key": "weight"
           }
         ],
         "columnWidths": [
+          3,
           1,
-          2.8,
-          0.6,
-          1,
-          1.1
+          0.7,
+          1
         ],
         "dataKey": "line_items",
-        "tablePreviewBodyRows": 4,
+        "tablePreviewBodyRows": 5,
         "tableRowBackgrounds": {
           "-1": "#f8fafc"
         },
@@ -506,7 +489,7 @@
         "y": 403.2,
         "width": 145,
         "height": 14,
-        "content": "Subtotal",
+        "content": "Cartons",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -523,7 +506,7 @@
         "y": 403.2,
         "width": 97,
         "height": 14,
-        "content": "{{totals.subtotal}}",
+        "content": "{{packing.cartons}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -540,7 +523,7 @@
         "y": 419.2,
         "width": 145,
         "height": 14,
-        "content": "Tax",
+        "content": "Net weight",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -556,8 +539,8 @@
         "x": 446,
         "y": 419.2,
         "width": 97,
-        "height": 14,
-        "content": "{{totals.tax}}",
+        "height": 27.55,
+        "content": "{{packing.net_weight}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -587,7 +570,7 @@
         "y": 435.2,
         "width": 145,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Gross weight",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -604,7 +587,7 @@
         "y": 435.2,
         "width": 97,
         "height": 31.9,
-        "content": "{{totals.grand_total}}",
+        "content": "{{packing.gross_weight}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "JetBrains Mono",
@@ -621,7 +604,7 @@
         "y": 479.15,
         "width": 250,
         "height": 12,
-        "content": "CONDITIONS",
+        "content": "HANDLING",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -637,7 +620,7 @@
         "y": 492.15,
         "width": 250,
         "height": 58,
-        "content": "{{po.conditions}}",
+        "content": "{{packing.handling}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -681,7 +664,7 @@
         "y": 533.15,
         "width": 240,
         "height": 24,
-        "content": "{{signatory.title}}",
+        "content": "Packed and checked by",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -709,7 +692,7 @@
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Check contents against this list on delivery. Report shortages within 48 hours.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -774,7 +757,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "content": "PACKING LIST",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -791,7 +774,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "Packing list no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +790,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{packing.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +806,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Date",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +822,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{packing.date}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +838,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Invoice ref.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +854,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{packing.invoice_reference}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -899,7 +882,7 @@
             "y": 141.2,
             "width": 230,
             "height": 12,
-            "content": "VENDOR",
+            "content": "CONSIGNEE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -915,7 +898,7 @@
             "y": 154.2,
             "width": 230,
             "height": 16,
-            "content": "{{vendor.name}}",
+            "content": "{{customer.name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -931,7 +914,7 @@
             "y": 171.2,
             "width": 230,
             "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "content": "{{customer.address}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -962,7 +945,7 @@
             "y": 154.2,
             "width": 239,
             "height": 16,
-            "content": "{{delivery.name}}",
+            "content": "{{shipping.name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -978,7 +961,7 @@
             "y": 171.2,
             "width": 239,
             "height": 46,
-            "content": "{{delivery.address}}",
+            "content": "{{shipping.address}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1006,7 +989,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "TOTAL CARTONS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1022,7 +1005,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "content": "{{packing.cartons}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1038,7 +1021,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "DELIVERY TERMS",
+            "content": "GROSS WEIGHT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1054,7 +1037,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "content": "{{packing.gross_weight}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1070,7 +1053,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "BUYER CONTACT",
+            "content": "DIMENSIONS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1086,7 +1069,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.buyer}}",
+            "content": "{{packing.dimensions}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1104,35 +1087,30 @@
             "height": 118,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
+                "header": "Contents",
+                "key": "description"
               },
               {
-                "header": "Description",
-                "key": "description"
+                "header": "Carton",
+                "key": "carton"
               },
               {
                 "header": "Qty",
                 "key": "qty"
               },
               {
-                "header": "Unit price",
-                "key": "rate"
-              },
-              {
-                "header": "Amount",
-                "key": "amount"
+                "header": "Weight",
+                "key": "weight"
               }
             ],
             "columnWidths": [
+              3,
               1,
-              2.8,
-              0.6,
-              1,
-              1.1
+              0.7,
+              1
             ],
             "dataKey": "line_items",
-            "tablePreviewBodyRows": 4,
+            "tablePreviewBodyRows": 5,
             "tableRowBackgrounds": {
               "-1": "#f8fafc"
             },
@@ -1149,7 +1127,7 @@
             "y": 403.2,
             "width": 145,
             "height": 14,
-            "content": "Subtotal",
+            "content": "Cartons",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1166,7 +1144,7 @@
             "y": 403.2,
             "width": 97,
             "height": 14,
-            "content": "{{totals.subtotal}}",
+            "content": "{{packing.cartons}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1183,7 +1161,7 @@
             "y": 419.2,
             "width": 145,
             "height": 14,
-            "content": "Tax",
+            "content": "Net weight",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1199,8 +1177,8 @@
             "x": 446,
             "y": 419.2,
             "width": 97,
-            "height": 14,
-            "content": "{{totals.tax}}",
+            "height": 27.55,
+            "content": "{{packing.net_weight}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1230,7 +1208,7 @@
             "y": 435.2,
             "width": 145,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Gross weight",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1247,7 +1225,7 @@
             "y": 435.2,
             "width": 97,
             "height": 31.9,
-            "content": "{{totals.grand_total}}",
+            "content": "{{packing.gross_weight}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "JetBrains Mono",
@@ -1264,7 +1242,7 @@
             "y": 479.15,
             "width": 250,
             "height": 12,
-            "content": "CONDITIONS",
+            "content": "HANDLING",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1280,7 +1258,7 @@
             "y": 492.15,
             "width": 250,
             "height": 58,
-            "content": "{{po.conditions}}",
+            "content": "{{packing.handling}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1324,7 +1302,7 @@
             "y": 533.15,
             "width": 240,
             "height": 24,
-            "content": "{{signatory.title}}",
+            "content": "Packed and checked by",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1352,7 +1330,7 @@
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Check contents against this list on delivery. Report shortages within 48 hours.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1369,24 +1347,20 @@
     "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
     "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "customer.address": "22 Residency Road, Bengaluru 560025",
+    "customer.name": "Halcyon Design Studio",
+    "line_items": "[{\"description\":\"Shelving uprights — 2400mm\",\"carton\":\"1–4\",\"qty\":\"40\",\"weight\":\"184 kg\"},{\"description\":\"Shelf beams and decking\",\"carton\":\"5–8\",\"qty\":\"120\",\"weight\":\"156 kg\"},{\"description\":\"Fixing kits and anchors\",\"carton\":\"9\",\"qty\":\"20\",\"weight\":\"38 kg\"},{\"description\":\"Assembly tool sets\",\"carton\":\"10\",\"qty\":\"2\",\"weight\":\"14 kg\"},{\"description\":\"Safety enclosure panels\",\"carton\":\"11–14\",\"qty\":\"8\",\"weight\":\"60 kg\"}]",
+    "packing.cartons": "14",
+    "packing.date": "17 Aug 2026",
+    "packing.dimensions": "4 pallets, 1.2 × 1.0 × 1.6 m",
+    "packing.gross_weight": "486 kg",
+    "packing.handling": "Keep dry. Do not stack pallets more than two high.\nCartons 11 to 14 contain glass panels and are marked fragile.",
+    "packing.invoice_reference": "INV-2026-0184",
+    "packing.net_weight": "452 kg",
+    "packing.number": "PKL-2026-0298",
+    "shipping.address": "Warehouse 3, Hosur Road, Bengaluru 560068",
+    "shipping.name": "Halcyon Design Studio — Warehouse",
+    "signatory.name": "Rahul Sharma"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

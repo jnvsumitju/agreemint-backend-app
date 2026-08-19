@@ -263,7 +263,7 @@ public class OfficialTemplateSeeder {
         listing.setSourceVersionId(version.getId());
         listing.setLayoutJson(layout);
         listing.setVariables(variables);
-        listing.setCategory(categoryFor(slug));
+        listing.setCategory(categoryOf(payload, slug));
         listing.setOfficial(true);
         listing.setPublished(true);
         listing.setUpdatedAt(Instant.now());
@@ -283,12 +283,41 @@ public class OfficialTemplateSeeder {
                 case "gst" -> sb.append("GST");
                 case "nda" -> sb.append("NDA");
                 case "id" -> sb.append("ID");
+                case "sow" -> sb.append("SOW");
+                case "mou" -> sb.append("MoU");
                 default -> sb.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
             }
         }
         return sb.toString();
     }
 
+    /**
+     * The category to file a bundle under.
+     *
+     * <p>Prefers the bundle's own {@code category}, which the console's
+     * generator writes from the single list that also supplies the accent
+     * colour. Everything else — the console catalogue, the marketing hub — reads
+     * that same value, so a template cannot be filed three different ways.
+     *
+     * <p>{@link #categoryFor} remains only for a bundle written before the field
+     * existed, and says so out loud when it is used. It guesses from slug
+     * keywords and falls through to "Business", so a template whose name matches
+     * no keyword lands there silently — which is precisely the failure this
+     * method exists to stop being silent.
+     */
+    private String categoryOf(JsonNode payload, String slug) {
+        JsonNode declared = payload.path("category");
+        if (declared.isTextual() && !declared.asText().isBlank()) {
+            return declared.asText();
+        }
+        String guess = categoryFor(slug);
+        log.warn("[template-seed] '{}' has no category in its bundle; guessed '{}' from the slug. "
+                + "Re-run the console's generate-try-templates script to write it in.", slug, guess);
+        return guess;
+    }
+
+    /** @deprecated superseded by the bundle's own {@code category} field. */
+    @Deprecated
     static String categoryFor(String slug) {
         if (slug.contains("invoice") || slug.contains("receipt") || slug.contains("quotation")
                 || slug.contains("purchase-order") || slug.contains("statement")) return "Finance";

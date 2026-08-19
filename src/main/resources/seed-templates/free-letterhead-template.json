@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "HR",
+  "category": "Business",
   "layout": {
     "page": {
       "size": "A4",
@@ -26,46 +26,37 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
+        "key": "letter.body"
       },
       {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
+        "key": "letter.closing"
       },
       {
         "key": "letter.date"
       },
       {
+        "key": "letter.enclosure_one"
+      },
+      {
+        "key": "letter.enclosure_two"
+      },
+      {
+        "key": "letter.opening"
+      },
+      {
         "key": "letter.reference"
+      },
+      {
+        "key": "letter.subject"
       },
       {
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
-      },
-      {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
       },
       {
         "key": "signatory.name"
@@ -125,7 +116,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "LETTER",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -264,7 +255,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Subject: {{letter.subject}}",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -280,7 +271,7 @@
         "y": 249.2,
         "width": 507,
         "height": 16,
-        "content": "",
+        "content": "Dear {{recipient.first_name}},",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -294,8 +285,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 58,
+        "content": "{{letter.opening}}",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +298,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 341.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 66,
+        "content": "{{letter.body}}",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -324,23 +315,49 @@
         "x": 44,
         "y": 419.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "ENCLOSURES",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 434.2,
+        "width": 499,
+        "height": 44,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "{{letter.enclosure_one}}"
+          },
+          {
+            "text": "{{letter.enclosure_two}}"
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 494.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 43.5,
+        "content": "{{letter.closing}}\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +366,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 555.7,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +378,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 561.7,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +395,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 575.7,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +411,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +423,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -477,7 +494,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "LETTER",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -616,7 +633,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Subject: {{letter.subject}}",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -632,7 +649,7 @@
             "y": 249.2,
             "width": 507,
             "height": 16,
-            "content": "",
+            "content": "Dear {{recipient.first_name}},",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -646,8 +663,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 58,
+            "content": "{{letter.opening}}",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +676,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 341.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 66,
+            "content": "{{letter.body}}",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -676,23 +693,49 @@
             "x": 44,
             "y": 419.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "ENCLOSURES",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 434.2,
+            "width": 499,
+            "height": 44,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "{{letter.enclosure_one}}"
+              },
+              {
+                "text": "{{letter.enclosure_two}}"
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 494.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 43.5,
+            "content": "{{letter.closing}}\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +744,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 555.7,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +756,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 561.7,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +773,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 575.7,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +789,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +801,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -779,24 +822,21 @@
   },
   "variableValues": {
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "company.contact": "people@northwind.example · +91 80 4123 7788",
+    "company.contact": "hello@northwind.example · +91 80 4123 7788 · northwind.example",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "letter.body": "Use the second paragraph for the detail — dates, amounts, references, anything the reader will need to act. Keep one idea to a paragraph, and put the request before the justification rather than after it.",
+    "letter.closing": "Close by saying what happens next and by when. Give a name and a way to reach it.",
+    "letter.date": "17 August 2026",
+    "letter.enclosure_one": "List anything sent with the letter here.",
+    "letter.enclosure_two": "Delete this section if nothing is enclosed.",
+    "letter.opening": "Open with why you are writing, in one or two sentences. A reader who stops after the first paragraph should still know what the letter is for and what, if anything, is being asked of them.",
+    "letter.reference": "NW/GEN/2026/0142",
+    "letter.subject": "Replace this with what the letter is about",
+    "recipient.address": "22 Residency Road\nBengaluru, Karnataka 560025",
+    "recipient.first_name": "Halcyon",
+    "recipient.name": "Ms Halcyon Recipient",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Chief Operating Officer, Northwind Traders Pvt Ltd"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

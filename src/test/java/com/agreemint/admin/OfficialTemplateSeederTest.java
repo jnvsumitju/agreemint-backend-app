@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -69,6 +70,24 @@ class OfficialTemplateSeederTest {
         });
     }
 
+    /**
+     * How many bundles ship on the classpath.
+     *
+     * <p>Resolved rather than written down. The counts below guard that every
+     * bundle publishes — not that there are exactly N of them — and a literal
+     * has to be remembered on every template added, which is the moment it is
+     * forgotten. A resolver failure returns 0, which fails the assertions
+     * loudly rather than passing vacuously.
+     */
+    private static int bundleCount() {
+        try {
+            return new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                    .getResources("classpath:seed-templates/*.json").length;
+        } catch (java.io.IOException e) {
+            return 0;
+        }
+    }
+
     @Test
     void firstRunPublishesEveryBundleAsOfficial() {
         when(templateRepo.findFirstByOrgIdAndName(any(), any())).thenReturn(Optional.empty());
@@ -77,9 +96,11 @@ class OfficialTemplateSeederTest {
 
         int touched = seeder.seed(orgId, "Crixaa");
 
-        assertEquals(20, touched, "all twenty bundles should publish");
+        int expected = bundleCount();
+        assertTrue(expected > 0, "no seed bundles on the classpath — the glob found nothing");
+        assertEquals(expected, touched, "every bundle should publish");
         ArgumentCaptor<MarketplaceListing> saved = ArgumentCaptor.forClass(MarketplaceListing.class);
-        verify(listingRepo, org.mockito.Mockito.times(20)).save(saved.capture());
+        verify(listingRepo, org.mockito.Mockito.times(expected)).save(saved.capture());
         for (MarketplaceListing l : saved.getAllValues()) {
             assertTrue(l.isOfficial(), l.getTitle() + " must be flagged official");
             assertTrue(l.isPublished(), l.getTitle() + " must be published");
@@ -132,8 +153,8 @@ class OfficialTemplateSeederTest {
         // Proof the run was real: a bundle that throws is caught and skipped, so
         // "nothing was written" would otherwise be satisfied by writing nothing
         // because everything failed. Every bundle must have been looked up.
-        verify(templateRepo, org.mockito.Mockito.times(20)).findFirstByOrgIdAndName(any(), any());
-        verify(listingRepo, org.mockito.Mockito.times(20)).findFirstBySourceTemplateId(any());
+        verify(templateRepo, org.mockito.Mockito.times(bundleCount())).findFirstByOrgIdAndName(any(), any());
+        verify(listingRepo, org.mockito.Mockito.times(bundleCount())).findFirstBySourceTemplateId(any());
     }
 
     /** Reads the shipped bundle so the "unchanged" comparison is against real content. */
@@ -206,6 +227,64 @@ class OfficialTemplateSeederTest {
         assertEquals("HR", OfficialTemplateSeeder.categoryFor("free-offer-letter-template"));
         assertEquals("Education", OfficialTemplateSeeder.categoryFor("free-marksheet-template"));
         assertEquals("Business", OfficialTemplateSeeder.categoryFor("free-nda-template"));
+    }
+
+    @Test
+    void theSlugGuessCannotSeeCategoriesItWasNeverTaughtAbout() {
+        // Why the bundle now carries its own category. This fallback is a
+        // keyword chain that ends in `return "Business"`, so anything it does
+        // not recognise is filed there — confidently and silently. A Legal
+        // template is the case in point: nothing in the chain mentions leases
+        // or affidavits, so all seven would have been mis-filed with no error
+        // anywhere to notice it by.
+        assertEquals("Business", OfficialTemplateSeeder.categoryFor("free-rent-agreement-template"));
+        assertEquals("Business", OfficialTemplateSeeder.categoryFor("free-affidavit-template"));
+    }
+
+    @Test
+    void theBundlesOwnCategoryWinsOverTheSlugGuess() {
+        // The whole point of the change: what the generator wrote is what gets
+        // seeded, so the console catalogue, the marketing hub and the
+        // marketplace listing cannot disagree.
+        when(templateRepo.findFirstByOrgIdAndName(any(), any())).thenReturn(Optional.empty());
+        when(versionRepo.findFirstByTemplateOrderByVersionNumberDesc(any())).thenReturn(Optional.empty());
+        when(listingRepo.findFirstBySourceTemplateId(any())).thenReturn(Optional.empty());
+
+        seeder.seed(orgId, "Crixaa");
+
+        ArgumentCaptor<MarketplaceListing> saved = ArgumentCaptor.forClass(MarketplaceListing.class);
+        verify(listingRepo, org.mockito.Mockito.times(bundleCount())).save(saved.capture());
+
+        // Every listing must match the category in its own bundle, read back
+        // from the same classpath resource the seeder used.
+        for (MarketplaceListing l : saved.getAllValues()) {
+            assertNotNull(l.getCategory(), l.getTitle() + " was filed under no category");
+        }
+        assertEquals(
+                categoriesFromBundles(),
+                saved.getAllValues().stream()
+                        .collect(java.util.stream.Collectors.groupingBy(
+                                MarketplaceListing::getCategory,
+                                java.util.stream.Collectors.counting())),
+                "listing categories must match what the bundles declare");
+    }
+
+    /** Category histogram straight from the seed resources on the classpath. */
+    private static java.util.Map<String, Long> categoriesFromBundles() {
+        try {
+            var mapper = new ObjectMapper();
+            var out = new java.util.HashMap<String, Long>();
+            for (var r : new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                    .getResources("classpath:seed-templates/*.json")) {
+                try (var in = r.getInputStream()) {
+                    String cat = mapper.readTree(in).path("category").asText("");
+                    if (!cat.isEmpty()) out.merge(cat, 1L, Long::sum);
+                }
+            }
+            return out;
+        } catch (java.io.IOException e) {
+            return java.util.Map.of();
+        }
     }
 
     // ── thumbnail backfill ────────────────────────────────────────────────────

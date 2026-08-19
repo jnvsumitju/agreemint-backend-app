@@ -26,22 +26,28 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
+        "key": "intern.department"
       },
       {
-        "key": "employment.department"
+        "key": "intern.duration"
       },
       {
-        "key": "employment.designation"
+        "key": "intern.end_date"
       },
       {
-        "key": "employment.from"
+        "key": "intern.mentor"
       },
       {
-        "key": "employment.responsibilities"
+        "key": "intern.mode"
       },
       {
-        "key": "employment.to"
+        "key": "intern.project"
+      },
+      {
+        "key": "intern.start_date"
+      },
+      {
+        "key": "intern.stipend"
       },
       {
         "key": "letter.date"
@@ -53,19 +59,10 @@
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
-      },
-      {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
       },
       {
         "key": "signatory.name"
@@ -264,7 +261,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "To whom it may concern",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -294,8 +291,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 50,
+        "content": "This is to certify that {{recipient.name}} completed an internship with {{company.name}} in the {{intern.department}} team, from {{intern.start_date}} to {{intern.end_date}}.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +304,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 333.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 58,
+        "content": "During the internship {{recipient.first_name}} worked on {{intern.project}}, reporting to {{intern.mentor}}. The work was carried out with diligence and a willingness to learn, and the contribution was of real value to the team.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +319,57 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 403.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "INTERNSHIP DETAILS",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 418.2,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Duration: {{intern.duration}}."
+          },
+          {
+            "text": "Mode: {{intern.mode}}."
+          },
+          {
+            "text": "Stipend: {{intern.stipend}}."
+          },
+          {
+            "text": "Conduct during the internship was found to be satisfactory throughout."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 522.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 43.5,
+        "content": "We wish {{recipient.first_name}} every success in the next stage of study and career.\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +378,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 583.7,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +390,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 589.7,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +407,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 603.7,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +423,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +435,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -616,7 +645,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "To whom it may concern",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -646,8 +675,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 50,
+            "content": "This is to certify that {{recipient.name}} completed an internship with {{company.name}} in the {{intern.department}} team, from {{intern.start_date}} to {{intern.end_date}}.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +688,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 333.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 58,
+            "content": "During the internship {{recipient.first_name}} worked on {{intern.project}}, reporting to {{intern.mentor}}. The work was carried out with diligence and a willingness to learn, and the contribution was of real value to the team.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +703,57 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 403.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "INTERNSHIP DETAILS",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 418.2,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Duration: {{intern.duration}}."
+              },
+              {
+                "text": "Mode: {{intern.mode}}."
+              },
+              {
+                "text": "Stipend: {{intern.stipend}}."
+              },
+              {
+                "text": "Conduct during the internship was found to be satisfactory throughout."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 522.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 43.5,
+            "content": "We wish {{recipient.first_name}} every success in the next stage of study and career.\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +762,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 583.7,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +774,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 589.7,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +791,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 603.7,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +807,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +819,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -781,22 +842,21 @@
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "company.contact": "people@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "intern.department": "Data and Analytics",
+    "intern.duration": "Ten weeks, full time",
+    "intern.end_date": "08 August 2026",
+    "intern.mentor": "Sneha Kulkarni, Analytics Lead",
+    "intern.mode": "On-site, Bengaluru office",
+    "intern.project": "a demand-forecasting dashboard for the warehouse team",
+    "intern.start_date": "02 June 2026",
+    "intern.stipend": "₹25,000 per month",
+    "letter.date": "17 August 2026",
+    "letter.reference": "NW/HR/INT/2026/0077",
+    "recipient.address": "Department of Computer Science\nMeridian Institute of Technology, Pune 411014",
+    "recipient.first_name": "Arjun",
+    "recipient.name": "Mr Arjun Deshpande",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

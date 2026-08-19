@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "HR",
+  "category": "Education",
   "layout": {
     "page": {
       "size": "A4",
@@ -26,24 +26,6 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
-      },
-      {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
-      },
-      {
         "key": "letter.date"
       },
       {
@@ -56,22 +38,49 @@
         "key": "recipient.name"
       },
       {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
-      },
-      {
         "key": "signatory.name"
       },
       {
         "key": "signatory.title"
+      },
+      {
+        "key": "student.academic_year"
+      },
+      {
+        "key": "student.admission_date"
+      },
+      {
+        "key": "student.completed"
+      },
+      {
+        "key": "student.conduct"
+      },
+      {
+        "key": "student.dob"
+      },
+      {
+        "key": "student.guardian"
+      },
+      {
+        "key": "student.last_class"
+      },
+      {
+        "key": "student.leaving_date"
+      },
+      {
+        "key": "student.name"
+      },
+      {
+        "key": "student.promotion"
+      },
+      {
+        "key": "student.reason"
+      },
+      {
+        "key": "student.registration"
+      },
+      {
+        "key": "student.relation"
       }
     ],
     "elements": [
@@ -93,7 +102,7 @@
         "x": 56,
         "y": 44,
         "width": 250,
-        "height": 23.2,
+        "height": 46.4,
         "content": "{{company.name}}",
         "style": {
           "fontSize": 16,
@@ -107,7 +116,7 @@
         "id": "t003",
         "type": "TEXT",
         "x": 56,
-        "y": 67.2,
+        "y": 90.4,
         "width": 270,
         "height": 46,
         "content": "{{company.address}}\n{{company.contact}}",
@@ -125,7 +134,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "TRANSFER",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -142,7 +151,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "Reference",
+        "content": "TC no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -203,7 +212,7 @@
         "id": "l009",
         "type": "LINE",
         "x": 44,
-        "y": 123.2,
+        "y": 146.4,
         "width": 507,
         "height": 0,
         "strokeWidth": 1,
@@ -215,7 +224,7 @@
         "id": "t010",
         "type": "TEXT",
         "x": 44,
-        "y": 141.2,
+        "y": 164.4,
         "width": 507,
         "height": 14,
         "content": "{{letter.date}}",
@@ -230,7 +239,7 @@
         "id": "t011",
         "type": "TEXT",
         "x": 44,
-        "y": 165.2,
+        "y": 188.4,
         "width": 507,
         "height": 16.68,
         "content": "{{recipient.name}}",
@@ -246,7 +255,7 @@
         "id": "t012",
         "type": "TEXT",
         "x": 44,
-        "y": 182.2,
+        "y": 205.4,
         "width": 507,
         "height": 34,
         "content": "{{recipient.address}}",
@@ -261,10 +270,10 @@
         "id": "t013",
         "type": "TEXT",
         "x": 44,
-        "y": 225.2,
+        "y": 248.4,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Transfer Certificate",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -277,7 +286,7 @@
         "id": "t014",
         "type": "TEXT",
         "x": 44,
-        "y": 249.2,
+        "y": 272.4,
         "width": 507,
         "height": 16,
         "content": "",
@@ -292,10 +301,10 @@
         "id": "t015",
         "type": "TEXT",
         "x": 44,
-        "y": 271.2,
+        "y": 294.4,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 58,
+        "content": "This is to certify that {{student.name}}, {{student.relation}} {{student.guardian}}, was a student of {{company.name}} under registration number {{student.registration}}, and has been granted a transfer certificate on leaving the institution.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +316,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 364.4,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 58,
+        "content": "The student was admitted on {{student.admission_date}} and left on {{student.leaving_date}}, having completed {{student.completed}}. No dues remain outstanding against the student’s account.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +331,60 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 434.4,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "RECORD OF THE STUDENT",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 449.4,
+        "width": 499,
+        "height": 110,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Date of birth as per records: {{student.dob}}."
+          },
+          {
+            "text": "Last class studied: {{student.last_class}}, academic year {{student.academic_year}}."
+          },
+          {
+            "text": "Conduct and character: {{student.conduct}}."
+          },
+          {
+            "text": "Reason for leaving: {{student.reason}}."
+          },
+          {
+            "text": "Whether qualified for promotion: {{student.promotion}}."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 575.4,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 58,
+        "content": "This certificate is issued on the written application of the parent or guardian and supersedes no other record.\n\nYours faithfully,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +393,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 651.4,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +405,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 657.4,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +422,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 671.4,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +438,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +450,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "Alterations to this certificate render it invalid. Duplicates are issued only on written request.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -445,7 +489,7 @@
             "x": 56,
             "y": 44,
             "width": 250,
-            "height": 23.2,
+            "height": 46.4,
             "content": "{{company.name}}",
             "style": {
               "fontSize": 16,
@@ -459,7 +503,7 @@
             "id": "t003",
             "type": "TEXT",
             "x": 56,
-            "y": 67.2,
+            "y": 90.4,
             "width": 270,
             "height": 46,
             "content": "{{company.address}}\n{{company.contact}}",
@@ -477,7 +521,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "TRANSFER",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -494,7 +538,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "Reference",
+            "content": "TC no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -555,7 +599,7 @@
             "id": "l009",
             "type": "LINE",
             "x": 44,
-            "y": 123.2,
+            "y": 146.4,
             "width": 507,
             "height": 0,
             "strokeWidth": 1,
@@ -567,7 +611,7 @@
             "id": "t010",
             "type": "TEXT",
             "x": 44,
-            "y": 141.2,
+            "y": 164.4,
             "width": 507,
             "height": 14,
             "content": "{{letter.date}}",
@@ -582,7 +626,7 @@
             "id": "t011",
             "type": "TEXT",
             "x": 44,
-            "y": 165.2,
+            "y": 188.4,
             "width": 507,
             "height": 16.68,
             "content": "{{recipient.name}}",
@@ -598,7 +642,7 @@
             "id": "t012",
             "type": "TEXT",
             "x": 44,
-            "y": 182.2,
+            "y": 205.4,
             "width": 507,
             "height": 34,
             "content": "{{recipient.address}}",
@@ -613,10 +657,10 @@
             "id": "t013",
             "type": "TEXT",
             "x": 44,
-            "y": 225.2,
+            "y": 248.4,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Transfer Certificate",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -629,7 +673,7 @@
             "id": "t014",
             "type": "TEXT",
             "x": 44,
-            "y": 249.2,
+            "y": 272.4,
             "width": 507,
             "height": 16,
             "content": "",
@@ -644,10 +688,10 @@
             "id": "t015",
             "type": "TEXT",
             "x": 44,
-            "y": 271.2,
+            "y": 294.4,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 58,
+            "content": "This is to certify that {{student.name}}, {{student.relation}} {{student.guardian}}, was a student of {{company.name}} under registration number {{student.registration}}, and has been granted a transfer certificate on leaving the institution.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +703,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 364.4,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 58,
+            "content": "The student was admitted on {{student.admission_date}} and left on {{student.leaving_date}}, having completed {{student.completed}}. No dues remain outstanding against the student’s account.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +718,60 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 434.4,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "RECORD OF THE STUDENT",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 449.4,
+            "width": 499,
+            "height": 110,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Date of birth as per records: {{student.dob}}."
+              },
+              {
+                "text": "Last class studied: {{student.last_class}}, academic year {{student.academic_year}}."
+              },
+              {
+                "text": "Conduct and character: {{student.conduct}}."
+              },
+              {
+                "text": "Reason for leaving: {{student.reason}}."
+              },
+              {
+                "text": "Whether qualified for promotion: {{student.promotion}}."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 575.4,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 58,
+            "content": "This certificate is issued on the written application of the parent or guardian and supersedes no other record.\n\nYours faithfully,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +780,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 651.4,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +792,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 657.4,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +809,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 671.4,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +825,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +837,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "Alterations to this certificate render it invalid. Duplicates are issued only on written request.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -778,25 +857,28 @@
     ]
   },
   "variableValues": {
-    "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "company.contact": "people@northwind.example · +91 80 4123 7788",
-    "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
-    "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "company.address": "Survey 118, Hinjewadi Phase II, Pune 411057",
+    "company.contact": "registrar@meridian.example · +91 20 6612 3300",
+    "company.name": "Meridian Institute of Technology",
+    "letter.date": "17 August 2026",
+    "letter.reference": "MIT/TC/2026/0219",
+    "recipient.address": "7 Riverside Enclave, Baner\nPune, Maharashtra 411045",
+    "recipient.name": "Mr Arjun Deshpande",
+    "signatory.name": "Dr S. Venkataraman",
+    "signatory.title": "Registrar, Meridian Institute of Technology",
+    "student.academic_year": "2025–26",
+    "student.admission_date": "02 August 2022",
+    "student.completed": "the full four-year programme",
+    "student.conduct": "Good throughout the period of study",
+    "student.dob": "09 November 2004",
+    "student.guardian": "Mr M. Deshpande",
+    "student.last_class": "B.Tech, eighth semester",
+    "student.leaving_date": "31 July 2026",
+    "student.name": "Arjun Deshpande",
+    "student.promotion": "Yes — passed and eligible for the award of the degree",
+    "student.reason": "Completion of the programme",
+    "student.registration": "MIT/CSE/2022/0288",
+    "student.relation": "son of"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

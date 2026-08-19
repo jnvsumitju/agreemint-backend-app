@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -16,21 +16,6 @@
     },
     "layoutSchemaVersion": 2,
     "globalVariables": [
-      {
-        "key": "agreement.confidentiality_period"
-      },
-      {
-        "key": "agreement.effective_date"
-      },
-      {
-        "key": "agreement.governing_law"
-      },
-      {
-        "key": "agreement.number"
-      },
-      {
-        "key": "agreement.purpose"
-      },
       {
         "key": "party_one.address"
       },
@@ -54,6 +39,33 @@
       },
       {
         "key": "party_two.signatory"
+      },
+      {
+        "key": "poa.date"
+      },
+      {
+        "key": "poa.effective_date"
+      },
+      {
+        "key": "poa.limits"
+      },
+      {
+        "key": "poa.number"
+      },
+      {
+        "key": "poa.power_one"
+      },
+      {
+        "key": "poa.power_three"
+      },
+      {
+        "key": "poa.power_two"
+      },
+      {
+        "key": "poa.type"
+      },
+      {
+        "key": "poa.valid_until"
       }
     ],
     "elements": [
@@ -66,7 +78,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +88,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Power of Attorney",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +104,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "An authority given by one person to another to act on their behalf in defined matters.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +132,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "AGREEMENT NO.",
+        "content": "INSTRUMENT NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -136,7 +148,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{poa.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +164,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "EFFECTIVE DATE",
+        "content": "DATE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +179,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{poa.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +196,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "TYPE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -199,8 +211,8 @@
         "x": 297.5,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "height": 41.33,
+        "content": "{{poa.type}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +228,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "VALID UNTIL",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -231,8 +243,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "height": 16,
+        "content": "{{poa.valid_until}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +260,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "PRINCIPAL (GRANTOR)",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +307,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "ATTORNEY (GRANTEE)",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -342,7 +354,7 @@
         "y": 292,
         "width": 507,
         "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "content": "I, {{party_one.name}}, appoint {{party_two.name}} as my lawful attorney to act on my behalf in the matters set out below, and to do all things reasonably necessary to give effect to that authority.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,66 +369,32 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Powers granted",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t021",
-        "type": "TEXT",
-        "x": 44,
-        "y": 370,
-        "width": 507,
-        "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 44,
-        "y": 428,
-        "width": 507,
-        "height": 16,
-        "content": "2. Obligations of the receiving party",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#1d4ed8",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "li023",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 448,
+        "y": 370,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "{{poa.power_one}}"
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "{{poa.power_two}}"
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "{{poa.power_three}}"
           }
         ],
         "listItemSpacing": 7,
@@ -429,29 +407,29 @@
         }
       },
       {
-        "id": "t024",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 447,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "2. Limits on the authority",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t025",
+        "id": "t023",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 467,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "{{poa.limits}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +438,69 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 525,
+        "width": 507,
+        "height": 16,
+        "content": "3. Duration and revocation",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 545,
+        "width": 507,
+        "height": 46,
+        "content": "This power takes effect on {{poa.effective_date}} and remains in force until {{poa.valid_until}} unless revoked earlier in writing. Revocation takes effect when written notice reaches the attorney and any party relying on this instrument.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 603,
+        "width": 507,
+        "height": 16,
+        "content": "4. Ratification",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 623,
+        "width": 507,
+        "height": 40,
+        "content": "I ratify all lawful acts done by the attorney within the authority granted above, and undertake to be bound by them as if done by me personally.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +512,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,7 +524,7 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
@@ -501,7 +541,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +557,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +569,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +586,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +602,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +614,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. A power of attorney may need to be stamped, notarised or registered.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +644,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +654,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Power of Attorney",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +670,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "An authority given by one person to another to act on their behalf in defined matters.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -658,7 +698,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "AGREEMENT NO.",
+            "content": "INSTRUMENT NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -674,7 +714,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{poa.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -690,7 +730,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "EFFECTIVE DATE",
+            "content": "DATE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -705,8 +745,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{poa.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +762,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "TYPE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -737,8 +777,8 @@
             "x": 297.5,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "height": 41.33,
+            "content": "{{poa.type}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +794,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "VALID UNTIL",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -769,8 +809,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "height": 16,
+            "content": "{{poa.valid_until}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +826,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "PRINCIPAL (GRANTOR)",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +873,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "ATTORNEY (GRANTEE)",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -880,7 +920,7 @@
             "y": 292,
             "width": 507,
             "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "content": "I, {{party_one.name}}, appoint {{party_two.name}} as my lawful attorney to act on my behalf in the matters set out below, and to do all things reasonably necessary to give effect to that authority.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,66 +935,32 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Powers granted",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t021",
-            "type": "TEXT",
-            "x": 44,
-            "y": 370,
-            "width": 507,
-            "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 44,
-            "y": 428,
-            "width": 507,
-            "height": 16,
-            "content": "2. Obligations of the receiving party",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#1d4ed8",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "li023",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 448,
+            "y": 370,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "{{poa.power_one}}"
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "{{poa.power_two}}"
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "{{poa.power_three}}"
               }
             ],
             "listItemSpacing": 7,
@@ -967,29 +973,29 @@
             }
           },
           {
-            "id": "t024",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 447,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "2. Limits on the authority",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t025",
+            "id": "t023",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 467,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "{{poa.limits}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1004,69 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 525,
+            "width": 507,
+            "height": 16,
+            "content": "3. Duration and revocation",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 545,
+            "width": 507,
+            "height": 46,
+            "content": "This power takes effect on {{poa.effective_date}} and remains in force until {{poa.valid_until}} unless revoked earlier in writing. Revocation takes effect when written notice reaches the attorney and any party relying on this instrument.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 603,
+            "width": 507,
+            "height": 16,
+            "content": "4. Ratification",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 623,
+            "width": 507,
+            "height": 40,
+            "content": "I ratify all lawful acts done by the attorney within the authority granted above, and undertake to be bound by them as if done by me personally.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1078,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,7 +1090,7 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
@@ -1039,7 +1107,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1123,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1135,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1152,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1168,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1180,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. A power of attorney may need to be stamped, notarised or registered.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1200,23 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "party_one.address": "9 Palm Grove, Whitefield, Bengaluru 560066",
+    "party_one.name": "Mr Suresh Prabhu",
+    "party_one.registration": "PAN ABCPP1234K",
+    "party_one.signatory": "Suresh Prabhu, Principal",
+    "party_two.address": "44 Jubilee Residency, HSR Layout, Bengaluru 560102",
+    "party_two.name": "Ms Meena Iyer",
+    "party_two.registration": "PAN JKLPI3456N",
+    "party_two.signatory": "Meena Iyer, Attorney",
+    "poa.date": "17 August 2026",
+    "poa.effective_date": "01 September 2026",
+    "poa.limits": "This authority does not extend to selling, mortgaging, gifting or otherwise disposing of the property, nor to borrowing against it, nor to any property other than the one named above.",
+    "poa.number": "POA-2026-0058",
+    "poa.power_one": "To manage and let the property at Flat 402, Brigade Gardens, Koramangala, Bengaluru 560034, and to sign leave and licence agreements for terms not exceeding eleven months.",
+    "poa.power_three": "To represent me before the housing society, utility providers and municipal authorities in respect of that property.",
+    "poa.power_two": "To collect rent and deposits, issue receipts, and operate the designated rent account for that property.",
+    "poa.type": "Special (limited to the matters listed)",
+    "poa.valid_until": "31 August 2027"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

@@ -17,6 +17,27 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
+        "key": "challan.date"
+      },
+      {
+        "key": "challan.eway_bill"
+      },
+      {
+        "key": "challan.number"
+      },
+      {
+        "key": "challan.order_reference"
+      },
+      {
+        "key": "challan.purpose"
+      },
+      {
+        "key": "challan.transport_mode"
+      },
+      {
+        "key": "challan.vehicle"
+      },
+      {
         "key": "company.address"
       },
       {
@@ -26,58 +47,28 @@
         "key": "company.name"
       },
       {
-        "key": "delivery.address"
+        "key": "customer.address"
       },
       {
-        "key": "delivery.name"
+        "key": "customer.name"
       },
       {
         "key": "line_items"
       },
       {
-        "key": "po.buyer"
+        "key": "shipping.address"
       },
       {
-        "key": "po.conditions"
-      },
-      {
-        "key": "po.date"
-      },
-      {
-        "key": "po.delivery_terms"
-      },
-      {
-        "key": "po.number"
-      },
-      {
-        "key": "po.payment_terms"
-      },
-      {
-        "key": "po.required_by"
+        "key": "shipping.name"
       },
       {
         "key": "signatory.name"
       },
       {
-        "key": "signatory.title"
-      },
-      {
         "key": "totals.grand_total"
       },
       {
-        "key": "totals.subtotal"
-      },
-      {
-        "key": "totals.tax"
-      },
-      {
-        "key": "vendor.address"
-      },
-      {
-        "key": "vendor.gstin"
-      },
-      {
-        "key": "vendor.name"
+        "key": "totals.in_words"
       }
     ],
     "elements": [
@@ -131,7 +122,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "content": "DELIVERY CHALLAN",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -148,7 +139,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "Challan no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +155,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{challan.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +171,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Date",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +187,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{challan.date}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +203,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Order ref.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +219,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{challan.order_reference}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -256,7 +247,7 @@
         "y": 141.2,
         "width": 230,
         "height": 12,
-        "content": "VENDOR",
+        "content": "CONSIGNEE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -272,7 +263,7 @@
         "y": 154.2,
         "width": 230,
         "height": 16,
-        "content": "{{vendor.name}}",
+        "content": "{{customer.name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -288,7 +279,7 @@
         "y": 171.2,
         "width": 230,
         "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "content": "{{customer.address}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -303,7 +294,7 @@
         "y": 141.2,
         "width": 239,
         "height": 12,
-        "content": "DELIVER TO",
+        "content": "SHIP TO",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -319,7 +310,7 @@
         "y": 154.2,
         "width": 239,
         "height": 16,
-        "content": "{{delivery.name}}",
+        "content": "{{shipping.name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -335,7 +326,7 @@
         "y": 171.2,
         "width": 239,
         "height": 46,
-        "content": "{{delivery.address}}",
+        "content": "{{shipping.address}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -363,7 +354,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "VEHICLE NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -379,7 +370,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "content": "{{challan.vehicle}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -395,7 +386,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "DELIVERY TERMS",
+        "content": "E-WAY BILL",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -411,7 +402,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "content": "{{challan.eway_bill}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -427,7 +418,7 @@
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "BUYER CONTACT",
+        "content": "TRANSPORT MODE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -443,7 +434,7 @@
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.buyer}}",
+        "content": "{{challan.transport_mode}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -461,31 +452,26 @@
         "height": 118,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
+            "header": "Description of goods",
+            "key": "description"
           },
           {
-            "header": "Description",
-            "key": "description"
+            "header": "HSN",
+            "key": "hsn"
           },
           {
             "header": "Qty",
             "key": "qty"
           },
           {
-            "header": "Unit price",
-            "key": "rate"
-          },
-          {
-            "header": "Amount",
-            "key": "amount"
+            "header": "Value",
+            "key": "value"
           }
         ],
         "columnWidths": [
-          1,
-          2.8,
-          0.6,
-          1,
+          3,
+          0.9,
+          0.7,
           1.1
         ],
         "dataKey": "line_items",
@@ -500,79 +486,11 @@
         }
       },
       {
-        "id": "t026",
-        "type": "TEXT",
-        "x": 309,
-        "y": 403.2,
-        "width": 145,
-        "height": 14,
-        "content": "Subtotal",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t027",
-        "type": "TEXT",
-        "x": 446,
-        "y": 403.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.subtotal}}",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t028",
-        "type": "TEXT",
-        "x": 309,
-        "y": 419.2,
-        "width": 145,
-        "height": 14,
-        "content": "Tax",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t029",
-        "type": "TEXT",
-        "x": 446,
-        "y": 419.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.tax}}",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "r032",
+        "id": "r028",
         "type": "POLYGON",
         "polygonKind": "rect",
         "x": 301,
-        "y": 431.2,
+        "y": 399.2,
         "width": 250,
         "height": 23.95,
         "style": {
@@ -581,13 +499,13 @@
         }
       },
       {
-        "id": "t030",
+        "id": "t026",
         "type": "TEXT",
         "x": 309,
-        "y": 435.2,
+        "y": 403.2,
         "width": 145,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Declared value",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -598,10 +516,10 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t027",
         "type": "TEXT",
         "x": 446,
-        "y": 435.2,
+        "y": 403.2,
         "width": 97,
         "height": 31.9,
         "content": "{{totals.grand_total}}",
@@ -615,13 +533,13 @@
         }
       },
       {
-        "id": "t033",
+        "id": "t029",
         "type": "TEXT",
         "x": 44,
-        "y": 479.15,
-        "width": 250,
+        "y": 403.2,
+        "width": 240,
         "height": 12,
-        "content": "CONDITIONS",
+        "content": "AMOUNT IN WORDS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -631,13 +549,45 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
-        "y": 492.15,
+        "y": 415.2,
+        "width": 240,
+        "height": 40,
+        "content": "{{totals.in_words}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.45,
+          "italic": true
+        }
+      },
+      {
+        "id": "t031",
+        "type": "TEXT",
+        "x": 44,
+        "y": 475.2,
+        "width": 250,
+        "height": 12,
+        "content": "PURPOSE OF MOVEMENT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 44,
+        "y": 488.2,
         "width": 250,
         "height": 58,
-        "content": "{{po.conditions}}",
+        "content": "{{challan.purpose}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -646,10 +596,10 @@
         }
       },
       {
-        "id": "l035",
+        "id": "l033",
         "type": "LINE",
         "x": 311,
-        "y": 513.15,
+        "y": 509.2,
         "width": 240,
         "height": 0,
         "strokeWidth": 1,
@@ -658,10 +608,10 @@
         }
       },
       {
-        "id": "t036",
+        "id": "t034",
         "type": "TEXT",
         "x": 311,
-        "y": 519.15,
+        "y": 515.2,
         "width": 240,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -675,13 +625,13 @@
         }
       },
       {
-        "id": "t037",
+        "id": "t035",
         "type": "TEXT",
         "x": 311,
-        "y": 533.15,
+        "y": 529.2,
         "width": 240,
         "height": 24,
-        "content": "{{signatory.title}}",
+        "content": "For {{company.name}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -691,7 +641,7 @@
         }
       },
       {
-        "id": "l038",
+        "id": "l036",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -703,13 +653,13 @@
         }
       },
       {
-        "id": "t039",
+        "id": "t037",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Not a tax invoice. Goods moved under the reference shown above.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -774,7 +724,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "content": "DELIVERY CHALLAN",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -791,7 +741,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "Challan no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +757,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{challan.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +773,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Date",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +789,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{challan.date}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +805,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Order ref.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +821,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{challan.order_reference}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -899,7 +849,7 @@
             "y": 141.2,
             "width": 230,
             "height": 12,
-            "content": "VENDOR",
+            "content": "CONSIGNEE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -915,7 +865,7 @@
             "y": 154.2,
             "width": 230,
             "height": 16,
-            "content": "{{vendor.name}}",
+            "content": "{{customer.name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -931,7 +881,7 @@
             "y": 171.2,
             "width": 230,
             "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "content": "{{customer.address}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -946,7 +896,7 @@
             "y": 141.2,
             "width": 239,
             "height": 12,
-            "content": "DELIVER TO",
+            "content": "SHIP TO",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -962,7 +912,7 @@
             "y": 154.2,
             "width": 239,
             "height": 16,
-            "content": "{{delivery.name}}",
+            "content": "{{shipping.name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -978,7 +928,7 @@
             "y": 171.2,
             "width": 239,
             "height": 46,
-            "content": "{{delivery.address}}",
+            "content": "{{shipping.address}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1006,7 +956,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "VEHICLE NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1022,7 +972,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "content": "{{challan.vehicle}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1038,7 +988,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "DELIVERY TERMS",
+            "content": "E-WAY BILL",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1054,7 +1004,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "content": "{{challan.eway_bill}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1070,7 +1020,7 @@
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "BUYER CONTACT",
+            "content": "TRANSPORT MODE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1086,7 +1036,7 @@
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.buyer}}",
+            "content": "{{challan.transport_mode}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1104,31 +1054,26 @@
             "height": 118,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
+                "header": "Description of goods",
+                "key": "description"
               },
               {
-                "header": "Description",
-                "key": "description"
+                "header": "HSN",
+                "key": "hsn"
               },
               {
                 "header": "Qty",
                 "key": "qty"
               },
               {
-                "header": "Unit price",
-                "key": "rate"
-              },
-              {
-                "header": "Amount",
-                "key": "amount"
+                "header": "Value",
+                "key": "value"
               }
             ],
             "columnWidths": [
-              1,
-              2.8,
-              0.6,
-              1,
+              3,
+              0.9,
+              0.7,
               1.1
             ],
             "dataKey": "line_items",
@@ -1143,79 +1088,11 @@
             }
           },
           {
-            "id": "t026",
-            "type": "TEXT",
-            "x": 309,
-            "y": 403.2,
-            "width": 145,
-            "height": 14,
-            "content": "Subtotal",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t027",
-            "type": "TEXT",
-            "x": 446,
-            "y": 403.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.subtotal}}",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t028",
-            "type": "TEXT",
-            "x": 309,
-            "y": 419.2,
-            "width": 145,
-            "height": 14,
-            "content": "Tax",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t029",
-            "type": "TEXT",
-            "x": 446,
-            "y": 419.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.tax}}",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "r032",
+            "id": "r028",
             "type": "POLYGON",
             "polygonKind": "rect",
             "x": 301,
-            "y": 431.2,
+            "y": 399.2,
             "width": 250,
             "height": 23.95,
             "style": {
@@ -1224,13 +1101,13 @@
             }
           },
           {
-            "id": "t030",
+            "id": "t026",
             "type": "TEXT",
             "x": 309,
-            "y": 435.2,
+            "y": 403.2,
             "width": 145,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Declared value",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1241,10 +1118,10 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t027",
             "type": "TEXT",
             "x": 446,
-            "y": 435.2,
+            "y": 403.2,
             "width": 97,
             "height": 31.9,
             "content": "{{totals.grand_total}}",
@@ -1258,13 +1135,13 @@
             }
           },
           {
-            "id": "t033",
+            "id": "t029",
             "type": "TEXT",
             "x": 44,
-            "y": 479.15,
-            "width": 250,
+            "y": 403.2,
+            "width": 240,
             "height": 12,
-            "content": "CONDITIONS",
+            "content": "AMOUNT IN WORDS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1274,13 +1151,45 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
-            "y": 492.15,
+            "y": 415.2,
+            "width": 240,
+            "height": 40,
+            "content": "{{totals.in_words}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.45,
+              "italic": true
+            }
+          },
+          {
+            "id": "t031",
+            "type": "TEXT",
+            "x": 44,
+            "y": 475.2,
+            "width": 250,
+            "height": 12,
+            "content": "PURPOSE OF MOVEMENT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 44,
+            "y": 488.2,
             "width": 250,
             "height": 58,
-            "content": "{{po.conditions}}",
+            "content": "{{challan.purpose}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1289,10 +1198,10 @@
             }
           },
           {
-            "id": "l035",
+            "id": "l033",
             "type": "LINE",
             "x": 311,
-            "y": 513.15,
+            "y": 509.2,
             "width": 240,
             "height": 0,
             "strokeWidth": 1,
@@ -1301,10 +1210,10 @@
             }
           },
           {
-            "id": "t036",
+            "id": "t034",
             "type": "TEXT",
             "x": 311,
-            "y": 519.15,
+            "y": 515.2,
             "width": 240,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -1318,13 +1227,13 @@
             }
           },
           {
-            "id": "t037",
+            "id": "t035",
             "type": "TEXT",
             "x": 311,
-            "y": 533.15,
+            "y": 529.2,
             "width": 240,
             "height": 24,
-            "content": "{{signatory.title}}",
+            "content": "For {{company.name}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1334,7 +1243,7 @@
             }
           },
           {
-            "id": "l038",
+            "id": "l036",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1346,13 +1255,13 @@
             }
           },
           {
-            "id": "t039",
+            "id": "t037",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Not a tax invoice. Goods moved under the reference shown above.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1366,27 +1275,24 @@
     ]
   },
   "variableValues": {
+    "challan.date": "17 Aug 2026",
+    "challan.eway_bill": "4712 8890 3315",
+    "challan.number": "DC-2026-0311",
+    "challan.order_reference": "PO-2026-1148",
+    "challan.purpose": "Supply against purchase order. Goods remain the property of the consignor until accepted at the delivery address.",
+    "challan.transport_mode": "Road",
+    "challan.vehicle": "KA 05 MJ 4471",
     "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
     "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "customer.address": "22 Residency Road, Bengaluru 560025",
+    "customer.name": "Halcyon Design Studio",
+    "line_items": "[{\"description\":\"Industrial shelving unit — 2400mm\",\"hsn\":\"9403\",\"qty\":\"20\",\"value\":\"₹1,96,000.00\"},{\"description\":\"Fixing kit — wall anchors\",\"hsn\":\"7318\",\"qty\":\"20\",\"value\":\"₹8,000.00\"},{\"description\":\"Assembly tool set\",\"hsn\":\"8205\",\"qty\":\"2\",\"value\":\"₹6,000.00\"},{\"description\":\"Protective wrap — roll\",\"hsn\":\"3923\",\"qty\":\"4\",\"value\":\"₹4,000.00\"}]",
+    "shipping.address": "Warehouse 3, Hosur Road, Bengaluru 560068",
+    "shipping.name": "Halcyon Design Studio — Warehouse",
+    "signatory.name": "Ananya Rao",
+    "totals.grand_total": "₹2,14,000.00",
+    "totals.in_words": "Two lakh fourteen thousand rupees only"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }
