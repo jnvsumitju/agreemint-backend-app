@@ -785,6 +785,31 @@ public class PdfRendererService {
         return style != null && style.path("italic").asBoolean(false);
     }
 
+    /**
+     * Resolve an inline mark for a run against its element's default.
+     *
+     * <p>Tri-state, and the third state is the point: a run that omits the key
+     * inherits the element, a run that sets it to {@code true} turns it on, and
+     * a run that sets it to {@code false} turns it OFF against an element that
+     * has it on. Underline and strikethrough used to read their own value only,
+     * so an underlined text box lost its underline the moment its content
+     * became rich runs — which is as soon as anyone typed in it.
+     *
+     * <p>This is the same precedence the canvas already uses
+     * ({@code r.underline ?? elementUnderline} in RichTextBlockPreview), so the
+     * two renderers now agree instead of differing on every styled text box.
+     *
+     * <p>An explicit JSON null counts as absent. The editor omits the key
+     * rather than writing null, but a hand-authored layout or an older export
+     * may not.
+     */
+    private static boolean runFlag(JsonNode run, JsonNode style, String key) {
+        if (run != null && run.has(key) && !run.path(key).isNull()) {
+            return run.path(key).asBoolean();
+        }
+        return style != null && style.path(key).asBoolean(false);
+    }
+
     private JsonNode resolveRichRuns(JsonNode contentField) {
         if (contentField == null || contentField.isNull()) {
             return null;
@@ -878,7 +903,12 @@ public class PdfRendererService {
                         || elementStyle.path("color").asText("").isEmpty())) {
                     t.setFontColor(new DeviceRgb(0x25, 0x63, 0xEB));
                 }
-                if (!run.path("underline").asBoolean(false)) {
+                // Against the RESOLVED value, not the run's own. With
+                // inheritance in play, checking only the run would lay a second
+                // stroke over a link inside an already-underlined element.
+                // Matches the canvas, which pushes this decoration only when
+                // the resolved set does not already contain it.
+                if (!runFlag(run, elementStyle, "underline")) {
                     t.setUnderline(0.75f, -2f);
                 }
             } else {
@@ -960,12 +990,8 @@ public class PdfRendererService {
                 ? (float) run.path("fontSize").asDouble(baseSize)
                 : baseSize;
         t.setFontSize(size);
-        boolean bold = run.has("bold")
-                ? run.path("bold").asBoolean()
-                : base.path("bold").asBoolean(false);
-        boolean italic = run.has("italic")
-                ? run.path("italic").asBoolean()
-                : base.path("italic").asBoolean(false);
+        boolean bold = runFlag(run, base, "bold");
+        boolean italic = runFlag(run, base, "italic");
         if (parityOn()) {
             PdfFont font = resolveParityFont(base, bold, italic);
             if (font != null) {
@@ -978,11 +1004,15 @@ public class PdfRendererService {
             if (bold) t.setBold();
             if (italic) t.setItalic();
         }
-        if (run.path("underline").asBoolean(false)) {
+        if (runFlag(run, base, "underline")) {
             t.setUnderline(0.75f, -2f);
         }
-        if (run.path("strikethrough").asBoolean(false)) {
-            t.setUnderline(0.75f, 3.2f);
+        if (runFlag(run, base, "strikethrough")) {
+            // Scaled by the RUN's size, matching applyTextStyle's
+            // `fontSize * 0.27f`. The old constant 3.2 is that product at 12pt
+            // — right at the default size and wrong at every other, so a strike
+            // on 24pt text sat well below the glyphs it was meant to cross.
+            t.setUnderline(0.75f, size * 0.27f);
         }
         boolean superscript = run.path("superscript").asBoolean(false);
         boolean subscript = run.path("subscript").asBoolean(false);
