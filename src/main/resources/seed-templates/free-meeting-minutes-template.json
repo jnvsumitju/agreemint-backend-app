@@ -17,43 +17,58 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "client.name"
+        "key": "meeting.action_one"
       },
       {
-        "key": "company.name"
+        "key": "meeting.action_three"
       },
       {
-        "key": "phases"
+        "key": "meeting.action_two"
       },
       {
-        "key": "proposal.approach_one"
+        "key": "meeting.apologies"
       },
       {
-        "key": "proposal.approach_three"
+        "key": "meeting.chair"
       },
       {
-        "key": "proposal.approach_two"
+        "key": "meeting.datetime"
       },
       {
-        "key": "proposal.author"
+        "key": "meeting.decision_one"
       },
       {
-        "key": "proposal.date"
+        "key": "meeting.decision_three"
       },
       {
-        "key": "proposal.number"
+        "key": "meeting.decision_two"
       },
       {
-        "key": "proposal.problem"
+        "key": "meeting.end_time"
       },
       {
-        "key": "proposal.summary"
+        "key": "meeting.location"
       },
       {
-        "key": "proposal.title"
+        "key": "meeting.matters_arising"
       },
       {
-        "key": "proposal.valid_until"
+        "key": "meeting.next_date"
+      },
+      {
+        "key": "meeting.next_location"
+      },
+      {
+        "key": "meeting.present"
+      },
+      {
+        "key": "meeting.previous_date"
+      },
+      {
+        "key": "meeting.start_time"
+      },
+      {
+        "key": "meeting.title"
       }
     ],
     "elements": [
@@ -76,7 +91,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "{{proposal.title}}",
+        "content": "Minutes of Meeting",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +107,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "Prepared for {{client.name}} by {{company.name}}",
+        "content": "A record of what was discussed, what was decided, and who owns each action.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +135,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "PROPOSAL NO.",
+        "content": "MEETING",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -135,8 +150,8 @@
         "x": 58,
         "y": 152,
         "width": 109.75,
-        "height": 16,
-        "content": "{{proposal.number}}",
+        "height": 27.55,
+        "content": "{{meeting.title}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +167,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "DATE",
+        "content": "DATE AND TIME",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +182,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 16,
-        "content": "{{proposal.date}}",
+        "height": 27.55,
+        "content": "{{meeting.datetime}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +199,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "VALID UNTIL",
+        "content": "LOCATION",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -200,7 +215,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{proposal.valid_until}}",
+        "content": "{{meeting.location}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +231,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "PREPARED BY",
+        "content": "CHAIR",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -231,8 +246,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 16,
-        "content": "{{proposal.author}}",
+        "height": 27.55,
+        "content": "{{meeting.chair}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -246,9 +261,73 @@
         "type": "TEXT",
         "x": 44,
         "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "PRESENT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t014",
+        "type": "TEXT",
+        "x": 44,
+        "y": 217,
+        "width": 235,
+        "height": 47.85,
+        "content": "{{meeting.present}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t015",
+        "type": "TEXT",
+        "x": 316,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "APOLOGIES",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 316,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{meeting.apologies}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 44,
+        "y": 292,
         "width": 507,
         "height": 46,
-        "content": "{{proposal.summary}}",
+        "content": "The chair opened the meeting at {{meeting.start_time}} and confirmed a quorum. The minutes of the previous meeting held on {{meeting.previous_date}} were approved without amendment.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -257,13 +336,13 @@
         }
       },
       {
-        "id": "t014",
+        "id": "t018",
         "type": "TEXT",
         "x": 44,
-        "y": 262,
+        "y": 350,
         "width": 507,
         "height": 16,
-        "content": "The problem we are solving",
+        "content": "1. Matters arising",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -273,13 +352,13 @@
         }
       },
       {
-        "id": "t015",
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 282,
+        "y": 370,
         "width": 507,
-        "height": 52,
-        "content": "{{proposal.problem}}",
+        "height": 46,
+        "content": "{{meeting.matters_arising}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -288,13 +367,13 @@
         }
       },
       {
-        "id": "t016",
+        "id": "t020",
         "type": "TEXT",
         "x": 44,
-        "y": 346,
+        "y": 428,
         "width": 507,
         "height": 16,
-        "content": "Our approach",
+        "content": "2. Decisions taken",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -304,22 +383,22 @@
         }
       },
       {
-        "id": "li017",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 366,
+        "y": 448,
         "width": 495,
         "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "{{proposal.approach_one}}"
+            "text": "{{meeting.decision_one}}"
           },
           {
-            "text": "{{proposal.approach_two}}"
+            "text": "{{meeting.decision_two}}"
           },
           {
-            "text": "{{proposal.approach_three}}"
+            "text": "{{meeting.decision_three}}"
           }
         ],
         "listItemSpacing": 7,
@@ -332,13 +411,13 @@
         }
       },
       {
-        "id": "t018",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 443,
+        "y": 525,
         "width": 507,
         "height": 16,
-        "content": "Investment",
+        "content": "3. Actions and owners",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -348,49 +427,66 @@
         }
       },
       {
-        "id": "tb019",
-        "type": "TABLE",
-        "x": 44,
-        "y": 463,
-        "width": 507,
-        "height": 92,
-        "columns": [
+        "id": "li023",
+        "type": "LIST",
+        "x": 50,
+        "y": 545,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
           {
-            "header": "Phase",
-            "key": "phase"
+            "text": "{{meeting.action_one}}"
           },
           {
-            "header": "Deliverable",
-            "key": "deliverable"
+            "text": "{{meeting.action_two}}"
           },
           {
-            "header": "Duration",
-            "key": "duration"
-          },
-          {
-            "header": "Fee",
-            "key": "fee"
+            "text": "{{meeting.action_three}}"
           }
         ],
-        "columnWidths": [
-          1,
-          2.6,
-          1,
-          1.1
-        ],
-        "dataKey": "phases",
-        "tablePreviewBodyRows": 3,
-        "tableRowBackgrounds": {
-          "-1": "#f8fafc"
-        },
+        "listItemSpacing": 7,
+        "listIndent": 20,
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
-          "color": "#374151"
+          "color": "#374151",
+          "lineHeight": 1.5
         }
       },
       {
-        "id": "l020",
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 622,
+        "width": 507,
+        "height": 16,
+        "content": "4. Next meeting",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 642,
+        "width": 507,
+        "height": 40,
+        "content": "The next meeting is scheduled for {{meeting.next_date}} at {{meeting.next_location}}. The chair closed the meeting at {{meeting.end_time}}.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l026",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -402,13 +498,13 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t027",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+        "content": "Circulated to all attendees. Corrections should be raised before the next meeting.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -442,7 +538,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "{{proposal.title}}",
+            "content": "Minutes of Meeting",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -458,7 +554,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "Prepared for {{client.name}} by {{company.name}}",
+            "content": "A record of what was discussed, what was decided, and who owns each action.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -486,7 +582,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "PROPOSAL NO.",
+            "content": "MEETING",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -501,8 +597,8 @@
             "x": 58,
             "y": 152,
             "width": 109.75,
-            "height": 16,
-            "content": "{{proposal.number}}",
+            "height": 27.55,
+            "content": "{{meeting.title}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -518,7 +614,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "DATE",
+            "content": "DATE AND TIME",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -533,8 +629,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 16,
-            "content": "{{proposal.date}}",
+            "height": 27.55,
+            "content": "{{meeting.datetime}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -550,7 +646,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "VALID UNTIL",
+            "content": "LOCATION",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -566,7 +662,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{proposal.valid_until}}",
+            "content": "{{meeting.location}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -582,7 +678,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "PREPARED BY",
+            "content": "CHAIR",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -597,8 +693,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 16,
-            "content": "{{proposal.author}}",
+            "height": 27.55,
+            "content": "{{meeting.chair}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -612,9 +708,73 @@
             "type": "TEXT",
             "x": 44,
             "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "PRESENT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t014",
+            "type": "TEXT",
+            "x": 44,
+            "y": 217,
+            "width": 235,
+            "height": 47.85,
+            "content": "{{meeting.present}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t015",
+            "type": "TEXT",
+            "x": 316,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "APOLOGIES",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 316,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{meeting.apologies}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 44,
+            "y": 292,
             "width": 507,
             "height": 46,
-            "content": "{{proposal.summary}}",
+            "content": "The chair opened the meeting at {{meeting.start_time}} and confirmed a quorum. The minutes of the previous meeting held on {{meeting.previous_date}} were approved without amendment.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -623,13 +783,13 @@
             }
           },
           {
-            "id": "t014",
+            "id": "t018",
             "type": "TEXT",
             "x": 44,
-            "y": 262,
+            "y": 350,
             "width": 507,
             "height": 16,
-            "content": "The problem we are solving",
+            "content": "1. Matters arising",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -639,13 +799,13 @@
             }
           },
           {
-            "id": "t015",
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 282,
+            "y": 370,
             "width": 507,
-            "height": 52,
-            "content": "{{proposal.problem}}",
+            "height": 46,
+            "content": "{{meeting.matters_arising}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -654,13 +814,13 @@
             }
           },
           {
-            "id": "t016",
+            "id": "t020",
             "type": "TEXT",
             "x": 44,
-            "y": 346,
+            "y": 428,
             "width": 507,
             "height": 16,
-            "content": "Our approach",
+            "content": "2. Decisions taken",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -670,22 +830,22 @@
             }
           },
           {
-            "id": "li017",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 366,
+            "y": 448,
             "width": 495,
             "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "{{proposal.approach_one}}"
+                "text": "{{meeting.decision_one}}"
               },
               {
-                "text": "{{proposal.approach_two}}"
+                "text": "{{meeting.decision_two}}"
               },
               {
-                "text": "{{proposal.approach_three}}"
+                "text": "{{meeting.decision_three}}"
               }
             ],
             "listItemSpacing": 7,
@@ -698,13 +858,13 @@
             }
           },
           {
-            "id": "t018",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 443,
+            "y": 525,
             "width": 507,
             "height": 16,
-            "content": "Investment",
+            "content": "3. Actions and owners",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -714,49 +874,66 @@
             }
           },
           {
-            "id": "tb019",
-            "type": "TABLE",
-            "x": 44,
-            "y": 463,
-            "width": 507,
-            "height": 92,
-            "columns": [
+            "id": "li023",
+            "type": "LIST",
+            "x": 50,
+            "y": 545,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
               {
-                "header": "Phase",
-                "key": "phase"
+                "text": "{{meeting.action_one}}"
               },
               {
-                "header": "Deliverable",
-                "key": "deliverable"
+                "text": "{{meeting.action_two}}"
               },
               {
-                "header": "Duration",
-                "key": "duration"
-              },
-              {
-                "header": "Fee",
-                "key": "fee"
+                "text": "{{meeting.action_three}}"
               }
             ],
-            "columnWidths": [
-              1,
-              2.6,
-              1,
-              1.1
-            ],
-            "dataKey": "phases",
-            "tablePreviewBodyRows": 3,
-            "tableRowBackgrounds": {
-              "-1": "#f8fafc"
-            },
+            "listItemSpacing": 7,
+            "listIndent": 20,
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
-              "color": "#374151"
+              "color": "#374151",
+              "lineHeight": 1.5
             }
           },
           {
-            "id": "l020",
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 622,
+            "width": 507,
+            "height": 16,
+            "content": "4. Next meeting",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 642,
+            "width": 507,
+            "height": 40,
+            "content": "The next meeting is scheduled for {{meeting.next_date}} at {{meeting.next_location}}. The chair closed the meeting at {{meeting.end_time}}.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l026",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -768,13 +945,13 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t027",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+            "content": "Circulated to all attendees. Corrections should be raised before the next meeting.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -788,19 +965,24 @@
     ]
   },
   "variableValues": {
-    "client.name": "Halcyon Design Studio LLP",
-    "company.name": "Northwind Traders Pvt Ltd",
-    "phases": "[{\"phase\":\"Phase 1\",\"deliverable\":\"Baseline instrumentation and reporting\",\"duration\":\"4 weeks\",\"fee\":\"₹4,20,000\"},{\"phase\":\"Phase 2\",\"deliverable\":\"Handheld scanning rollout and training\",\"duration\":\"8 weeks\",\"fee\":\"₹11,60,000\"},{\"phase\":\"Phase 3\",\"deliverable\":\"Wave planning and dispatch integration\",\"duration\":\"6 weeks\",\"fee\":\"₹7,80,000\"}]",
-    "proposal.approach_one": "Instrument the existing process first, so improvements can be measured rather than assumed.",
-    "proposal.approach_three": "Introduce wave planning so dispatch cut-offs drive picking priority automatically.",
-    "proposal.approach_two": "Replace the paper pick list with handheld scanning, removing two of the three handoffs.",
-    "proposal.author": "Vikram Shetty",
-    "proposal.date": "16 August 2026",
-    "proposal.number": "PRP-2026-0033",
-    "proposal.problem": "Order picking is currently paper-driven, with three manual handoffs between receipt and dispatch. Each handoff is a point where orders stall, and none of them is instrumented — so the delay is visible only after the fact, in customer complaints.",
-    "proposal.summary": "This proposal sets out a phased programme to reduce order-to-dispatch time at the Hosur Road facility from an average of 38 hours to under 12, without expanding headcount.",
-    "proposal.title": "Warehouse Automation Programme",
-    "proposal.valid_until": "30 September 2026"
+    "meeting.action_one": "Ananya Rao to circulate the revised rate card to customers by 25 August.",
+    "meeting.action_three": "Rahul Sharma to complete the supplier audit checklist before 15 September.",
+    "meeting.action_two": "Sneha Kulkarni to report on pilot metrics at the October meeting.",
+    "meeting.apologies": "Meena Iyer (annual leave)",
+    "meeting.chair": "Devika Menon, Chief Operating Officer",
+    "meeting.datetime": "14 August 2026, 10.00am",
+    "meeting.decision_one": "Approved the revised freight rates with effect from 01 September 2026.",
+    "meeting.decision_three": "Deferred the ERP upgrade to the next financial year on cost grounds.",
+    "meeting.decision_two": "Agreed to extend the Hyderabad pilot by one quarter before deciding on a wider rollout.",
+    "meeting.end_time": "11.15am",
+    "meeting.location": "Boardroom, MG Road office",
+    "meeting.matters_arising": "The warehouse racking installation, carried over from the previous meeting, is complete and signed off. The delayed supplier audit has been rescheduled to September.",
+    "meeting.next_date": "11 September 2026, 10.00am",
+    "meeting.next_location": "the MG Road boardroom",
+    "meeting.present": "Devika Menon (chair), Ananya Rao, Sneha Kulkarni, Rahul Sharma, Vikram Iyer",
+    "meeting.previous_date": "10 July 2026",
+    "meeting.start_time": "10.02am",
+    "meeting.title": "Operations review — Q3"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

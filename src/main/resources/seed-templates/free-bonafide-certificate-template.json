@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "HR",
+  "category": "Education",
   "layout": {
     "page": {
       "size": "A4",
@@ -26,28 +26,16 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
-      },
-      {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
-      },
-      {
         "key": "letter.date"
       },
       {
+        "key": "letter.purpose"
+      },
+      {
         "key": "letter.reference"
+      },
+      {
+        "key": "letter.validity"
       },
       {
         "key": "recipient.address"
@@ -56,22 +44,40 @@
         "key": "recipient.name"
       },
       {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
-      },
-      {
         "key": "signatory.name"
       },
       {
         "key": "signatory.title"
+      },
+      {
+        "key": "student.academic_year"
+      },
+      {
+        "key": "student.admission_date"
+      },
+      {
+        "key": "student.dob"
+      },
+      {
+        "key": "student.duration"
+      },
+      {
+        "key": "student.guardian"
+      },
+      {
+        "key": "student.name"
+      },
+      {
+        "key": "student.programme"
+      },
+      {
+        "key": "student.registration"
+      },
+      {
+        "key": "student.relation"
+      },
+      {
+        "key": "student.year"
       }
     ],
     "elements": [
@@ -93,7 +99,7 @@
         "x": 56,
         "y": 44,
         "width": 250,
-        "height": 23.2,
+        "height": 46.4,
         "content": "{{company.name}}",
         "style": {
           "fontSize": 16,
@@ -107,7 +113,7 @@
         "id": "t003",
         "type": "TEXT",
         "x": 56,
-        "y": 67.2,
+        "y": 90.4,
         "width": 270,
         "height": 46,
         "content": "{{company.address}}\n{{company.contact}}",
@@ -125,7 +131,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "BONAFIDE",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -203,7 +209,7 @@
         "id": "l009",
         "type": "LINE",
         "x": 44,
-        "y": 123.2,
+        "y": 146.4,
         "width": 507,
         "height": 0,
         "strokeWidth": 1,
@@ -215,7 +221,7 @@
         "id": "t010",
         "type": "TEXT",
         "x": 44,
-        "y": 141.2,
+        "y": 164.4,
         "width": 507,
         "height": 14,
         "content": "{{letter.date}}",
@@ -230,7 +236,7 @@
         "id": "t011",
         "type": "TEXT",
         "x": 44,
-        "y": 165.2,
+        "y": 188.4,
         "width": 507,
         "height": 16.68,
         "content": "{{recipient.name}}",
@@ -246,7 +252,7 @@
         "id": "t012",
         "type": "TEXT",
         "x": 44,
-        "y": 182.2,
+        "y": 205.4,
         "width": 507,
         "height": 34,
         "content": "{{recipient.address}}",
@@ -261,10 +267,10 @@
         "id": "t013",
         "type": "TEXT",
         "x": 44,
-        "y": 225.2,
+        "y": 248.4,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "To whom it may concern",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -277,7 +283,7 @@
         "id": "t014",
         "type": "TEXT",
         "x": 44,
-        "y": 249.2,
+        "y": 272.4,
         "width": 507,
         "height": 16,
         "content": "",
@@ -292,10 +298,10 @@
         "id": "t015",
         "type": "TEXT",
         "x": 44,
-        "y": 271.2,
+        "y": 294.4,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 58,
+        "content": "This is to certify that {{student.name}}, {{student.relation}} {{student.guardian}}, is a bonafide student of {{company.name}}, enrolled in {{student.programme}} under registration number {{student.registration}}.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +313,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 364.4,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 50,
+        "content": "The student is currently studying in {{student.year}} for the academic year {{student.academic_year}}. Conduct during the period of study has been satisfactory.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +328,57 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 426.4,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "CERTIFICATE DETAILS",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 441.4,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Date of admission: {{student.admission_date}}."
+          },
+          {
+            "text": "Programme: {{student.programme}}, {{student.duration}}."
+          },
+          {
+            "text": "Date of birth as per records: {{student.dob}}."
+          },
+          {
+            "text": "Issued at the request of the student for {{letter.purpose}}."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 545.4,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 58,
+        "content": "This certificate is issued for official purposes and is valid for {{letter.validity}} from the date of issue.\n\nYours faithfully,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +387,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 621.4,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +399,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 627.4,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +416,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 641.4,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +432,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +444,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -445,7 +483,7 @@
             "x": 56,
             "y": 44,
             "width": 250,
-            "height": 23.2,
+            "height": 46.4,
             "content": "{{company.name}}",
             "style": {
               "fontSize": 16,
@@ -459,7 +497,7 @@
             "id": "t003",
             "type": "TEXT",
             "x": 56,
-            "y": 67.2,
+            "y": 90.4,
             "width": 270,
             "height": 46,
             "content": "{{company.address}}\n{{company.contact}}",
@@ -477,7 +515,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "BONAFIDE",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -555,7 +593,7 @@
             "id": "l009",
             "type": "LINE",
             "x": 44,
-            "y": 123.2,
+            "y": 146.4,
             "width": 507,
             "height": 0,
             "strokeWidth": 1,
@@ -567,7 +605,7 @@
             "id": "t010",
             "type": "TEXT",
             "x": 44,
-            "y": 141.2,
+            "y": 164.4,
             "width": 507,
             "height": 14,
             "content": "{{letter.date}}",
@@ -582,7 +620,7 @@
             "id": "t011",
             "type": "TEXT",
             "x": 44,
-            "y": 165.2,
+            "y": 188.4,
             "width": 507,
             "height": 16.68,
             "content": "{{recipient.name}}",
@@ -598,7 +636,7 @@
             "id": "t012",
             "type": "TEXT",
             "x": 44,
-            "y": 182.2,
+            "y": 205.4,
             "width": 507,
             "height": 34,
             "content": "{{recipient.address}}",
@@ -613,10 +651,10 @@
             "id": "t013",
             "type": "TEXT",
             "x": 44,
-            "y": 225.2,
+            "y": 248.4,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "To whom it may concern",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -629,7 +667,7 @@
             "id": "t014",
             "type": "TEXT",
             "x": 44,
-            "y": 249.2,
+            "y": 272.4,
             "width": 507,
             "height": 16,
             "content": "",
@@ -644,10 +682,10 @@
             "id": "t015",
             "type": "TEXT",
             "x": 44,
-            "y": 271.2,
+            "y": 294.4,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 58,
+            "content": "This is to certify that {{student.name}}, {{student.relation}} {{student.guardian}}, is a bonafide student of {{company.name}}, enrolled in {{student.programme}} under registration number {{student.registration}}.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +697,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 364.4,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 50,
+            "content": "The student is currently studying in {{student.year}} for the academic year {{student.academic_year}}. Conduct during the period of study has been satisfactory.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +712,57 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 426.4,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "CERTIFICATE DETAILS",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 441.4,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Date of admission: {{student.admission_date}}."
+              },
+              {
+                "text": "Programme: {{student.programme}}, {{student.duration}}."
+              },
+              {
+                "text": "Date of birth as per records: {{student.dob}}."
+              },
+              {
+                "text": "Issued at the request of the student for {{letter.purpose}}."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 545.4,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 58,
+            "content": "This certificate is issued for official purposes and is valid for {{letter.validity}} from the date of issue.\n\nYours faithfully,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +771,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 621.4,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +783,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 627.4,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +800,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 641.4,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +816,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +828,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -778,25 +848,27 @@
     ]
   },
   "variableValues": {
-    "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "company.contact": "people@northwind.example · +91 80 4123 7788",
-    "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
-    "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "company.address": "Survey 118, Hinjewadi Phase II, Pune 411057",
+    "company.contact": "registrar@meridian.example · +91 20 6612 3300",
+    "company.name": "Meridian Institute of Technology",
+    "letter.date": "17 August 2026",
+    "letter.purpose": "a passport application",
+    "letter.reference": "MIT/REG/BC/2026/0834",
+    "letter.validity": "six months",
+    "recipient.address": "12 Sunrise Colony, Aundh\nPune, Maharashtra 411007",
+    "recipient.name": "Ms Kavya Ramesh",
+    "signatory.name": "Dr S. Venkataraman",
+    "signatory.title": "Registrar, Meridian Institute of Technology",
+    "student.academic_year": "2026–27",
+    "student.admission_date": "01 August 2023",
+    "student.dob": "14 March 2005",
+    "student.duration": "four years, full time",
+    "student.guardian": "Mr R. Ramesh",
+    "student.name": "Kavya Ramesh",
+    "student.programme": "B.Tech in Computer Science and Engineering",
+    "student.registration": "MIT/CSE/2023/0416",
+    "student.relation": "daughter of",
+    "student.year": "the sixth semester, third year"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,34 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
+        "key": "affidavit.date"
       },
       {
-        "key": "agreement.effective_date"
+        "key": "affidavit.number"
       },
       {
-        "key": "agreement.governing_law"
+        "key": "affidavit.place"
       },
       {
-        "key": "agreement.number"
+        "key": "affidavit.purpose"
       },
       {
-        "key": "agreement.purpose"
+        "key": "affidavit.statement_one"
+      },
+      {
+        "key": "affidavit.statement_three"
+      },
+      {
+        "key": "affidavit.statement_two"
+      },
+      {
+        "key": "deponent.age"
+      },
+      {
+        "key": "deponent.parent"
+      },
+      {
+        "key": "deponent.relation"
       },
       {
         "key": "party_one.address"
@@ -66,7 +81,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +91,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Affidavit",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +107,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "A sworn written statement of facts, made on oath before an authorised officer.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +135,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "AGREEMENT NO.",
+        "content": "AFFIDAVIT NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -136,7 +151,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{affidavit.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +167,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "EFFECTIVE DATE",
+        "content": "DATE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +182,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{affidavit.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +199,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "PLACE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -200,7 +215,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "content": "{{affidavit.place}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +231,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "PURPOSE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -232,7 +247,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "content": "{{affidavit.purpose}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +263,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "DEPONENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +310,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "SWORN BEFORE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -341,8 +356,8 @@
         "x": 44,
         "y": 292,
         "width": 507,
-        "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "height": 46,
+        "content": "I, {{party_one.name}}, {{deponent.relation}} {{deponent.parent}}, aged {{deponent.age}} years, residing at {{party_one.address}}, do hereby solemnly affirm and declare as follows:",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,66 +372,32 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Statements of fact",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t021",
-        "type": "TEXT",
-        "x": 44,
-        "y": 370,
-        "width": 507,
-        "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 44,
-        "y": 428,
-        "width": 507,
-        "height": 16,
-        "content": "2. Obligations of the receiving party",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#1d4ed8",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "li023",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 448,
+        "y": 370,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "{{affidavit.statement_one}}"
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "{{affidavit.statement_two}}"
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "{{affidavit.statement_three}}"
           }
         ],
         "listItemSpacing": 7,
@@ -429,17 +410,48 @@
         }
       },
       {
-        "id": "t024",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 447,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "2. Verification",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t023",
+        "type": "TEXT",
+        "x": 44,
+        "y": 467,
+        "width": 507,
+        "height": 46,
+        "content": "I state that the contents of paragraph 1 above are true to the best of my knowledge and belief, that nothing material has been concealed, and that no part of this affidavit is false.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 525,
+        "width": 507,
+        "height": 16,
+        "content": "3. Declaration",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -448,10 +460,10 @@
         "id": "t025",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 545,
         "width": 507,
-        "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "height": 40,
+        "content": "Solemnly affirmed at {{affidavit.place}} on {{affidavit.date}}. I make this affidavit for the purpose of {{affidavit.purpose}} and for no other purpose.",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -580,7 +592,7 @@
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Affidavits have formal requirements that vary by state and by purpose.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +616,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +626,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Affidavit",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +642,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "A sworn written statement of facts, made on oath before an authorised officer.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -658,7 +670,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "AGREEMENT NO.",
+            "content": "AFFIDAVIT NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -674,7 +686,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{affidavit.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -690,7 +702,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "EFFECTIVE DATE",
+            "content": "DATE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -705,8 +717,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{affidavit.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +734,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "PLACE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -738,7 +750,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "content": "{{affidavit.place}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +766,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "PURPOSE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -770,7 +782,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "content": "{{affidavit.purpose}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +798,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "DEPONENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +845,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "SWORN BEFORE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -879,8 +891,8 @@
             "x": 44,
             "y": 292,
             "width": 507,
-            "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "height": 46,
+            "content": "I, {{party_one.name}}, {{deponent.relation}} {{deponent.parent}}, aged {{deponent.age}} years, residing at {{party_one.address}}, do hereby solemnly affirm and declare as follows:",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,66 +907,32 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Statements of fact",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t021",
-            "type": "TEXT",
-            "x": 44,
-            "y": 370,
-            "width": 507,
-            "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 44,
-            "y": 428,
-            "width": 507,
-            "height": 16,
-            "content": "2. Obligations of the receiving party",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#1d4ed8",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "li023",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 448,
+            "y": 370,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "{{affidavit.statement_one}}"
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "{{affidavit.statement_two}}"
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "{{affidavit.statement_three}}"
               }
             ],
             "listItemSpacing": 7,
@@ -967,17 +945,48 @@
             }
           },
           {
-            "id": "t024",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 447,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "2. Verification",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t023",
+            "type": "TEXT",
+            "x": 44,
+            "y": 467,
+            "width": 507,
+            "height": 46,
+            "content": "I state that the contents of paragraph 1 above are true to the best of my knowledge and belief, that nothing material has been concealed, and that no part of this affidavit is false.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 525,
+            "width": 507,
+            "height": 16,
+            "content": "3. Declaration",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -986,10 +995,10 @@
             "id": "t025",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 545,
             "width": 507,
-            "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "height": 40,
+            "content": "Solemnly affirmed at {{affidavit.place}} on {{affidavit.date}}. I make this affidavit for the purpose of {{affidavit.purpose}} and for no other purpose.",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -1118,7 +1127,7 @@
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Affidavits have formal requirements that vary by state and by purpose.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1141,24 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "affidavit.date": "17 August 2026",
+    "affidavit.number": "AFF-2026-0233",
+    "affidavit.place": "Bengaluru, Karnataka",
+    "affidavit.purpose": "a change of name record",
+    "affidavit.statement_one": "That my name was recorded as Kavya R. in my school records and as Kavya Ramesh in my other identity documents.",
+    "affidavit.statement_three": "That I wish my name to be recorded uniformly as Kavya Ramesh in all official records hereafter.",
+    "affidavit.statement_two": "That both names refer to one and the same person, namely myself, and no other person is referred to by either.",
+    "deponent.age": "34",
+    "deponent.parent": "Mr R. Ramesh",
+    "deponent.relation": "daughter of",
+    "party_one.address": "12 Sunrise Colony, Aundh, Pune 411007",
+    "party_one.name": "Ms Kavya Ramesh",
+    "party_one.registration": "Aadhaar ending 4417 · PAN GHIPK9012M",
+    "party_one.signatory": "Kavya Ramesh, Deponent",
+    "party_two.address": "City Civil Court complex, Bengaluru 560009",
+    "party_two.name": "Notary Public",
+    "party_two.registration": "Notary registration KA/NOT/2019/0447",
+    "party_two.signatory": "Notary Public, seal and signature"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

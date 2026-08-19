@@ -17,21 +17,6 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
-      },
-      {
-        "key": "agreement.effective_date"
-      },
-      {
-        "key": "agreement.governing_law"
-      },
-      {
-        "key": "agreement.number"
-      },
-      {
-        "key": "agreement.purpose"
-      },
-      {
         "key": "party_one.address"
       },
       {
@@ -54,6 +39,48 @@
       },
       {
         "key": "party_two.signatory"
+      },
+      {
+        "key": "sow.acceptance_window"
+      },
+      {
+        "key": "sow.deliverable_one"
+      },
+      {
+        "key": "sow.deliverable_three"
+      },
+      {
+        "key": "sow.deliverable_two"
+      },
+      {
+        "key": "sow.duration"
+      },
+      {
+        "key": "sow.effective_date"
+      },
+      {
+        "key": "sow.fees"
+      },
+      {
+        "key": "sow.invoice_schedule"
+      },
+      {
+        "key": "sow.master_agreement"
+      },
+      {
+        "key": "sow.number"
+      },
+      {
+        "key": "sow.out_of_scope"
+      },
+      {
+        "key": "sow.payment_terms"
+      },
+      {
+        "key": "sow.scope"
+      },
+      {
+        "key": "sow.summary"
       }
     ],
     "elements": [
@@ -76,7 +103,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Statement of Work",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +119,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "The scope, deliverables, timeline and commercial terms for a defined piece of work.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +147,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "AGREEMENT NO.",
+        "content": "SOW NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -136,7 +163,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{sow.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -167,8 +194,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{sow.effective_date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +211,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "UNDER AGREEMENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -200,7 +227,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "content": "{{sow.master_agreement}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +243,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "DURATION",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -231,8 +258,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "height": 16,
+        "content": "{{sow.duration}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,7 +275,7 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "SUPPLIER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -295,7 +322,7 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "CLIENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -342,7 +369,7 @@
         "y": 292,
         "width": 507,
         "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "content": "This statement of work is issued under the master services agreement referenced above and describes {{sow.summary}}. Where this document and the master agreement conflict, the master agreement prevails except on scope and fees.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,7 +384,7 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Scope of work",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -373,7 +400,7 @@
         "y": 370,
         "width": 507,
         "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+        "content": "{{sow.scope}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -388,7 +415,7 @@
         "y": 428,
         "width": 507,
         "height": 16,
-        "content": "2. Obligations of the receiving party",
+        "content": "2. Deliverables and acceptance",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -407,16 +434,16 @@
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "{{sow.deliverable_one}}"
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "{{sow.deliverable_two}}"
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
+            "text": "{{sow.deliverable_three}}"
           },
           {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "Each deliverable is deemed accepted {{sow.acceptance_window}} after submission unless rejected in writing with reasons."
           }
         ],
         "listItemSpacing": 7,
@@ -435,7 +462,7 @@
         "y": 546,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "3. Fees and invoicing",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -451,7 +478,7 @@
         "y": 566,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "Total fees are {{sow.fees}}, invoiced {{sow.invoice_schedule}}. Payment terms are {{sow.payment_terms}}. Expenses require prior written approval and are charged at cost.",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +487,38 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 624,
+        "width": 507,
+        "height": 16,
+        "content": "4. Out of scope",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 644,
+        "width": 507,
+        "height": 40,
+        "content": "{{sow.out_of_scope}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +530,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,7 +542,7 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
@@ -501,7 +559,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +575,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,12 +587,12 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
         "width": 210,
-        "height": 14.5,
+        "height": 29,
         "content": "{{party_two.signatory}}",
         "style": {
           "fontSize": 10,
@@ -546,7 +604,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +620,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +632,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Changes to scope require a written change order signed by both parties.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -614,7 +672,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Statement of Work",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +688,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "The scope, deliverables, timeline and commercial terms for a defined piece of work.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -658,7 +716,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "AGREEMENT NO.",
+            "content": "SOW NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -674,7 +732,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{sow.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -705,8 +763,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{sow.effective_date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +780,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "UNDER AGREEMENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -738,7 +796,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "content": "{{sow.master_agreement}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +812,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "DURATION",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -769,8 +827,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "height": 16,
+            "content": "{{sow.duration}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,7 +844,7 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "SUPPLIER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -833,7 +891,7 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "CLIENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -880,7 +938,7 @@
             "y": 292,
             "width": 507,
             "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "content": "This statement of work is issued under the master services agreement referenced above and describes {{sow.summary}}. Where this document and the master agreement conflict, the master agreement prevails except on scope and fees.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,7 +953,7 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Scope of work",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -911,7 +969,7 @@
             "y": 370,
             "width": 507,
             "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+            "content": "{{sow.scope}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -926,7 +984,7 @@
             "y": 428,
             "width": 507,
             "height": 16,
-            "content": "2. Obligations of the receiving party",
+            "content": "2. Deliverables and acceptance",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -945,16 +1003,16 @@
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "{{sow.deliverable_one}}"
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "{{sow.deliverable_two}}"
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
+                "text": "{{sow.deliverable_three}}"
               },
               {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "Each deliverable is deemed accepted {{sow.acceptance_window}} after submission unless rejected in writing with reasons."
               }
             ],
             "listItemSpacing": 7,
@@ -973,7 +1031,7 @@
             "y": 546,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "3. Fees and invoicing",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -989,7 +1047,7 @@
             "y": 566,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "Total fees are {{sow.fees}}, invoiced {{sow.invoice_schedule}}. Payment terms are {{sow.payment_terms}}. Expenses require prior written approval and are charged at cost.",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1056,38 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 624,
+            "width": 507,
+            "height": 16,
+            "content": "4. Out of scope",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 644,
+            "width": 507,
+            "height": 40,
+            "content": "{{sow.out_of_scope}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1099,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,7 +1111,7 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
@@ -1039,7 +1128,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1144,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,12 +1156,12 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
             "width": 210,
-            "height": 14.5,
+            "height": 29,
             "content": "{{party_two.signatory}}",
             "style": {
               "fontSize": 10,
@@ -1084,7 +1173,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1189,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1201,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Changes to scope require a written change order signed by both parties.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1221,28 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "party_one.address": "Level 6, Cyber Towers, Hitec City, Hyderabad 500081",
+    "party_one.name": "Meridian Advisory LLP",
+    "party_one.registration": "LLPIN AAB-4471",
+    "party_one.signatory": "K. Subramanian, Partner",
+    "party_two.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "party_two.name": "Northwind Traders Pvt Ltd",
+    "party_two.registration": "CIN U51909KA2015PTC081234",
+    "party_two.signatory": "Devika Menon, Chief Operating Officer",
+    "sow.acceptance_window": "ten working days",
+    "sow.deliverable_one": "Current-state assessment report, week 4.",
+    "sow.deliverable_three": "Implementation plan and final presentation, week 14.",
+    "sow.deliverable_two": "Options model with costed scenarios, week 9.",
+    "sow.duration": "14 weeks",
+    "sow.effective_date": "01 September 2026",
+    "sow.fees": "₹24,00,000 excluding taxes",
+    "sow.invoice_schedule": "in three instalments on acceptance of each deliverable",
+    "sow.master_agreement": "MSA-2025-0007",
+    "sow.number": "SOW-2026-0014",
+    "sow.out_of_scope": "Software licensing, hardware procurement, and any work at sites other than the two named above. These may be added by change order.",
+    "sow.payment_terms": "net 30 days from invoice date",
+    "sow.scope": "The supplier will assess current warehouse operations across two sites, model three automation options, and produce an implementation plan with costs, sequencing and risks. Work includes site visits, stakeholder interviews and a final presentation to the leadership team.",
+    "sow.summary": "a warehouse automation assessment and implementation plan"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

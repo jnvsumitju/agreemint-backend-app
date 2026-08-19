@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,16 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
-      },
-      {
-        "key": "agreement.effective_date"
-      },
-      {
-        "key": "agreement.governing_law"
+        "key": "agreement.date"
       },
       {
         "key": "agreement.number"
       },
       {
-        "key": "agreement.purpose"
+        "key": "agreement.start_date"
+      },
+      {
+        "key": "agreement.term"
       },
       {
         "key": "party_one.address"
@@ -54,6 +51,48 @@
       },
       {
         "key": "party_two.signatory"
+      },
+      {
+        "key": "property.address"
+      },
+      {
+        "key": "property.description"
+      },
+      {
+        "key": "terms.default_period"
+      },
+      {
+        "key": "terms.deposit"
+      },
+      {
+        "key": "terms.deposit_refund"
+      },
+      {
+        "key": "terms.escalation"
+      },
+      {
+        "key": "terms.maintenance_by"
+      },
+      {
+        "key": "terms.minor_repairs"
+      },
+      {
+        "key": "terms.notice"
+      },
+      {
+        "key": "terms.permitted_use"
+      },
+      {
+        "key": "terms.rent"
+      },
+      {
+        "key": "terms.rent_due_day"
+      },
+      {
+        "key": "terms.taxes_by"
+      },
+      {
+        "key": "terms.utilities_by"
       }
     ],
     "elements": [
@@ -66,7 +105,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +115,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Rent Agreement",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +131,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "A residential leave and licence agreement between a landlord and a tenant.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -152,7 +191,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "EFFECTIVE DATE",
+        "content": "DATE OF AGREEMENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +206,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{agreement.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +223,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "TERM",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -199,8 +238,8 @@
         "x": 297.5,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "height": 16,
+        "content": "{{agreement.term}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +255,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "COMMENCING",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -232,7 +271,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "content": "{{agreement.start_date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +287,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "LANDLORD",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +334,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "TENANT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -342,7 +381,7 @@
         "y": 292,
         "width": 507,
         "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "content": "The landlord lets and the tenant takes on leave and licence the premises at {{property.address}}, comprising {{property.description}}.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,66 +396,32 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Rent and deposit",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t021",
-        "type": "TEXT",
-        "x": 44,
-        "y": 370,
-        "width": 507,
-        "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 44,
-        "y": 428,
-        "width": 507,
-        "height": 16,
-        "content": "2. Obligations of the receiving party",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#1d4ed8",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "li023",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 448,
+        "y": 370,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "Monthly rent: {{terms.rent}}, payable in advance by the {{terms.rent_due_day}} of each month."
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "Security deposit: {{terms.deposit}}, refundable within {{terms.deposit_refund}} of vacating, less lawful deductions."
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "Rent escalation: {{terms.escalation}}."
           }
         ],
         "listItemSpacing": 7,
@@ -429,29 +434,29 @@
         }
       },
       {
-        "id": "t024",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 447,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "2. Use of the premises",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t025",
+        "id": "t023",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 467,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "The premises shall be used for {{terms.permitted_use}} only. The tenant shall not sublet or assign without written consent, nor make structural alterations.",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +465,82 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 525,
+        "width": 507,
+        "height": 16,
+        "content": "3. Maintenance and outgoings",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li025",
+        "type": "LIST",
+        "x": 50,
+        "y": 545,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Society maintenance: {{terms.maintenance_by}}."
+          },
+          {
+            "text": "Electricity and water on actuals: {{terms.utilities_by}}."
+          },
+          {
+            "text": "Municipal taxes: {{terms.taxes_by}}. Minor repairs to {{terms.minor_repairs}}: the tenant."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 622,
+        "width": 507,
+        "height": 16,
+        "content": "4. Termination",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 642,
+        "width": 507,
+        "height": 30.4,
+        "content": "Either party may terminate on {{terms.notice}} written notice. The landlord may terminate on non-payment of rent for {{terms.default_period}}.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +552,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,7 +564,7 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
@@ -501,7 +581,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +597,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +609,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +626,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +642,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +654,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Replace the clauses with terms drafted for your situation.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +684,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +694,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Rent Agreement",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +710,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "A residential leave and licence agreement between a landlord and a tenant.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -690,7 +770,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "EFFECTIVE DATE",
+            "content": "DATE OF AGREEMENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -705,8 +785,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{agreement.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +802,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "TERM",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -737,8 +817,8 @@
             "x": 297.5,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "height": 16,
+            "content": "{{agreement.term}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +834,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "COMMENCING",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -770,7 +850,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "content": "{{agreement.start_date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +866,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "LANDLORD",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +913,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "TENANT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -880,7 +960,7 @@
             "y": 292,
             "width": 507,
             "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "content": "The landlord lets and the tenant takes on leave and licence the premises at {{property.address}}, comprising {{property.description}}.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,66 +975,32 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Rent and deposit",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t021",
-            "type": "TEXT",
-            "x": 44,
-            "y": 370,
-            "width": 507,
-            "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 44,
-            "y": 428,
-            "width": 507,
-            "height": 16,
-            "content": "2. Obligations of the receiving party",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#1d4ed8",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "li023",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 448,
+            "y": 370,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "Monthly rent: {{terms.rent}}, payable in advance by the {{terms.rent_due_day}} of each month."
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "Security deposit: {{terms.deposit}}, refundable within {{terms.deposit_refund}} of vacating, less lawful deductions."
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "Rent escalation: {{terms.escalation}}."
               }
             ],
             "listItemSpacing": 7,
@@ -967,29 +1013,29 @@
             }
           },
           {
-            "id": "t024",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 447,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "2. Use of the premises",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t025",
+            "id": "t023",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 467,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "The premises shall be used for {{terms.permitted_use}} only. The tenant shall not sublet or assign without written consent, nor make structural alterations.",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1044,82 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 525,
+            "width": 507,
+            "height": 16,
+            "content": "3. Maintenance and outgoings",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li025",
+            "type": "LIST",
+            "x": 50,
+            "y": 545,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Society maintenance: {{terms.maintenance_by}}."
+              },
+              {
+                "text": "Electricity and water on actuals: {{terms.utilities_by}}."
+              },
+              {
+                "text": "Municipal taxes: {{terms.taxes_by}}. Minor repairs to {{terms.minor_repairs}}: the tenant."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 622,
+            "width": 507,
+            "height": 16,
+            "content": "4. Termination",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 642,
+            "width": 507,
+            "height": 30.4,
+            "content": "Either party may terminate on {{terms.notice}} written notice. The landlord may terminate on non-payment of rent for {{terms.default_period}}.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1131,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,7 +1143,7 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
@@ -1039,7 +1160,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1176,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1188,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1205,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1221,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1233,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Replace the clauses with terms drafted for your situation.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1253,32 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "agreement.date": "17 August 2026",
+    "agreement.number": "RA-2026-0117",
+    "agreement.start_date": "01 September 2026",
+    "agreement.term": "11 months",
+    "party_one.address": "9 Palm Grove, Whitefield, Bengaluru 560066",
+    "party_one.name": "Mr Suresh Prabhu",
+    "party_one.registration": "PAN ABCPP1234K",
+    "party_one.signatory": "Suresh Prabhu, Landlord",
+    "party_two.address": "18 Lakeview Apartments, Indiranagar, Bengaluru 560038",
+    "party_two.name": "Ms Priya Nair",
+    "party_two.registration": "PAN DEFPN5678L",
+    "party_two.signatory": "Priya Nair, Tenant",
+    "property.address": "Flat 402, Brigade Gardens, Koramangala, Bengaluru 560034",
+    "property.description": "two bedrooms, one hall, kitchen and two bathrooms, semi-furnished",
+    "terms.default_period": "two consecutive months",
+    "terms.deposit": "₹2,52,000 (six months’ rent)",
+    "terms.deposit_refund": "30 days",
+    "terms.escalation": "5% on renewal after 11 months",
+    "terms.maintenance_by": "Payable by the landlord",
+    "terms.minor_repairs": "₹2,000",
+    "terms.notice": "two months’",
+    "terms.permitted_use": "residential purposes by the tenant and immediate family",
+    "terms.rent": "₹42,000 per month",
+    "terms.rent_due_day": "5th",
+    "terms.taxes_by": "Payable by the landlord",
+    "terms.utilities_by": "Payable by the tenant"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

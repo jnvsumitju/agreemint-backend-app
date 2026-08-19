@@ -29,24 +29,6 @@
         "key": "cosignatory.title"
       },
       {
-        "key": "course.credits"
-      },
-      {
-        "key": "course.end_date"
-      },
-      {
-        "key": "course.grade"
-      },
-      {
-        "key": "course.hours"
-      },
-      {
-        "key": "course.name"
-      },
-      {
-        "key": "course.start_date"
-      },
-      {
         "key": "institution.name"
       },
       {
@@ -60,6 +42,24 @@
       },
       {
         "key": "signatory.title"
+      },
+      {
+        "key": "student.character"
+      },
+      {
+        "key": "student.end_date"
+      },
+      {
+        "key": "student.programme"
+      },
+      {
+        "key": "student.programme_short"
+      },
+      {
+        "key": "student.registration"
+      },
+      {
+        "key": "student.start_date"
       }
     ],
     "elements": [
@@ -131,7 +131,7 @@
         "y": 186,
         "width": 467,
         "height": 43.5,
-        "content": "Certificate of Completion",
+        "content": "Character Certificate",
         "style": {
           "fontSize": 30,
           "fontFamily": "Source Serif 4",
@@ -192,8 +192,8 @@
         "x": 84,
         "y": 346,
         "width": 427,
-        "height": 74,
-        "content": "has successfully completed the course {{course.name}}, comprising {{course.hours}} of instruction and assessment, held from {{course.start_date}} to {{course.end_date}}.",
+        "height": 74.8,
+        "content": "was a student of {{institution.name}} from {{student.start_date}} to {{student.end_date}}, enrolled in {{student.programme}}. During this period conduct and character were found to be {{student.character}}, and no disciplinary action was recorded against the student.",
         "style": {
           "fontSize": 11,
           "fontFamily": "Source Serif 4",
@@ -222,7 +222,7 @@
         "y": 449,
         "width": 129,
         "height": 11,
-        "content": "GRADE",
+        "content": "REGISTRATION",
         "style": {
           "fontSize": 7,
           "fontFamily": "Inter",
@@ -239,7 +239,7 @@
         "y": 462,
         "width": 129,
         "height": 13.78,
-        "content": "{{course.grade}}",
+        "content": "{{student.registration}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -256,7 +256,7 @@
         "y": 449,
         "width": 129,
         "height": 11,
-        "content": "CREDITS",
+        "content": "PROGRAMME",
         "style": {
           "fontSize": 7,
           "fontFamily": "Inter",
@@ -273,7 +273,7 @@
         "y": 462,
         "width": 129,
         "height": 13.78,
-        "content": "{{course.credits}}",
+        "content": "{{student.programme_short}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -497,7 +497,7 @@
             "y": 186,
             "width": 467,
             "height": 43.5,
-            "content": "Certificate of Completion",
+            "content": "Character Certificate",
             "style": {
               "fontSize": 30,
               "fontFamily": "Source Serif 4",
@@ -558,8 +558,8 @@
             "x": 84,
             "y": 346,
             "width": 427,
-            "height": 74,
-            "content": "has successfully completed the course {{course.name}}, comprising {{course.hours}} of instruction and assessment, held from {{course.start_date}} to {{course.end_date}}.",
+            "height": 74.8,
+            "content": "was a student of {{institution.name}} from {{student.start_date}} to {{student.end_date}}, enrolled in {{student.programme}}. During this period conduct and character were found to be {{student.character}}, and no disciplinary action was recorded against the student.",
             "style": {
               "fontSize": 11,
               "fontFamily": "Source Serif 4",
@@ -588,7 +588,7 @@
             "y": 449,
             "width": 129,
             "height": 11,
-            "content": "GRADE",
+            "content": "REGISTRATION",
             "style": {
               "fontSize": 7,
               "fontFamily": "Inter",
@@ -605,7 +605,7 @@
             "y": 462,
             "width": 129,
             "height": 13.78,
-            "content": "{{course.grade}}",
+            "content": "{{student.registration}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -622,7 +622,7 @@
             "y": 449,
             "width": 129,
             "height": 11,
-            "content": "CREDITS",
+            "content": "PROGRAMME",
             "style": {
               "fontSize": 7,
               "fontFamily": "Inter",
@@ -639,7 +639,7 @@
             "y": 462,
             "width": 129,
             "height": 13.78,
-            "content": "{{course.credits}}",
+            "content": "{{student.programme_short}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -794,21 +794,21 @@
     ]
   },
   "variableValues": {
-    "certificate.date": "08 August 2026",
-    "certificate.number": "MIT/CPE/2026/1174",
+    "certificate.date": "17 August 2026",
+    "certificate.number": "MIT/CC/2026/0451",
     "cosignatory.name": "Prof. Leela Iyer",
-    "cosignatory.title": "Dean, Continuing Education",
-    "course.credits": "4",
-    "course.end_date": "31 July 2026",
-    "course.grade": "A",
-    "course.hours": "48 hours",
-    "course.name": "Applied Data Analysis with Python",
-    "course.start_date": "05 May 2026",
+    "cosignatory.title": "Dean of Students",
     "institution.name": "Meridian Institute of Technology",
-    "institution.tagline": "Continuing Professional Education",
+    "institution.tagline": "Office of the Registrar",
     "recipient.name": "Kavya Ramesh",
     "signatory.name": "Dr S. Venkataraman",
-    "signatory.title": "Course Director"
+    "signatory.title": "Registrar",
+    "student.character": "exemplary",
+    "student.end_date": "31 July 2026",
+    "student.programme": "B.Tech in Computer Science and Engineering",
+    "student.programme_short": "B.Tech CSE",
+    "student.registration": "MIT/CSE/2023/0416",
+    "student.start_date": "01 August 2023"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

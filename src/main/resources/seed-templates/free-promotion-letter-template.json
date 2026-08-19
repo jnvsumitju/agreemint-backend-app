@@ -26,46 +26,43 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
-      },
-      {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
-      },
-      {
         "key": "letter.date"
       },
       {
         "key": "letter.reference"
       },
       {
+        "key": "promotion.effective_date"
+      },
+      {
+        "key": "promotion.new_ctc"
+      },
+      {
+        "key": "promotion.new_title"
+      },
+      {
+        "key": "promotion.next_review"
+      },
+      {
+        "key": "promotion.notice_period"
+      },
+      {
+        "key": "promotion.old_title"
+      },
+      {
+        "key": "promotion.reporting_to"
+      },
+      {
+        "key": "promotion.scope"
+      },
+      {
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
-      },
-      {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
       },
       {
         "key": "signatory.name"
@@ -125,7 +122,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "PROMOTION",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -264,7 +261,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Subject: Promotion to {{promotion.new_title}}",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -280,7 +277,7 @@
         "y": 249.2,
         "width": 507,
         "height": 16,
-        "content": "",
+        "content": "Dear {{recipient.first_name}},",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -294,8 +291,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 58,
+        "content": "It is a pleasure to confirm your promotion from {{promotion.old_title}} to {{promotion.new_title}}, effective {{promotion.effective_date}}. The decision reflects the quality of your work over the past year and the responsibility you have taken on beyond your current role.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +304,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 341.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 58,
+        "content": "In the new role you will report to {{promotion.reporting_to}} and take ownership of {{promotion.scope}}. Your revised terms are set out below; all other terms of your appointment are unchanged.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +319,57 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 411.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "REVISED TERMS",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 426.2,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Revised annual cost to company: {{promotion.new_ctc}}, effective {{promotion.effective_date}}."
+          },
+          {
+            "text": "Reporting line: {{promotion.reporting_to}}."
+          },
+          {
+            "text": "Notice period: {{promotion.notice_period}}."
+          },
+          {
+            "text": "Next review: {{promotion.next_review}}."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 530.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 43.5,
+        "content": "Congratulations on a well-earned step forward. Please sign and return the enclosed copy.\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +378,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 591.7,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +390,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 597.7,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +407,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 611.7,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +423,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +435,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -477,7 +506,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "PROMOTION",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -616,7 +645,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Subject: Promotion to {{promotion.new_title}}",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -632,7 +661,7 @@
             "y": 249.2,
             "width": 507,
             "height": 16,
-            "content": "",
+            "content": "Dear {{recipient.first_name}},",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -646,8 +675,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 58,
+            "content": "It is a pleasure to confirm your promotion from {{promotion.old_title}} to {{promotion.new_title}}, effective {{promotion.effective_date}}. The decision reflects the quality of your work over the past year and the responsibility you have taken on beyond your current role.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +688,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 341.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 58,
+            "content": "In the new role you will report to {{promotion.reporting_to}} and take ownership of {{promotion.scope}}. Your revised terms are set out below; all other terms of your appointment are unchanged.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +703,57 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 411.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "REVISED TERMS",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 426.2,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Revised annual cost to company: {{promotion.new_ctc}}, effective {{promotion.effective_date}}."
+              },
+              {
+                "text": "Reporting line: {{promotion.reporting_to}}."
+              },
+              {
+                "text": "Notice period: {{promotion.notice_period}}."
+              },
+              {
+                "text": "Next review: {{promotion.next_review}}."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 530.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 43.5,
+            "content": "Congratulations on a well-earned step forward. Please sign and return the enclosed copy.\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +762,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 591.7,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +774,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 597.7,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +791,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 611.7,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +807,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +819,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -781,22 +842,21 @@
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "company.contact": "people@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "letter.date": "17 August 2026",
+    "letter.reference": "NW/HR/2026/0266",
+    "promotion.effective_date": "01 September 2026",
+    "promotion.new_ctc": "₹32,00,000 per annum",
+    "promotion.new_title": "Head of Analytics",
+    "promotion.next_review": "April 2027",
+    "promotion.notice_period": "Three months",
+    "promotion.old_title": "Analytics Lead",
+    "promotion.reporting_to": "the Chief Operating Officer",
+    "promotion.scope": "the analytics function across supply chain and sales",
+    "recipient.address": "44 Jubilee Residency, HSR Layout\nBengaluru, Karnataka 560102",
+    "recipient.first_name": "Sneha",
+    "recipient.name": "Ms Sneha Kulkarni",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

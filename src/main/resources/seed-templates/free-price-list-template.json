@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Finance",
+  "category": "Business",
   "layout": {
     "page": {
       "size": "A4",
@@ -26,58 +26,43 @@
         "key": "company.name"
       },
       {
-        "key": "delivery.address"
+        "key": "customer.address"
       },
       {
-        "key": "delivery.name"
+        "key": "customer.name"
       },
       {
         "key": "line_items"
       },
       {
-        "key": "po.buyer"
+        "key": "list.currency"
       },
       {
-        "key": "po.conditions"
+        "key": "list.effective_from"
       },
       {
-        "key": "po.date"
+        "key": "list.includes"
       },
       {
-        "key": "po.delivery_terms"
+        "key": "list.number"
       },
       {
-        "key": "po.number"
+        "key": "list.supersedes"
       },
       {
-        "key": "po.payment_terms"
+        "key": "list.terms"
       },
       {
-        "key": "po.required_by"
+        "key": "list.valid_until"
       },
       {
         "key": "signatory.name"
       },
       {
-        "key": "signatory.title"
+        "key": "totals.count"
       },
       {
-        "key": "totals.grand_total"
-      },
-      {
-        "key": "totals.subtotal"
-      },
-      {
-        "key": "totals.tax"
-      },
-      {
-        "key": "vendor.address"
-      },
-      {
-        "key": "vendor.gstin"
-      },
-      {
-        "key": "vendor.name"
+        "key": "totals.discount"
       }
     ],
     "elements": [
@@ -131,7 +116,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "content": "PRICE LIST",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -148,7 +133,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "List no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +149,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{list.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +165,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Effective from",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +181,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{list.effective_from}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +197,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Supersedes",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +213,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{list.supersedes}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -256,7 +241,7 @@
         "y": 141.2,
         "width": 230,
         "height": 12,
-        "content": "VENDOR",
+        "content": "PREPARED FOR",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -272,7 +257,7 @@
         "y": 154.2,
         "width": 230,
         "height": 16,
-        "content": "{{vendor.name}}",
+        "content": "{{customer.name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -288,7 +273,7 @@
         "y": 171.2,
         "width": 230,
         "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "content": "{{customer.address}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -297,54 +282,7 @@
         }
       },
       {
-        "id": "t015",
-        "type": "TEXT",
-        "x": 312,
-        "y": 141.2,
-        "width": 239,
-        "height": 12,
-        "content": "DELIVER TO",
-        "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#4338ca",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t016",
-        "type": "TEXT",
-        "x": 312,
-        "y": 154.2,
-        "width": 239,
-        "height": 16,
-        "content": "{{delivery.name}}",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#111827",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t017",
-        "type": "TEXT",
-        "x": 312,
-        "y": 171.2,
-        "width": 239,
-        "height": 46,
-        "content": "{{delivery.address}}",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
-        }
-      },
-      {
-        "id": "r018",
+        "id": "r015",
         "type": "POLYGON",
         "polygonKind": "rect",
         "x": 44,
@@ -357,17 +295,65 @@
         }
       },
       {
-        "id": "t019",
+        "id": "t016",
         "type": "TEXT",
         "x": 54,
         "y": 226.2,
         "width": 157,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "CURRENCY",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
           "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 54,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{list.currency}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 223,
+        "y": 226.2,
+        "width": 157,
+        "height": 12,
+        "content": "PRICES INCLUDE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 223,
+        "y": 236.2,
+        "width": 157,
+        "height": 13.05,
+        "content": "{{list.includes}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#111827",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -375,15 +361,15 @@
       {
         "id": "t020",
         "type": "TEXT",
-        "x": 54,
-        "y": 236.2,
+        "x": 392,
+        "y": 226.2,
         "width": 157,
-        "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "height": 12,
+        "content": "VALID UNTIL",
         "style": {
-          "fontSize": 9,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#111827",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -391,27 +377,11 @@
       {
         "id": "t021",
         "type": "TEXT",
-        "x": 223,
-        "y": 226.2,
-        "width": 157,
-        "height": 12,
-        "content": "DELIVERY TERMS",
-        "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 223,
+        "x": 392,
         "y": 236.2,
         "width": 157,
         "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "content": "{{list.valid_until}}",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -421,39 +391,7 @@
         }
       },
       {
-        "id": "t023",
-        "type": "TEXT",
-        "x": 392,
-        "y": 226.2,
-        "width": 157,
-        "height": 12,
-        "content": "BUYER CONTACT",
-        "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t024",
-        "type": "TEXT",
-        "x": 392,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.buyer}}",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#111827",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "tb025",
+        "id": "tb022",
         "type": "TABLE",
         "x": 44,
         "y": 267.2,
@@ -461,35 +399,30 @@
         "height": 118,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
-          },
-          {
-            "header": "Description",
+            "header": "Item",
             "key": "description"
           },
           {
-            "header": "Qty",
-            "key": "qty"
+            "header": "Code",
+            "key": "code"
           },
           {
-            "header": "Unit price",
-            "key": "rate"
+            "header": "Unit",
+            "key": "unit"
           },
           {
-            "header": "Amount",
-            "key": "amount"
+            "header": "Price",
+            "key": "price"
           }
         ],
         "columnWidths": [
+          3,
           1,
-          2.8,
-          0.6,
-          1,
+          0.9,
           1.1
         ],
         "dataKey": "line_items",
-        "tablePreviewBodyRows": 4,
+        "tablePreviewBodyRows": 6,
         "tableRowBackgrounds": {
           "-1": "#f8fafc"
         },
@@ -500,13 +433,13 @@
         }
       },
       {
-        "id": "t026",
+        "id": "t023",
         "type": "TEXT",
         "x": 309,
         "y": 403.2,
         "width": 145,
         "height": 14,
-        "content": "Subtotal",
+        "content": "Items listed",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
@@ -517,13 +450,13 @@
         }
       },
       {
-        "id": "t027",
+        "id": "t024",
         "type": "TEXT",
         "x": 446,
         "y": 403.2,
         "width": 97,
         "height": 14,
-        "content": "{{totals.subtotal}}",
+        "content": "{{totals.count}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -534,60 +467,26 @@
         }
       },
       {
-        "id": "t028",
-        "type": "TEXT",
-        "x": 309,
-        "y": 419.2,
-        "width": 145,
-        "height": 14,
-        "content": "Tax",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t029",
-        "type": "TEXT",
-        "x": 446,
-        "y": 419.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.tax}}",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "r032",
+        "id": "r027",
         "type": "POLYGON",
         "polygonKind": "rect",
         "x": 301,
-        "y": 431.2,
+        "y": 415.2,
         "width": 250,
-        "height": 23.95,
+        "height": 39.9,
         "style": {
           "backgroundColor": "#f8fafc",
           "borderRadius": 3
         }
       },
       {
-        "id": "t030",
+        "id": "t025",
         "type": "TEXT",
         "x": 309,
-        "y": 435.2,
+        "y": 419.2,
         "width": 145,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Volume discount",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -598,13 +497,13 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t026",
         "type": "TEXT",
         "x": 446,
-        "y": 435.2,
+        "y": 419.2,
         "width": 97,
         "height": 31.9,
-        "content": "{{totals.grand_total}}",
+        "content": "{{totals.discount}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "JetBrains Mono",
@@ -615,13 +514,13 @@
         }
       },
       {
-        "id": "t033",
+        "id": "t028",
         "type": "TEXT",
         "x": 44,
-        "y": 479.15,
+        "y": 479.09999999999997,
         "width": 250,
         "height": 12,
-        "content": "CONDITIONS",
+        "content": "TERMS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -631,13 +530,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t029",
         "type": "TEXT",
         "x": 44,
-        "y": 492.15,
+        "y": 492.09999999999997,
         "width": 250,
         "height": 58,
-        "content": "{{po.conditions}}",
+        "content": "{{list.terms}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -646,10 +545,10 @@
         }
       },
       {
-        "id": "l035",
+        "id": "l030",
         "type": "LINE",
         "x": 311,
-        "y": 513.15,
+        "y": 513.0999999999999,
         "width": 240,
         "height": 0,
         "strokeWidth": 1,
@@ -658,10 +557,10 @@
         }
       },
       {
-        "id": "t036",
+        "id": "t031",
         "type": "TEXT",
         "x": 311,
-        "y": 519.15,
+        "y": 519.0999999999999,
         "width": 240,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -675,13 +574,13 @@
         }
       },
       {
-        "id": "t037",
+        "id": "t032",
         "type": "TEXT",
         "x": 311,
-        "y": 533.15,
+        "y": 533.0999999999999,
         "width": 240,
         "height": 24,
-        "content": "{{signatory.title}}",
+        "content": "For {{company.name}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -691,7 +590,7 @@
         }
       },
       {
-        "id": "l038",
+        "id": "l033",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -703,13 +602,13 @@
         }
       },
       {
-        "id": "t039",
+        "id": "t034",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Prices are subject to change with 30 days’ notice. Freight quoted separately.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -774,7 +673,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "content": "PRICE LIST",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -791,7 +690,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "List no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +706,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{list.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +722,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Effective from",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +738,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{list.effective_from}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +754,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Supersedes",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +770,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{list.supersedes}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -899,7 +798,7 @@
             "y": 141.2,
             "width": 230,
             "height": 12,
-            "content": "VENDOR",
+            "content": "PREPARED FOR",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -915,7 +814,7 @@
             "y": 154.2,
             "width": 230,
             "height": 16,
-            "content": "{{vendor.name}}",
+            "content": "{{customer.name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -931,7 +830,7 @@
             "y": 171.2,
             "width": 230,
             "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "content": "{{customer.address}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -940,54 +839,7 @@
             }
           },
           {
-            "id": "t015",
-            "type": "TEXT",
-            "x": 312,
-            "y": 141.2,
-            "width": 239,
-            "height": 12,
-            "content": "DELIVER TO",
-            "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#4338ca",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t016",
-            "type": "TEXT",
-            "x": 312,
-            "y": 154.2,
-            "width": 239,
-            "height": 16,
-            "content": "{{delivery.name}}",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#111827",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t017",
-            "type": "TEXT",
-            "x": 312,
-            "y": 171.2,
-            "width": 239,
-            "height": 46,
-            "content": "{{delivery.address}}",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
-            }
-          },
-          {
-            "id": "r018",
+            "id": "r015",
             "type": "POLYGON",
             "polygonKind": "rect",
             "x": 44,
@@ -1000,17 +852,65 @@
             }
           },
           {
-            "id": "t019",
+            "id": "t016",
             "type": "TEXT",
             "x": 54,
             "y": 226.2,
             "width": 157,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "CURRENCY",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
               "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 54,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{list.currency}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 223,
+            "y": 226.2,
+            "width": 157,
+            "height": 12,
+            "content": "PRICES INCLUDE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 223,
+            "y": 236.2,
+            "width": 157,
+            "height": 13.05,
+            "content": "{{list.includes}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#111827",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -1018,15 +918,15 @@
           {
             "id": "t020",
             "type": "TEXT",
-            "x": 54,
-            "y": 236.2,
+            "x": 392,
+            "y": 226.2,
             "width": 157,
-            "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "height": 12,
+            "content": "VALID UNTIL",
             "style": {
-              "fontSize": 9,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#111827",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -1034,27 +934,11 @@
           {
             "id": "t021",
             "type": "TEXT",
-            "x": 223,
-            "y": 226.2,
-            "width": 157,
-            "height": 12,
-            "content": "DELIVERY TERMS",
-            "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 223,
+            "x": 392,
             "y": 236.2,
             "width": 157,
             "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "content": "{{list.valid_until}}",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1064,39 +948,7 @@
             }
           },
           {
-            "id": "t023",
-            "type": "TEXT",
-            "x": 392,
-            "y": 226.2,
-            "width": 157,
-            "height": 12,
-            "content": "BUYER CONTACT",
-            "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t024",
-            "type": "TEXT",
-            "x": 392,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.buyer}}",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#111827",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "tb025",
+            "id": "tb022",
             "type": "TABLE",
             "x": 44,
             "y": 267.2,
@@ -1104,35 +956,30 @@
             "height": 118,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
-              },
-              {
-                "header": "Description",
+                "header": "Item",
                 "key": "description"
               },
               {
-                "header": "Qty",
-                "key": "qty"
+                "header": "Code",
+                "key": "code"
               },
               {
-                "header": "Unit price",
-                "key": "rate"
+                "header": "Unit",
+                "key": "unit"
               },
               {
-                "header": "Amount",
-                "key": "amount"
+                "header": "Price",
+                "key": "price"
               }
             ],
             "columnWidths": [
+              3,
               1,
-              2.8,
-              0.6,
-              1,
+              0.9,
               1.1
             ],
             "dataKey": "line_items",
-            "tablePreviewBodyRows": 4,
+            "tablePreviewBodyRows": 6,
             "tableRowBackgrounds": {
               "-1": "#f8fafc"
             },
@@ -1143,13 +990,13 @@
             }
           },
           {
-            "id": "t026",
+            "id": "t023",
             "type": "TEXT",
             "x": 309,
             "y": 403.2,
             "width": 145,
             "height": 14,
-            "content": "Subtotal",
+            "content": "Items listed",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
@@ -1160,13 +1007,13 @@
             }
           },
           {
-            "id": "t027",
+            "id": "t024",
             "type": "TEXT",
             "x": 446,
             "y": 403.2,
             "width": 97,
             "height": 14,
-            "content": "{{totals.subtotal}}",
+            "content": "{{totals.count}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1177,60 +1024,26 @@
             }
           },
           {
-            "id": "t028",
-            "type": "TEXT",
-            "x": 309,
-            "y": 419.2,
-            "width": 145,
-            "height": 14,
-            "content": "Tax",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t029",
-            "type": "TEXT",
-            "x": 446,
-            "y": 419.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.tax}}",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "r032",
+            "id": "r027",
             "type": "POLYGON",
             "polygonKind": "rect",
             "x": 301,
-            "y": 431.2,
+            "y": 415.2,
             "width": 250,
-            "height": 23.95,
+            "height": 39.9,
             "style": {
               "backgroundColor": "#f8fafc",
               "borderRadius": 3
             }
           },
           {
-            "id": "t030",
+            "id": "t025",
             "type": "TEXT",
             "x": 309,
-            "y": 435.2,
+            "y": 419.2,
             "width": 145,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Volume discount",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1241,13 +1054,13 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t026",
             "type": "TEXT",
             "x": 446,
-            "y": 435.2,
+            "y": 419.2,
             "width": 97,
             "height": 31.9,
-            "content": "{{totals.grand_total}}",
+            "content": "{{totals.discount}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "JetBrains Mono",
@@ -1258,13 +1071,13 @@
             }
           },
           {
-            "id": "t033",
+            "id": "t028",
             "type": "TEXT",
             "x": 44,
-            "y": 479.15,
+            "y": 479.09999999999997,
             "width": 250,
             "height": 12,
-            "content": "CONDITIONS",
+            "content": "TERMS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1274,13 +1087,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t029",
             "type": "TEXT",
             "x": 44,
-            "y": 492.15,
+            "y": 492.09999999999997,
             "width": 250,
             "height": 58,
-            "content": "{{po.conditions}}",
+            "content": "{{list.terms}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1289,10 +1102,10 @@
             }
           },
           {
-            "id": "l035",
+            "id": "l030",
             "type": "LINE",
             "x": 311,
-            "y": 513.15,
+            "y": 513.0999999999999,
             "width": 240,
             "height": 0,
             "strokeWidth": 1,
@@ -1301,10 +1114,10 @@
             }
           },
           {
-            "id": "t036",
+            "id": "t031",
             "type": "TEXT",
             "x": 311,
-            "y": 519.15,
+            "y": 519.0999999999999,
             "width": 240,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -1318,13 +1131,13 @@
             }
           },
           {
-            "id": "t037",
+            "id": "t032",
             "type": "TEXT",
             "x": 311,
-            "y": 533.15,
+            "y": 533.0999999999999,
             "width": 240,
             "height": 24,
-            "content": "{{signatory.title}}",
+            "content": "For {{company.name}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -1334,7 +1147,7 @@
             }
           },
           {
-            "id": "l038",
+            "id": "l033",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1346,13 +1159,13 @@
             }
           },
           {
-            "id": "t039",
+            "id": "t034",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Prices are subject to change with 30 days’ notice. Freight quoted separately.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1369,24 +1182,19 @@
     "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
     "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "customer.address": "22 Residency Road, Bengaluru 560025",
+    "customer.name": "Halcyon Design Studio",
+    "line_items": "[{\"description\":\"Industrial shelving unit — 1800mm\",\"code\":\"SH-1800\",\"unit\":\"each\",\"price\":\"₹7,400.00\"},{\"description\":\"Industrial shelving unit — 2400mm\",\"code\":\"SH-2400\",\"unit\":\"each\",\"price\":\"₹9,800.00\"},{\"description\":\"Workbench with vice — 1800mm\",\"code\":\"WB-1800\",\"unit\":\"each\",\"price\":\"₹11,500.00\"},{\"description\":\"Tool wall system — 2m run\",\"code\":\"TW-2000\",\"unit\":\"run\",\"price\":\"₹6,200.00\"},{\"description\":\"Safety enclosure panel\",\"code\":\"SE-P01\",\"unit\":\"panel\",\"price\":\"₹3,900.00\"},{\"description\":\"Mezzanine decking\",\"code\":\"MZ-DK\",\"unit\":\"sq m\",\"price\":\"₹2,150.00\"}]",
+    "list.currency": "INR (₹)",
+    "list.effective_from": "01 Sep 2026",
+    "list.includes": "GST at 18%",
+    "list.number": "PL-2026-H2",
+    "list.supersedes": "PL-2026-H1",
+    "list.terms": "Minimum order value ₹25,000. Lead time 3–4 weeks from confirmed order.\nInstallation quoted per site and is not included in the unit prices above.",
+    "list.valid_until": "28 Feb 2027",
+    "signatory.name": "Ananya Rao",
+    "totals.count": "6 items",
+    "totals.discount": "5% above ₹5,00,000"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

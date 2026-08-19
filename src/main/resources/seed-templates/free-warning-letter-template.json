@@ -26,24 +26,6 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
-      },
-      {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
-      },
-      {
         "key": "letter.date"
       },
       {
@@ -53,25 +35,34 @@
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
-      },
-      {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
       },
       {
         "key": "signatory.name"
       },
       {
         "key": "signatory.title"
+      },
+      {
+        "key": "warning.detail"
+      },
+      {
+        "key": "warning.discussed_date"
+      },
+      {
+        "key": "warning.matter"
+      },
+      {
+        "key": "warning.raised_by"
+      },
+      {
+        "key": "warning.review_date"
+      },
+      {
+        "key": "warning.support"
       }
     ],
     "elements": [
@@ -125,7 +116,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "WARNING",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -264,7 +255,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Subject: Written warning — {{warning.matter}}",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -280,7 +271,7 @@
         "y": 249.2,
         "width": 507,
         "height": 16,
-        "content": "",
+        "content": "Dear {{recipient.first_name}},",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -294,8 +285,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 58,
+        "content": "This letter is a formal written warning regarding {{warning.matter}}. The concern was discussed with you on {{warning.discussed_date}} by {{warning.raised_by}}, and this letter records the outcome of that discussion.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +298,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 341.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 50,
+        "content": "Specifically: {{warning.detail}} This does not meet the standard expected of your role and is inconsistent with the terms of your appointment.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +313,57 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 403.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "WHAT WE EXPECT NOW",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 418.2,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Improvement is expected with immediate effect and will be reviewed on {{warning.review_date}}."
+          },
+          {
+            "text": "Your manager will meet you fortnightly until that review."
+          },
+          {
+            "text": "Support is available through {{warning.support}} if anything is affecting your work."
+          },
+          {
+            "text": "Further instances may lead to disciplinary action up to termination of employment."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 522.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 58,
+        "content": "You may respond in writing within seven days if you wish your comments recorded alongside this letter. Please sign and return the enclosed copy as acknowledgement of receipt.\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +372,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 598.2,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +384,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 604.2,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +401,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 618.2,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +417,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +429,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "A copy of this letter will be placed on your personnel file.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -477,7 +500,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "WARNING",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -616,7 +639,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Subject: Written warning — {{warning.matter}}",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -632,7 +655,7 @@
             "y": 249.2,
             "width": 507,
             "height": 16,
-            "content": "",
+            "content": "Dear {{recipient.first_name}},",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -646,8 +669,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 58,
+            "content": "This letter is a formal written warning regarding {{warning.matter}}. The concern was discussed with you on {{warning.discussed_date}} by {{warning.raised_by}}, and this letter records the outcome of that discussion.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +682,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 341.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 50,
+            "content": "Specifically: {{warning.detail}} This does not meet the standard expected of your role and is inconsistent with the terms of your appointment.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +697,57 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 403.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "WHAT WE EXPECT NOW",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 418.2,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Improvement is expected with immediate effect and will be reviewed on {{warning.review_date}}."
+              },
+              {
+                "text": "Your manager will meet you fortnightly until that review."
+              },
+              {
+                "text": "Support is available through {{warning.support}} if anything is affecting your work."
+              },
+              {
+                "text": "Further instances may lead to disciplinary action up to termination of employment."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 522.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 58,
+            "content": "You may respond in writing within seven days if you wish your comments recorded alongside this letter. Please sign and return the enclosed copy as acknowledgement of receipt.\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +756,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 598.2,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +768,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 604.2,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +785,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 618.2,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +801,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +813,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "A copy of this letter will be placed on your personnel file.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -781,22 +836,19 @@
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "company.contact": "people@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "letter.date": "17 August 2026",
+    "letter.reference": "NW/HR/2026/0261",
+    "recipient.address": "9 Palm Grove, Whitefield\nBengaluru, Karnataka 560066",
+    "recipient.first_name": "Sameer",
+    "recipient.name": "Mr Sameer Joshi",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd",
+    "warning.detail": "you were absent on 28 and 29 July and on 5 August without notifying your manager in advance or submitting leave requests afterwards.",
+    "warning.discussed_date": "11 August 2026",
+    "warning.matter": "repeated unreported absence",
+    "warning.raised_by": "your reporting manager",
+    "warning.review_date": "30 September 2026",
+    "warning.support": "the employee assistance programme"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

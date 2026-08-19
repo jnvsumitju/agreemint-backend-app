@@ -17,43 +17,61 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "client.name"
+        "key": "plan.address"
       },
       {
-        "key": "company.name"
+        "key": "plan.author"
       },
       {
-        "key": "phases"
+        "key": "plan.breakeven"
       },
       {
-        "key": "proposal.approach_one"
+        "key": "plan.business_name"
       },
       {
-        "key": "proposal.approach_three"
+        "key": "plan.contact"
       },
       {
-        "key": "proposal.approach_two"
+        "key": "plan.contact_name"
       },
       {
-        "key": "proposal.author"
+        "key": "plan.date"
       },
       {
-        "key": "proposal.date"
+        "key": "plan.executive_summary"
       },
       {
-        "key": "proposal.number"
+        "key": "plan.funding"
       },
       {
-        "key": "proposal.problem"
+        "key": "plan.funding_use"
       },
       {
-        "key": "proposal.summary"
+        "key": "plan.horizon"
       },
       {
-        "key": "proposal.title"
+        "key": "plan.margin"
       },
       {
-        "key": "proposal.valid_until"
+        "key": "plan.market"
+      },
+      {
+        "key": "plan.offer_one"
+      },
+      {
+        "key": "plan.offer_three"
+      },
+      {
+        "key": "plan.offer_two"
+      },
+      {
+        "key": "plan.opportunity"
+      },
+      {
+        "key": "plan.registration"
+      },
+      {
+        "key": "plan.revenue_y1"
       }
     ],
     "elements": [
@@ -76,7 +94,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "{{proposal.title}}",
+        "content": "Business Plan",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +110,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "Prepared for {{client.name}} by {{company.name}}",
+        "content": "A summary of the business, the market it serves, and how it intends to grow.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +138,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "PROPOSAL NO.",
+        "content": "BUSINESS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -135,8 +153,8 @@
         "x": 58,
         "y": 152,
         "width": 109.75,
-        "height": 16,
-        "content": "{{proposal.number}}",
+        "height": 27.55,
+        "content": "{{plan.business_name}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +170,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "DATE",
+        "content": "PREPARED",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -168,7 +186,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{proposal.date}}",
+        "content": "{{plan.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +202,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "VALID UNTIL",
+        "content": "PLANNING HORIZON",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -200,7 +218,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{proposal.valid_until}}",
+        "content": "{{plan.horizon}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -231,8 +249,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 16,
-        "content": "{{proposal.author}}",
+        "height": 27.55,
+        "content": "{{plan.author}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -246,28 +264,29 @@
         "type": "TEXT",
         "x": 44,
         "y": 204,
-        "width": 507,
-        "height": 46,
-        "content": "{{proposal.summary}}",
+        "width": 235,
+        "height": 12,
+        "content": "REGISTERED OFFICE",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t014",
         "type": "TEXT",
         "x": 44,
-        "y": 262,
-        "width": 507,
+        "y": 217,
+        "width": 235,
         "height": 16,
-        "content": "The problem we are solving",
+        "content": "{{plan.business_name}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#111827",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -276,25 +295,87 @@
         "id": "t015",
         "type": "TEXT",
         "x": 44,
-        "y": 282,
-        "width": 507,
-        "height": 52,
-        "content": "{{proposal.problem}}",
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{plan.address}}\n{{plan.registration}}",
         "style": {
-          "fontSize": 9.5,
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t016",
+        "type": "TEXT",
+        "x": 316,
+        "y": 204,
+        "width": 235,
+        "height": 12,
+        "content": "CONTACT",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t017",
+        "type": "TEXT",
+        "x": 316,
+        "y": 217,
+        "width": 235,
+        "height": 16,
+        "content": "{{plan.contact_name}}",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t018",
+        "type": "TEXT",
+        "x": 316,
+        "y": 234,
+        "width": 235,
+        "height": 46,
+        "content": "{{plan.contact}}",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
+        "type": "TEXT",
+        "x": 44,
+        "y": 292,
+        "width": 507,
+        "height": 48,
+        "content": "{{plan.executive_summary}}",
+        "style": {
+          "fontSize": 10,
           "fontFamily": "Source Serif 4",
           "color": "#374151",
           "lineHeight": 1.6
         }
       },
       {
-        "id": "t016",
+        "id": "t020",
         "type": "TEXT",
         "x": 44,
-        "y": 346,
+        "y": 350,
         "width": 507,
         "height": 16,
-        "content": "Our approach",
+        "content": "1. The opportunity",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -304,22 +385,53 @@
         }
       },
       {
-        "id": "li017",
+        "id": "t021",
+        "type": "TEXT",
+        "x": 44,
+        "y": 370,
+        "width": 507,
+        "height": 46,
+        "content": "{{plan.opportunity}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "t022",
+        "type": "TEXT",
+        "x": 44,
+        "y": 428,
+        "width": 507,
+        "height": 16,
+        "content": "2. Products and services",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li023",
         "type": "LIST",
         "x": 50,
-        "y": 366,
+        "y": 448,
         "width": 495,
         "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "{{proposal.approach_one}}"
+            "text": "{{plan.offer_one}}"
           },
           {
-            "text": "{{proposal.approach_two}}"
+            "text": "{{plan.offer_two}}"
           },
           {
-            "text": "{{proposal.approach_three}}"
+            "text": "{{plan.offer_three}}"
           }
         ],
         "listItemSpacing": 7,
@@ -332,13 +444,13 @@
         }
       },
       {
-        "id": "t018",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
-        "y": 443,
+        "y": 525,
         "width": 507,
         "height": 16,
-        "content": "Investment",
+        "content": "3. Market and competition",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
@@ -348,49 +460,69 @@
         }
       },
       {
-        "id": "tb019",
-        "type": "TABLE",
+        "id": "t025",
+        "type": "TEXT",
         "x": 44,
-        "y": 463,
+        "y": 545,
         "width": 507,
-        "height": 92,
-        "columns": [
-          {
-            "header": "Phase",
-            "key": "phase"
-          },
-          {
-            "header": "Deliverable",
-            "key": "deliverable"
-          },
-          {
-            "header": "Duration",
-            "key": "duration"
-          },
-          {
-            "header": "Fee",
-            "key": "fee"
-          }
-        ],
-        "columnWidths": [
-          1,
-          2.6,
-          1,
-          1.1
-        ],
-        "dataKey": "phases",
-        "tablePreviewBodyRows": 3,
-        "tableRowBackgrounds": {
-          "-1": "#f8fafc"
-        },
+        "height": 46,
+        "content": "{{plan.market}}",
         "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#374151"
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
         }
       },
       {
-        "id": "l020",
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 603,
+        "width": 507,
+        "height": 16,
+        "content": "4. Financial outline",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#1d4ed8",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li027",
+        "type": "LIST",
+        "x": 50,
+        "y": 623,
+        "width": 495,
+        "height": 84,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Revenue target, year one: {{plan.revenue_y1}}."
+          },
+          {
+            "text": "Gross margin, steady state: {{plan.margin}}."
+          },
+          {
+            "text": "Funding sought: {{plan.funding}}, applied to {{plan.funding_use}}."
+          },
+          {
+            "text": "Break-even expected: {{plan.breakeven}}."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -402,13 +534,13 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t029",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+        "content": "Figures are projections prepared in good faith and are not a guarantee of performance.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -442,7 +574,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "{{proposal.title}}",
+            "content": "Business Plan",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -458,7 +590,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "Prepared for {{client.name}} by {{company.name}}",
+            "content": "A summary of the business, the market it serves, and how it intends to grow.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -486,7 +618,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "PROPOSAL NO.",
+            "content": "BUSINESS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -501,8 +633,8 @@
             "x": 58,
             "y": 152,
             "width": 109.75,
-            "height": 16,
-            "content": "{{proposal.number}}",
+            "height": 27.55,
+            "content": "{{plan.business_name}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -518,7 +650,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "DATE",
+            "content": "PREPARED",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -534,7 +666,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{proposal.date}}",
+            "content": "{{plan.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -550,7 +682,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "VALID UNTIL",
+            "content": "PLANNING HORIZON",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -566,7 +698,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{proposal.valid_until}}",
+            "content": "{{plan.horizon}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -597,8 +729,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 16,
-            "content": "{{proposal.author}}",
+            "height": 27.55,
+            "content": "{{plan.author}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -612,28 +744,29 @@
             "type": "TEXT",
             "x": 44,
             "y": 204,
-            "width": 507,
-            "height": 46,
-            "content": "{{proposal.summary}}",
+            "width": 235,
+            "height": 12,
+            "content": "REGISTERED OFFICE",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t014",
             "type": "TEXT",
             "x": 44,
-            "y": 262,
-            "width": 507,
+            "y": 217,
+            "width": 235,
             "height": 16,
-            "content": "The problem we are solving",
+            "content": "{{plan.business_name}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#111827",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -642,25 +775,87 @@
             "id": "t015",
             "type": "TEXT",
             "x": 44,
-            "y": 282,
-            "width": 507,
-            "height": 52,
-            "content": "{{proposal.problem}}",
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{plan.address}}\n{{plan.registration}}",
             "style": {
-              "fontSize": 9.5,
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t016",
+            "type": "TEXT",
+            "x": 316,
+            "y": 204,
+            "width": 235,
+            "height": 12,
+            "content": "CONTACT",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t017",
+            "type": "TEXT",
+            "x": 316,
+            "y": 217,
+            "width": 235,
+            "height": 16,
+            "content": "{{plan.contact_name}}",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t018",
+            "type": "TEXT",
+            "x": 316,
+            "y": 234,
+            "width": 235,
+            "height": 46,
+            "content": "{{plan.contact}}",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
+            "type": "TEXT",
+            "x": 44,
+            "y": 292,
+            "width": 507,
+            "height": 48,
+            "content": "{{plan.executive_summary}}",
+            "style": {
+              "fontSize": 10,
               "fontFamily": "Source Serif 4",
               "color": "#374151",
               "lineHeight": 1.6
             }
           },
           {
-            "id": "t016",
+            "id": "t020",
             "type": "TEXT",
             "x": 44,
-            "y": 346,
+            "y": 350,
             "width": 507,
             "height": 16,
-            "content": "Our approach",
+            "content": "1. The opportunity",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -670,22 +865,53 @@
             }
           },
           {
-            "id": "li017",
+            "id": "t021",
+            "type": "TEXT",
+            "x": 44,
+            "y": 370,
+            "width": 507,
+            "height": 46,
+            "content": "{{plan.opportunity}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "t022",
+            "type": "TEXT",
+            "x": 44,
+            "y": 428,
+            "width": 507,
+            "height": 16,
+            "content": "2. Products and services",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li023",
             "type": "LIST",
             "x": 50,
-            "y": 366,
+            "y": 448,
             "width": 495,
             "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "{{proposal.approach_one}}"
+                "text": "{{plan.offer_one}}"
               },
               {
-                "text": "{{proposal.approach_two}}"
+                "text": "{{plan.offer_two}}"
               },
               {
-                "text": "{{proposal.approach_three}}"
+                "text": "{{plan.offer_three}}"
               }
             ],
             "listItemSpacing": 7,
@@ -698,13 +924,13 @@
             }
           },
           {
-            "id": "t018",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
-            "y": 443,
+            "y": 525,
             "width": 507,
             "height": 16,
-            "content": "Investment",
+            "content": "3. Market and competition",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
@@ -714,49 +940,69 @@
             }
           },
           {
-            "id": "tb019",
-            "type": "TABLE",
+            "id": "t025",
+            "type": "TEXT",
             "x": 44,
-            "y": 463,
+            "y": 545,
             "width": 507,
-            "height": 92,
-            "columns": [
-              {
-                "header": "Phase",
-                "key": "phase"
-              },
-              {
-                "header": "Deliverable",
-                "key": "deliverable"
-              },
-              {
-                "header": "Duration",
-                "key": "duration"
-              },
-              {
-                "header": "Fee",
-                "key": "fee"
-              }
-            ],
-            "columnWidths": [
-              1,
-              2.6,
-              1,
-              1.1
-            ],
-            "dataKey": "phases",
-            "tablePreviewBodyRows": 3,
-            "tableRowBackgrounds": {
-              "-1": "#f8fafc"
-            },
+            "height": 46,
+            "content": "{{plan.market}}",
             "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#374151"
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
             }
           },
           {
-            "id": "l020",
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 603,
+            "width": 507,
+            "height": 16,
+            "content": "4. Financial outline",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#1d4ed8",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li027",
+            "type": "LIST",
+            "x": 50,
+            "y": 623,
+            "width": 495,
+            "height": 84,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Revenue target, year one: {{plan.revenue_y1}}."
+              },
+              {
+                "text": "Gross margin, steady state: {{plan.margin}}."
+              },
+              {
+                "text": "Funding sought: {{plan.funding}}, applied to {{plan.funding_use}}."
+              },
+              {
+                "text": "Break-even expected: {{plan.breakeven}}."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -768,13 +1014,13 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t029",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This proposal is confidential and prepared solely for {{client.name}}.",
+            "content": "Figures are projections prepared in good faith and are not a guarantee of performance.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -788,19 +1034,25 @@
     ]
   },
   "variableValues": {
-    "client.name": "Halcyon Design Studio LLP",
-    "company.name": "Northwind Traders Pvt Ltd",
-    "phases": "[{\"phase\":\"Phase 1\",\"deliverable\":\"Baseline instrumentation and reporting\",\"duration\":\"4 weeks\",\"fee\":\"₹4,20,000\"},{\"phase\":\"Phase 2\",\"deliverable\":\"Handheld scanning rollout and training\",\"duration\":\"8 weeks\",\"fee\":\"₹11,60,000\"},{\"phase\":\"Phase 3\",\"deliverable\":\"Wave planning and dispatch integration\",\"duration\":\"6 weeks\",\"fee\":\"₹7,80,000\"}]",
-    "proposal.approach_one": "Instrument the existing process first, so improvements can be measured rather than assumed.",
-    "proposal.approach_three": "Introduce wave planning so dispatch cut-offs drive picking priority automatically.",
-    "proposal.approach_two": "Replace the paper pick list with handheld scanning, removing two of the three handoffs.",
-    "proposal.author": "Vikram Shetty",
-    "proposal.date": "16 August 2026",
-    "proposal.number": "PRP-2026-0033",
-    "proposal.problem": "Order picking is currently paper-driven, with three manual handoffs between receipt and dispatch. Each handoff is a point where orders stall, and none of them is instrumented — so the delay is visible only after the fact, in customer complaints.",
-    "proposal.summary": "This proposal sets out a phased programme to reduce order-to-dispatch time at the Hosur Road facility from an average of 38 hours to under 12, without expanding headcount.",
-    "proposal.title": "Warehouse Automation Programme",
-    "proposal.valid_until": "30 September 2026"
+    "plan.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "plan.author": "Devika Menon, Chief Operating Officer",
+    "plan.breakeven": "Month 14 on the new territories",
+    "plan.business_name": "Northwind Traders Pvt Ltd",
+    "plan.contact": "devika@northwind.example · +91 80 4123 7788",
+    "plan.contact_name": "Devika Menon",
+    "plan.date": "17 August 2026",
+    "plan.executive_summary": "Northwind supplies industrial storage and workspace fittings to mid-sized manufacturers in south India. The business is profitable at ₹18 crore of revenue and plans to reach ₹34 crore in three years.",
+    "plan.funding": "₹4.5 crore",
+    "plan.funding_use": "working capital and the Hyderabad warehouse",
+    "plan.horizon": "Three years, FY27–FY29",
+    "plan.margin": "31%",
+    "plan.market": "The addressable market across Karnataka, Telangana and Tamil Nadu is roughly ₹1,900 crore, growing at 9% a year. Competition is fragmented and largely price-led.",
+    "plan.offer_one": "Industrial storage systems — racking, shelving and mezzanine structures.",
+    "plan.offer_three": "Design, installation and annual maintenance as a bundled service.",
+    "plan.offer_two": "Workspace fittings — benches, tool systems and safety enclosures.",
+    "plan.opportunity": "Manufacturers increasingly want fitting-out handled end to end rather than buying components and arranging installation separately. Few regional suppliers offer both, and national players quote at a premium mid-sized buyers resist.",
+    "plan.registration": "CIN U51909KA2015PTC081234",
+    "plan.revenue_y1": "₹22 crore"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

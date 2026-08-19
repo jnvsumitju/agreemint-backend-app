@@ -26,22 +26,34 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
+        "key": "job.ctc"
       },
       {
-        "key": "employment.department"
+        "key": "job.department"
       },
       {
-        "key": "employment.designation"
+        "key": "job.hours"
       },
       {
-        "key": "employment.from"
+        "key": "job.location"
       },
       {
-        "key": "employment.responsibilities"
+        "key": "job.notice_period"
       },
       {
-        "key": "employment.to"
+        "key": "job.probation"
+      },
+      {
+        "key": "job.reporting_to"
+      },
+      {
+        "key": "job.review_month"
+      },
+      {
+        "key": "job.start_date"
+      },
+      {
+        "key": "job.title"
       },
       {
         "key": "letter.date"
@@ -53,19 +65,10 @@
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
-      },
-      {
-        "key": "recipient.pronoun_object"
-      },
-      {
-        "key": "recipient.pronoun_possessive"
-      },
-      {
-        "key": "recipient.pronoun_subject"
-      },
-      {
-        "key": "recipient.pronoun_subject_capitalised"
       },
       {
         "key": "signatory.name"
@@ -125,7 +128,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "APPOINTMENT",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -264,7 +267,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Subject: Appointment as {{job.title}}",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -280,7 +283,7 @@
         "y": 249.2,
         "width": 507,
         "height": 16,
-        "content": "",
+        "content": "Dear {{recipient.first_name}},",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -294,8 +297,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 50,
+        "content": "Further to your acceptance of our offer, we are pleased to confirm your appointment as {{job.title}} in the {{job.department}} team at {{company.name}}, effective {{job.start_date}}.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +310,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 333.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 50,
+        "content": "You will report to {{job.reporting_to}} at our {{job.location}} office. Your appointment is governed by the terms below and by the employee handbook, a copy of which has been provided to you.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +325,60 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 395.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "TERMS OF APPOINTMENT",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 410.2,
+        "width": 499,
+        "height": 110,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Annual cost to company: {{job.ctc}}, reviewed each {{job.review_month}}."
+          },
+          {
+            "text": "Probation: {{job.probation}}, extendable at the company’s discretion."
+          },
+          {
+            "text": "Notice period: {{job.notice_period}} once confirmed in the role."
+          },
+          {
+            "text": "Working hours: {{job.hours}}, with flexibility as the role requires."
+          },
+          {
+            "text": "You confirm you are not bound by any agreement that conflicts with this appointment."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 536.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 58,
+        "content": "Please sign and return the enclosed copy of this letter as confirmation of your acceptance.\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +387,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 612.2,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +399,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 618.2,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +416,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 632.2,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +432,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +444,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -477,7 +515,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "APPOINTMENT",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -616,7 +654,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Subject: Appointment as {{job.title}}",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -632,7 +670,7 @@
             "y": 249.2,
             "width": 507,
             "height": 16,
-            "content": "",
+            "content": "Dear {{recipient.first_name}},",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -646,8 +684,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 50,
+            "content": "Further to your acceptance of our offer, we are pleased to confirm your appointment as {{job.title}} in the {{job.department}} team at {{company.name}}, effective {{job.start_date}}.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +697,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 333.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 50,
+            "content": "You will report to {{job.reporting_to}} at our {{job.location}} office. Your appointment is governed by the terms below and by the employee handbook, a copy of which has been provided to you.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +712,60 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 395.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "TERMS OF APPOINTMENT",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 410.2,
+            "width": 499,
+            "height": 110,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Annual cost to company: {{job.ctc}}, reviewed each {{job.review_month}}."
+              },
+              {
+                "text": "Probation: {{job.probation}}, extendable at the company’s discretion."
+              },
+              {
+                "text": "Notice period: {{job.notice_period}} once confirmed in the role."
+              },
+              {
+                "text": "Working hours: {{job.hours}}, with flexibility as the role requires."
+              },
+              {
+                "text": "You confirm you are not bound by any agreement that conflicts with this appointment."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 536.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 58,
+            "content": "Please sign and return the enclosed copy of this letter as confirmation of your acceptance.\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +774,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 612.2,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +786,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 618.2,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +803,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 632.2,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +819,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +831,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -781,22 +854,23 @@
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "company.contact": "people@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "job.ctc": "₹18,50,000 per annum",
+    "job.department": "Supply Chain",
+    "job.hours": "9.30am to 6.00pm, Monday to Friday",
+    "job.location": "Bengaluru",
+    "job.notice_period": "Two months",
+    "job.probation": "Six months",
+    "job.reporting_to": "the Head of Supply Chain",
+    "job.review_month": "April",
+    "job.start_date": "15 September 2026",
+    "job.title": "Senior Operations Analyst",
+    "letter.date": "17 August 2026",
+    "letter.reference": "NW/HR/2026/0248",
+    "recipient.address": "18 Lakeview Apartments, Indiranagar\nBengaluru, Karnataka 560038",
+    "recipient.first_name": "Priya",
+    "recipient.name": "Ms Priya Nair",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,34 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
+        "key": "mou.binding_status"
       },
       {
-        "key": "agreement.effective_date"
+        "key": "mou.contribution_one"
       },
       {
-        "key": "agreement.governing_law"
+        "key": "mou.contribution_shared"
       },
       {
-        "key": "agreement.number"
+        "key": "mou.contribution_two"
       },
       {
-        "key": "agreement.purpose"
+        "key": "mou.effective_date"
+      },
+      {
+        "key": "mou.number"
+      },
+      {
+        "key": "mou.objectives"
+      },
+      {
+        "key": "mou.purpose"
+      },
+      {
+        "key": "mou.review_date"
+      },
+      {
+        "key": "mou.status"
       },
       {
         "key": "party_one.address"
@@ -66,7 +81,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +91,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Memorandum of Understanding",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +107,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "A record of what two parties have agreed in principle, ahead of a binding contract.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +135,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "AGREEMENT NO.",
+        "content": "MOU NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -136,7 +151,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{mou.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -167,8 +182,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{mou.effective_date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +199,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "REVIEW DATE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -199,8 +214,8 @@
         "x": 297.5,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "height": 16,
+        "content": "{{mou.review_date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +231,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "STATUS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -232,7 +247,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "content": "{{mou.status}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +263,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "FIRST PARTY",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +310,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "SECOND PARTY",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -342,7 +357,7 @@
         "y": 292,
         "width": 507,
         "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "content": "The parties wish to record their shared understanding regarding {{mou.purpose}}. This memorandum sets out what each intends to contribute and how they will work together while a definitive agreement is negotiated.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,11 +372,11 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Shared objectives",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -373,7 +388,7 @@
         "y": 370,
         "width": 507,
         "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+        "content": "{{mou.objectives}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -388,11 +403,11 @@
         "y": 428,
         "width": 507,
         "height": 16,
-        "content": "2. Obligations of the receiving party",
+        "content": "2. What each party will contribute",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -403,20 +418,17 @@
         "x": 50,
         "y": 448,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "First party: {{mou.contribution_one}}"
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "Second party: {{mou.contribution_two}}"
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "Both parties: {{mou.contribution_shared}}"
           }
         ],
         "listItemSpacing": 7,
@@ -432,14 +444,14 @@
         "id": "t024",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 525,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "3. Status of this memorandum",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -448,10 +460,10 @@
         "id": "t025",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 545,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "{{mou.binding_status}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +472,38 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 603,
+        "width": 507,
+        "height": 16,
+        "content": "4. Confidentiality and term",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 623,
+        "width": 507,
+        "height": 46,
+        "content": "Each party will keep the other’s non-public information confidential. This memorandum runs until {{mou.review_date}} and may be extended or replaced by a definitive agreement in writing.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +515,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,12 +527,12 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
         "width": 210,
-        "height": 14.5,
+        "height": 29,
         "content": "{{party_one.signatory}}",
         "style": {
           "fontSize": 10,
@@ -501,7 +544,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +560,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +572,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +589,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +605,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +617,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Whether an MoU binds depends on what it says and how the parties act.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +647,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +657,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Memorandum of Understanding",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +673,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "A record of what two parties have agreed in principle, ahead of a binding contract.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -658,7 +701,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "AGREEMENT NO.",
+            "content": "MOU NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -674,7 +717,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{mou.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -705,8 +748,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{mou.effective_date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +765,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "REVIEW DATE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -737,8 +780,8 @@
             "x": 297.5,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "height": 16,
+            "content": "{{mou.review_date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +797,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "STATUS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -770,7 +813,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "content": "{{mou.status}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +829,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "FIRST PARTY",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +876,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "SECOND PARTY",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -880,7 +923,7 @@
             "y": 292,
             "width": 507,
             "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "content": "The parties wish to record their shared understanding regarding {{mou.purpose}}. This memorandum sets out what each intends to contribute and how they will work together while a definitive agreement is negotiated.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,11 +938,11 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Shared objectives",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -911,7 +954,7 @@
             "y": 370,
             "width": 507,
             "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
+            "content": "{{mou.objectives}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -926,11 +969,11 @@
             "y": 428,
             "width": 507,
             "height": 16,
-            "content": "2. Obligations of the receiving party",
+            "content": "2. What each party will contribute",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -941,20 +984,17 @@
             "x": 50,
             "y": 448,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "First party: {{mou.contribution_one}}"
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "Second party: {{mou.contribution_two}}"
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "Both parties: {{mou.contribution_shared}}"
               }
             ],
             "listItemSpacing": 7,
@@ -970,14 +1010,14 @@
             "id": "t024",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 525,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "3. Status of this memorandum",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -986,10 +1026,10 @@
             "id": "t025",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 545,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "{{mou.binding_status}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1038,38 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 603,
+            "width": 507,
+            "height": 16,
+            "content": "4. Confidentiality and term",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 623,
+            "width": 507,
+            "height": 46,
+            "content": "Each party will keep the other’s non-public information confidential. This memorandum runs until {{mou.review_date}} and may be extended or replaced by a definitive agreement in writing.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1081,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,12 +1093,12 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
             "width": 210,
-            "height": 14.5,
+            "height": 29,
             "content": "{{party_one.signatory}}",
             "style": {
               "fontSize": 10,
@@ -1039,7 +1110,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1126,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1138,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1155,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1171,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1183,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Whether an MoU binds depends on what it says and how the parties act.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1203,24 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
+    "mou.binding_status": "Clauses 3 and 4 are intended to be legally binding. The remainder records intent only and creates no obligation to enter a definitive agreement, no exclusivity, and no liability for withdrawal.",
+    "mou.contribution_one": "product supply at agreed transfer prices, technical training and installation support.",
+    "mou.contribution_shared": "joint marketing at two trade events, and a shared pipeline review each month.",
+    "mou.contribution_two": "client relationships, design services and project management on pilot engagements.",
+    "mou.effective_date": "01 September 2026",
+    "mou.number": "MOU-2026-0009",
+    "mou.objectives": "To test whether combining Northwind’s storage products with Halcyon’s design and fit-out practice produces a proposition both can sell, across three pilot cities, before committing to a formal joint venture.",
+    "mou.purpose": "a joint distribution arrangement across south India",
+    "mou.review_date": "28 February 2027",
+    "mou.status": "Non-binding except where stated",
     "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "party_one.registration": "CIN U51909KA2015PTC081234",
+    "party_one.signatory": "Devika Menon, Chief Operating Officer",
+    "party_two.address": "22 Residency Road, Bengaluru 560025",
+    "party_two.name": "Halcyon Design Studio LLP",
+    "party_two.registration": "LLPIN AAC-8812",
+    "party_two.signatory": "Nikhil Menon, Designated Partner"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

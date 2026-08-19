@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Finance",
+  "category": "Education",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,43 +17,40 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "company.address"
+        "key": "institution.address"
       },
       {
-        "key": "company.contact"
+        "key": "institution.contact"
       },
       {
-        "key": "company.name"
+        "key": "institution.name"
       },
       {
-        "key": "delivery.address"
+        "key": "register.academic_year"
       },
       {
-        "key": "delivery.name"
+        "key": "register.class"
       },
       {
-        "key": "line_items"
+        "key": "register.faculty"
       },
       {
-        "key": "po.buyer"
+        "key": "register.minimum"
       },
       {
-        "key": "po.conditions"
+        "key": "register.month"
       },
       {
-        "key": "po.date"
+        "key": "register.number"
       },
       {
-        "key": "po.delivery_terms"
+        "key": "register.semester"
       },
       {
-        "key": "po.number"
+        "key": "register.sessions_held"
       },
       {
-        "key": "po.payment_terms"
-      },
-      {
-        "key": "po.required_by"
+        "key": "register.subject"
       },
       {
         "key": "signatory.name"
@@ -62,22 +59,16 @@
         "key": "signatory.title"
       },
       {
-        "key": "totals.grand_total"
+        "key": "students"
       },
       {
-        "key": "totals.subtotal"
+        "key": "totals.average"
       },
       {
-        "key": "totals.tax"
+        "key": "totals.eligible"
       },
       {
-        "key": "vendor.address"
-      },
-      {
-        "key": "vendor.gstin"
-      },
-      {
-        "key": "vendor.name"
+        "key": "totals.on_roll"
       }
     ],
     "elements": [
@@ -90,7 +81,7 @@
         "width": 3,
         "height": 34,
         "style": {
-          "backgroundColor": "#4338ca"
+          "backgroundColor": "#a16207"
         }
       },
       {
@@ -99,8 +90,8 @@
         "x": 56,
         "y": 44,
         "width": 250,
-        "height": 23.2,
-        "content": "{{company.name}}",
+        "height": 46.4,
+        "content": "{{institution.name}}",
         "style": {
           "fontSize": 16,
           "fontFamily": "Inter",
@@ -113,10 +104,10 @@
         "id": "t003",
         "type": "TEXT",
         "x": 56,
-        "y": 67.2,
+        "y": 90.4,
         "width": 270,
         "height": 46,
-        "content": "{{company.address}}\n{{company.contact}}",
+        "content": "{{institution.address}}\n{{institution.contact}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -130,12 +121,12 @@
         "x": 321,
         "y": 42,
         "width": 230,
-        "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "height": 63.8,
+        "content": "ATTENDANCE REGISTER",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
-          "color": "#4338ca",
+          "color": "#a16207",
           "lineHeight": 1.45,
           "bold": true,
           "align": "right"
@@ -148,7 +139,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "Month",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +155,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{register.month}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +171,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Class",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +187,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{register.class}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +203,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Register no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +219,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{register.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -241,7 +232,7 @@
         "id": "l011",
         "type": "LINE",
         "x": 44,
-        "y": 123.2,
+        "y": 146.4,
         "width": 507,
         "height": 0,
         "strokeWidth": 1,
@@ -250,33 +241,30 @@
         }
       },
       {
-        "id": "t012",
-        "type": "TEXT",
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
         "x": 44,
-        "y": 141.2,
-        "width": 230,
-        "height": 12,
-        "content": "VENDOR",
+        "y": 164.4,
+        "width": 507,
+        "height": 74,
         "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#4338ca",
-          "lineHeight": 1.45,
-          "bold": true
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
         }
       },
       {
         "id": "t013",
         "type": "TEXT",
-        "x": 44,
-        "y": 154.2,
-        "width": 230,
-        "height": 16,
-        "content": "{{vendor.name}}",
+        "x": 58,
+        "y": 176.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "SUBJECT",
         "style": {
-          "fontSize": 11,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#111827",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -284,30 +272,31 @@
       {
         "id": "t014",
         "type": "TEXT",
-        "x": 44,
-        "y": 171.2,
-        "width": 230,
-        "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "x": 58,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 27.55,
+        "content": "{{register.subject}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t015",
         "type": "TEXT",
-        "x": 312,
-        "y": 141.2,
-        "width": 239,
+        "x": 217.66666666666666,
+        "y": 176.4,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVER TO",
+        "content": "FACULTY",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#4338ca",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -315,13 +304,13 @@
       {
         "id": "t016",
         "type": "TEXT",
-        "x": 312,
-        "y": 154.2,
-        "width": 239,
-        "height": 16,
-        "content": "{{delivery.name}}",
+        "x": 217.66666666666666,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{register.faculty}}",
         "style": {
-          "fontSize": 11,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -331,39 +320,43 @@
       {
         "id": "t017",
         "type": "TEXT",
-        "x": 312,
-        "y": 171.2,
-        "width": 239,
-        "height": 46,
-        "content": "{{delivery.address}}",
+        "x": 377.3333333333333,
+        "y": 176.4,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "SESSIONS HELD",
         "style": {
-          "fontSize": 9,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
           "color": "#6b7280",
-          "lineHeight": 1.5
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "r018",
-        "type": "POLYGON",
-        "polygonKind": "rect",
-        "x": 44,
-        "y": 219.2,
-        "width": 507,
-        "height": 30,
+        "id": "t018",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 187.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{register.sessions_held}}",
         "style": {
-          "backgroundColor": "#f8fafc",
-          "borderRadius": 4
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t019",
         "type": "TEXT",
-        "x": 54,
-        "y": 226.2,
-        "width": 157,
+        "x": 58,
+        "y": 206.4,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "MINIMUM REQUIRED",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -375,13 +368,13 @@
       {
         "id": "t020",
         "type": "TEXT",
-        "x": 54,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "x": 58,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{register.minimum}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -391,11 +384,11 @@
       {
         "id": "t021",
         "type": "TEXT",
-        "x": 223,
-        "y": 226.2,
-        "width": 157,
+        "x": 217.66666666666666,
+        "y": 206.4,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVERY TERMS",
+        "content": "SEMESTER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -407,13 +400,13 @@
       {
         "id": "t022",
         "type": "TEXT",
-        "x": 223,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "x": 217.66666666666666,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{register.semester}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -423,11 +416,11 @@
       {
         "id": "t023",
         "type": "TEXT",
-        "x": 392,
-        "y": 226.2,
-        "width": 157,
+        "x": 377.3333333333333,
+        "y": 206.4,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "BUYER CONTACT",
+        "content": "ACADEMIC YEAR",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -439,13 +432,13 @@
       {
         "id": "t024",
         "type": "TEXT",
-        "x": 392,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.buyer}}",
+        "x": 377.3333333333333,
+        "y": 217.4,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{register.academic_year}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -453,43 +446,54 @@
         }
       },
       {
-        "id": "tb025",
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 256.4,
+        "width": 507,
+        "height": 12,
+        "content": "STUDENT ATTENDANCE",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#a16207",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb026",
         "type": "TABLE",
         "x": 44,
-        "y": 267.2,
+        "y": 271.4,
         "width": 507,
-        "height": 118,
+        "height": 140,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
+            "header": "Roll no.",
+            "key": "roll"
           },
           {
-            "header": "Description",
-            "key": "description"
+            "header": "Student name",
+            "key": "name"
           },
           {
-            "header": "Qty",
-            "key": "qty"
+            "header": "Present",
+            "key": "present"
           },
           {
-            "header": "Unit price",
-            "key": "rate"
-          },
-          {
-            "header": "Amount",
-            "key": "amount"
+            "header": "%",
+            "key": "percent"
           }
         ],
         "columnWidths": [
           1,
-          2.8,
-          0.6,
-          1,
-          1.1
+          3,
+          0.9,
+          0.8
         ],
-        "dataKey": "line_items",
-        "tablePreviewBodyRows": 4,
+        "dataKey": "students",
+        "tablePreviewBodyRows": 6,
         "tableRowBackgrounds": {
           "-1": "#f8fafc"
         },
@@ -500,34 +504,17 @@
         }
       },
       {
-        "id": "t026",
+        "id": "t027",
         "type": "TEXT",
-        "x": 309,
-        "y": 403.2,
-        "width": 145,
+        "x": 299,
+        "y": 431.4,
+        "width": 150.79999999999998,
         "height": 14,
-        "content": "Subtotal",
+        "content": "Students on roll",
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
           "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t027",
-        "type": "TEXT",
-        "x": 446,
-        "y": 403.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.subtotal}}",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
           "lineHeight": 1.45,
           "bold": false,
           "align": "right"
@@ -536,28 +523,11 @@
       {
         "id": "t028",
         "type": "TEXT",
-        "x": 309,
-        "y": 419.2,
-        "width": 145,
+        "x": 441.79999999999995,
+        "y": 431.4,
+        "width": 101.20000000000002,
         "height": 14,
-        "content": "Tax",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
-        "id": "t029",
-        "type": "TEXT",
-        "x": 446,
-        "y": 419.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.tax}}",
+        "content": "{{totals.on_roll}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -568,12 +538,46 @@
         }
       },
       {
-        "id": "r032",
+        "id": "t029",
+        "type": "TEXT",
+        "x": 299,
+        "y": 447.4,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Meeting the minimum",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 447.4,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.eligible}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r033",
         "type": "POLYGON",
         "polygonKind": "rect",
-        "x": 301,
-        "y": 431.2,
-        "width": 250,
+        "x": 291,
+        "y": 459.4,
+        "width": 260,
         "height": 23.95,
         "style": {
           "backgroundColor": "#f8fafc",
@@ -581,13 +585,13 @@
         }
       },
       {
-        "id": "t030",
+        "id": "t031",
         "type": "TEXT",
-        "x": 309,
-        "y": 435.2,
-        "width": 145,
+        "x": 299,
+        "y": 463.4,
+        "width": 150.79999999999998,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Class average",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -598,58 +602,27 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t032",
         "type": "TEXT",
-        "x": 446,
-        "y": 435.2,
-        "width": 97,
-        "height": 31.9,
-        "content": "{{totals.grand_total}}",
+        "x": 441.79999999999995,
+        "y": 463.4,
+        "width": 101.20000000000002,
+        "height": 15.95,
+        "content": "{{totals.average}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "JetBrains Mono",
-          "color": "#4338ca",
+          "color": "#a16207",
           "lineHeight": 1.45,
           "bold": true,
           "align": "right"
         }
       },
       {
-        "id": "t033",
-        "type": "TEXT",
-        "x": 44,
-        "y": 479.15,
-        "width": 250,
-        "height": 12,
-        "content": "CONDITIONS",
-        "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t034",
-        "type": "TEXT",
-        "x": 44,
-        "y": 492.15,
-        "width": 250,
-        "height": 58,
-        "content": "{{po.conditions}}",
-        "style": {
-          "fontSize": 8.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
-        }
-      },
-      {
-        "id": "l035",
+        "id": "l034",
         "type": "LINE",
         "x": 311,
-        "y": 513.15,
+        "y": 692,
         "width": 240,
         "height": 0,
         "strokeWidth": 1,
@@ -658,10 +631,10 @@
         }
       },
       {
-        "id": "t036",
+        "id": "t035",
         "type": "TEXT",
         "x": 311,
-        "y": 519.15,
+        "y": 698,
         "width": 240,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -675,10 +648,10 @@
         }
       },
       {
-        "id": "t037",
+        "id": "t036",
         "type": "TEXT",
         "x": 311,
-        "y": 533.15,
+        "y": 712,
         "width": 240,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -691,7 +664,7 @@
         }
       },
       {
-        "id": "l038",
+        "id": "l037",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -703,13 +676,13 @@
         }
       },
       {
-        "id": "t039",
+        "id": "t038",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Students below the minimum attendance are not eligible to sit the end-semester examination.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -733,7 +706,7 @@
             "width": 3,
             "height": 34,
             "style": {
-              "backgroundColor": "#4338ca"
+              "backgroundColor": "#a16207"
             }
           },
           {
@@ -742,8 +715,8 @@
             "x": 56,
             "y": 44,
             "width": 250,
-            "height": 23.2,
-            "content": "{{company.name}}",
+            "height": 46.4,
+            "content": "{{institution.name}}",
             "style": {
               "fontSize": 16,
               "fontFamily": "Inter",
@@ -756,10 +729,10 @@
             "id": "t003",
             "type": "TEXT",
             "x": 56,
-            "y": 67.2,
+            "y": 90.4,
             "width": 270,
             "height": 46,
-            "content": "{{company.address}}\n{{company.contact}}",
+            "content": "{{institution.address}}\n{{institution.contact}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -773,12 +746,12 @@
             "x": 321,
             "y": 42,
             "width": 230,
-            "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "height": 63.8,
+            "content": "ATTENDANCE REGISTER",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
-              "color": "#4338ca",
+              "color": "#a16207",
               "lineHeight": 1.45,
               "bold": true,
               "align": "right"
@@ -791,7 +764,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "Month",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +780,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{register.month}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +796,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Class",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +812,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{register.class}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +828,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Register no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +844,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{register.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -884,7 +857,7 @@
             "id": "l011",
             "type": "LINE",
             "x": 44,
-            "y": 123.2,
+            "y": 146.4,
             "width": 507,
             "height": 0,
             "strokeWidth": 1,
@@ -893,33 +866,30 @@
             }
           },
           {
-            "id": "t012",
-            "type": "TEXT",
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
             "x": 44,
-            "y": 141.2,
-            "width": 230,
-            "height": 12,
-            "content": "VENDOR",
+            "y": 164.4,
+            "width": 507,
+            "height": 74,
             "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#4338ca",
-              "lineHeight": 1.45,
-              "bold": true
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
             }
           },
           {
             "id": "t013",
             "type": "TEXT",
-            "x": 44,
-            "y": 154.2,
-            "width": 230,
-            "height": 16,
-            "content": "{{vendor.name}}",
+            "x": 58,
+            "y": 176.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "SUBJECT",
             "style": {
-              "fontSize": 11,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#111827",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -927,30 +897,31 @@
           {
             "id": "t014",
             "type": "TEXT",
-            "x": 44,
-            "y": 171.2,
-            "width": 230,
-            "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "x": 58,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 27.55,
+            "content": "{{register.subject}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t015",
             "type": "TEXT",
-            "x": 312,
-            "y": 141.2,
-            "width": 239,
+            "x": 217.66666666666666,
+            "y": 176.4,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVER TO",
+            "content": "FACULTY",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#4338ca",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -958,13 +929,13 @@
           {
             "id": "t016",
             "type": "TEXT",
-            "x": 312,
-            "y": 154.2,
-            "width": 239,
-            "height": 16,
-            "content": "{{delivery.name}}",
+            "x": 217.66666666666666,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{register.faculty}}",
             "style": {
-              "fontSize": 11,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -974,39 +945,43 @@
           {
             "id": "t017",
             "type": "TEXT",
-            "x": 312,
-            "y": 171.2,
-            "width": 239,
-            "height": 46,
-            "content": "{{delivery.address}}",
+            "x": 377.3333333333333,
+            "y": 176.4,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "SESSIONS HELD",
             "style": {
-              "fontSize": 9,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
               "color": "#6b7280",
-              "lineHeight": 1.5
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "r018",
-            "type": "POLYGON",
-            "polygonKind": "rect",
-            "x": 44,
-            "y": 219.2,
-            "width": 507,
-            "height": 30,
+            "id": "t018",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 187.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{register.sessions_held}}",
             "style": {
-              "backgroundColor": "#f8fafc",
-              "borderRadius": 4
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t019",
             "type": "TEXT",
-            "x": 54,
-            "y": 226.2,
-            "width": 157,
+            "x": 58,
+            "y": 206.4,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "MINIMUM REQUIRED",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1018,13 +993,13 @@
           {
             "id": "t020",
             "type": "TEXT",
-            "x": 54,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "x": 58,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{register.minimum}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1034,11 +1009,11 @@
           {
             "id": "t021",
             "type": "TEXT",
-            "x": 223,
-            "y": 226.2,
-            "width": 157,
+            "x": 217.66666666666666,
+            "y": 206.4,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVERY TERMS",
+            "content": "SEMESTER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1050,13 +1025,13 @@
           {
             "id": "t022",
             "type": "TEXT",
-            "x": 223,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "x": 217.66666666666666,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{register.semester}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1066,11 +1041,11 @@
           {
             "id": "t023",
             "type": "TEXT",
-            "x": 392,
-            "y": 226.2,
-            "width": 157,
+            "x": 377.3333333333333,
+            "y": 206.4,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "BUYER CONTACT",
+            "content": "ACADEMIC YEAR",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1082,13 +1057,13 @@
           {
             "id": "t024",
             "type": "TEXT",
-            "x": 392,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.buyer}}",
+            "x": 377.3333333333333,
+            "y": 217.4,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{register.academic_year}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1096,43 +1071,54 @@
             }
           },
           {
-            "id": "tb025",
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 256.4,
+            "width": 507,
+            "height": 12,
+            "content": "STUDENT ATTENDANCE",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#a16207",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb026",
             "type": "TABLE",
             "x": 44,
-            "y": 267.2,
+            "y": 271.4,
             "width": 507,
-            "height": 118,
+            "height": 140,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
+                "header": "Roll no.",
+                "key": "roll"
               },
               {
-                "header": "Description",
-                "key": "description"
+                "header": "Student name",
+                "key": "name"
               },
               {
-                "header": "Qty",
-                "key": "qty"
+                "header": "Present",
+                "key": "present"
               },
               {
-                "header": "Unit price",
-                "key": "rate"
-              },
-              {
-                "header": "Amount",
-                "key": "amount"
+                "header": "%",
+                "key": "percent"
               }
             ],
             "columnWidths": [
               1,
-              2.8,
-              0.6,
-              1,
-              1.1
+              3,
+              0.9,
+              0.8
             ],
-            "dataKey": "line_items",
-            "tablePreviewBodyRows": 4,
+            "dataKey": "students",
+            "tablePreviewBodyRows": 6,
             "tableRowBackgrounds": {
               "-1": "#f8fafc"
             },
@@ -1143,34 +1129,17 @@
             }
           },
           {
-            "id": "t026",
+            "id": "t027",
             "type": "TEXT",
-            "x": 309,
-            "y": 403.2,
-            "width": 145,
+            "x": 299,
+            "y": 431.4,
+            "width": 150.79999999999998,
             "height": 14,
-            "content": "Subtotal",
+            "content": "Students on roll",
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
               "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t027",
-            "type": "TEXT",
-            "x": 446,
-            "y": 403.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.subtotal}}",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
               "lineHeight": 1.45,
               "bold": false,
               "align": "right"
@@ -1179,28 +1148,11 @@
           {
             "id": "t028",
             "type": "TEXT",
-            "x": 309,
-            "y": 419.2,
-            "width": 145,
+            "x": 441.79999999999995,
+            "y": 431.4,
+            "width": 101.20000000000002,
             "height": 14,
-            "content": "Tax",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
-            "id": "t029",
-            "type": "TEXT",
-            "x": 446,
-            "y": 419.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.tax}}",
+            "content": "{{totals.on_roll}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1211,12 +1163,46 @@
             }
           },
           {
-            "id": "r032",
+            "id": "t029",
+            "type": "TEXT",
+            "x": 299,
+            "y": 447.4,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Meeting the minimum",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 447.4,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.eligible}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r033",
             "type": "POLYGON",
             "polygonKind": "rect",
-            "x": 301,
-            "y": 431.2,
-            "width": 250,
+            "x": 291,
+            "y": 459.4,
+            "width": 260,
             "height": 23.95,
             "style": {
               "backgroundColor": "#f8fafc",
@@ -1224,13 +1210,13 @@
             }
           },
           {
-            "id": "t030",
+            "id": "t031",
             "type": "TEXT",
-            "x": 309,
-            "y": 435.2,
-            "width": 145,
+            "x": 299,
+            "y": 463.4,
+            "width": 150.79999999999998,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Class average",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1241,58 +1227,27 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t032",
             "type": "TEXT",
-            "x": 446,
-            "y": 435.2,
-            "width": 97,
-            "height": 31.9,
-            "content": "{{totals.grand_total}}",
+            "x": 441.79999999999995,
+            "y": 463.4,
+            "width": 101.20000000000002,
+            "height": 15.95,
+            "content": "{{totals.average}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "JetBrains Mono",
-              "color": "#4338ca",
+              "color": "#a16207",
               "lineHeight": 1.45,
               "bold": true,
               "align": "right"
             }
           },
           {
-            "id": "t033",
-            "type": "TEXT",
-            "x": 44,
-            "y": 479.15,
-            "width": 250,
-            "height": 12,
-            "content": "CONDITIONS",
-            "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t034",
-            "type": "TEXT",
-            "x": 44,
-            "y": 492.15,
-            "width": 250,
-            "height": 58,
-            "content": "{{po.conditions}}",
-            "style": {
-              "fontSize": 8.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
-            }
-          },
-          {
-            "id": "l035",
+            "id": "l034",
             "type": "LINE",
             "x": 311,
-            "y": 513.15,
+            "y": 692,
             "width": 240,
             "height": 0,
             "strokeWidth": 1,
@@ -1301,10 +1256,10 @@
             }
           },
           {
-            "id": "t036",
+            "id": "t035",
             "type": "TEXT",
             "x": 311,
-            "y": 519.15,
+            "y": 698,
             "width": 240,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -1318,10 +1273,10 @@
             }
           },
           {
-            "id": "t037",
+            "id": "t036",
             "type": "TEXT",
             "x": 311,
-            "y": 533.15,
+            "y": 712,
             "width": 240,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -1334,7 +1289,7 @@
             }
           },
           {
-            "id": "l038",
+            "id": "l037",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1346,13 +1301,13 @@
             }
           },
           {
-            "id": "t039",
+            "id": "t038",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Students below the minimum attendance are not eligible to sit the end-semester examination.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1366,27 +1321,24 @@
     ]
   },
   "variableValues": {
-    "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
-    "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
-    "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "institution.address": "Survey 118, Hinjewadi Phase II, Pune 411057",
+    "institution.contact": "registrar@meridian.example · +91 20 6612 3300",
+    "institution.name": "Meridian Institute of Technology",
+    "register.academic_year": "2026–27",
+    "register.class": "B.Tech CSE — Section A",
+    "register.faculty": "Prof. Leela Iyer",
+    "register.minimum": "75%",
+    "register.month": "July 2026",
+    "register.number": "MIT/ATT/2026/S6-A",
+    "register.semester": "Sixth",
+    "register.sessions_held": "24",
+    "register.subject": "Applied Data Analysis (CS-604)",
+    "signatory.name": "Prof. Leela Iyer",
+    "signatory.title": "Subject Faculty",
+    "students": "[{\"roll\":\"CSE-041\",\"name\":\"Kavya Ramesh\",\"present\":\"23\",\"percent\":\"95.8\"},{\"roll\":\"CSE-042\",\"name\":\"Arjun Deshpande\",\"present\":\"21\",\"percent\":\"87.5\"},{\"roll\":\"CSE-043\",\"name\":\"Nikhil Menon\",\"present\":\"22\",\"percent\":\"91.7\"},{\"roll\":\"CSE-044\",\"name\":\"Sara Qureshi\",\"present\":\"20\",\"percent\":\"83.3\"},{\"roll\":\"CSE-045\",\"name\":\"Tanvi Bhatt\",\"present\":\"19\",\"percent\":\"79.2\"},{\"roll\":\"CSE-046\",\"name\":\"Rohan Pillai\",\"present\":\"17\",\"percent\":\"70.8\"}]",
+    "totals.average": "84.7%",
+    "totals.eligible": "5",
+    "totals.on_roll": "6"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

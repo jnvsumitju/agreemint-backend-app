@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Finance",
+  "category": "HR",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,6 +17,9 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
+        "key": "absence"
+      },
+      {
         "key": "company.address"
       },
       {
@@ -26,34 +29,16 @@
         "key": "company.name"
       },
       {
-        "key": "delivery.address"
+        "key": "employee.department"
       },
       {
-        "key": "delivery.name"
+        "key": "employee.id"
       },
       {
-        "key": "line_items"
+        "key": "employee.name"
       },
       {
-        "key": "po.buyer"
-      },
-      {
-        "key": "po.conditions"
-      },
-      {
-        "key": "po.date"
-      },
-      {
-        "key": "po.delivery_terms"
-      },
-      {
-        "key": "po.number"
-      },
-      {
-        "key": "po.payment_terms"
-      },
-      {
-        "key": "po.required_by"
+        "key": "entries"
       },
       {
         "key": "signatory.name"
@@ -62,22 +47,31 @@
         "key": "signatory.title"
       },
       {
-        "key": "totals.grand_total"
+        "key": "timesheet.contract_hours"
       },
       {
-        "key": "totals.subtotal"
+        "key": "timesheet.cost_centre"
       },
       {
-        "key": "totals.tax"
+        "key": "timesheet.manager"
       },
       {
-        "key": "vendor.address"
+        "key": "timesheet.number"
       },
       {
-        "key": "vendor.gstin"
+        "key": "timesheet.status"
       },
       {
-        "key": "vendor.name"
+        "key": "timesheet.week_ending"
+      },
+      {
+        "key": "totals.absence"
+      },
+      {
+        "key": "totals.net"
+      },
+      {
+        "key": "totals.worked"
       }
     ],
     "elements": [
@@ -90,7 +84,7 @@
         "width": 3,
         "height": 34,
         "style": {
-          "backgroundColor": "#4338ca"
+          "backgroundColor": "#0f766e"
         }
       },
       {
@@ -131,11 +125,11 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "PURCHASE ORDER",
+        "content": "TIMESHEET",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
-          "color": "#4338ca",
+          "color": "#0f766e",
           "lineHeight": 1.45,
           "bold": true,
           "align": "right"
@@ -148,7 +142,7 @@
         "y": 72,
         "width": 82,
         "height": 12.33,
-        "content": "PO number",
+        "content": "Week ending",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -164,7 +158,7 @@
         "y": 72,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.number}}",
+        "content": "{{timesheet.week_ending}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -180,7 +174,7 @@
         "y": 85.33,
         "width": 82,
         "height": 12.33,
-        "content": "PO date",
+        "content": "Sheet no.",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -196,7 +190,7 @@
         "y": 85.33,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.date}}",
+        "content": "{{timesheet.number}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -212,7 +206,7 @@
         "y": 98.66,
         "width": 82,
         "height": 12.33,
-        "content": "Required by",
+        "content": "Status",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "Inter",
@@ -228,7 +222,7 @@
         "y": 98.66,
         "width": 146,
         "height": 12.33,
-        "content": "{{po.required_by}}",
+        "content": "{{timesheet.status}}",
         "style": {
           "fontSize": 8.5,
           "fontFamily": "JetBrains Mono",
@@ -250,33 +244,30 @@
         }
       },
       {
-        "id": "t012",
-        "type": "TEXT",
+        "id": "r012",
+        "type": "POLYGON",
+        "polygonKind": "rect",
         "x": 44,
         "y": 141.2,
-        "width": 230,
-        "height": 12,
-        "content": "VENDOR",
+        "width": 507,
+        "height": 74,
         "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#4338ca",
-          "lineHeight": 1.45,
-          "bold": true
+          "backgroundColor": "#f8fafc",
+          "borderRadius": 5
         }
       },
       {
         "id": "t013",
         "type": "TEXT",
-        "x": 44,
-        "y": 154.2,
-        "width": 230,
-        "height": 16,
-        "content": "{{vendor.name}}",
+        "x": 58,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "EMPLOYEE",
         "style": {
-          "fontSize": 11,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#111827",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -284,30 +275,31 @@
       {
         "id": "t014",
         "type": "TEXT",
-        "x": 44,
-        "y": 171.2,
-        "width": 230,
-        "height": 46,
-        "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+        "x": 58,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.name}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t015",
         "type": "TEXT",
-        "x": 312,
-        "y": 141.2,
-        "width": 239,
+        "x": 217.66666666666666,
+        "y": 153.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVER TO",
+        "content": "EMPLOYEE ID",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#4338ca",
+          "color": "#6b7280",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -315,13 +307,13 @@
       {
         "id": "t016",
         "type": "TEXT",
-        "x": 312,
-        "y": 154.2,
-        "width": 239,
-        "height": 16,
-        "content": "{{delivery.name}}",
+        "x": 217.66666666666666,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.id}}",
         "style": {
-          "fontSize": 11,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -331,39 +323,43 @@
       {
         "id": "t017",
         "type": "TEXT",
-        "x": 312,
-        "y": 171.2,
-        "width": 239,
-        "height": 46,
-        "content": "{{delivery.address}}",
+        "x": 377.3333333333333,
+        "y": 153.2,
+        "width": 149.66666666666666,
+        "height": 12,
+        "content": "DEPARTMENT",
         "style": {
-          "fontSize": 9,
+          "fontSize": 7.5,
           "fontFamily": "Inter",
           "color": "#6b7280",
-          "lineHeight": 1.5
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "r018",
-        "type": "POLYGON",
-        "polygonKind": "rect",
-        "x": 44,
-        "y": 219.2,
-        "width": 507,
-        "height": 30,
+        "id": "t018",
+        "type": "TEXT",
+        "x": 377.3333333333333,
+        "y": 164.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{employee.department}}",
         "style": {
-          "backgroundColor": "#f8fafc",
-          "borderRadius": 4
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
         "id": "t019",
         "type": "TEXT",
-        "x": 54,
-        "y": 226.2,
-        "width": 157,
+        "x": 58,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "PAYMENT TERMS",
+        "content": "MANAGER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -375,13 +371,13 @@
       {
         "id": "t020",
         "type": "TEXT",
-        "x": 54,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.payment_terms}}",
+        "x": 58,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{timesheet.manager}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -391,11 +387,11 @@
       {
         "id": "t021",
         "type": "TEXT",
-        "x": 223,
-        "y": 226.2,
-        "width": 157,
+        "x": 217.66666666666666,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "DELIVERY TERMS",
+        "content": "CONTRACT HOURS",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -407,13 +403,13 @@
       {
         "id": "t022",
         "type": "TEXT",
-        "x": 223,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.delivery_terms}}",
+        "x": 217.66666666666666,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{timesheet.contract_hours}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -423,11 +419,11 @@
       {
         "id": "t023",
         "type": "TEXT",
-        "x": 392,
-        "y": 226.2,
-        "width": 157,
+        "x": 377.3333333333333,
+        "y": 183.2,
+        "width": 149.66666666666666,
         "height": 12,
-        "content": "BUYER CONTACT",
+        "content": "COST CENTRE",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -439,13 +435,13 @@
       {
         "id": "t024",
         "type": "TEXT",
-        "x": 392,
-        "y": 236.2,
-        "width": 157,
-        "height": 13.05,
-        "content": "{{po.buyer}}",
+        "x": 377.3333333333333,
+        "y": 194.2,
+        "width": 149.66666666666666,
+        "height": 14,
+        "content": "{{timesheet.cost_centre}}",
         "style": {
-          "fontSize": 9,
+          "fontSize": 9.5,
           "fontFamily": "Inter",
           "color": "#111827",
           "lineHeight": 1.45,
@@ -453,43 +449,49 @@
         }
       },
       {
-        "id": "tb025",
+        "id": "t025",
+        "type": "TEXT",
+        "x": 44,
+        "y": 233.2,
+        "width": 507,
+        "height": 12,
+        "content": "HOURS WORKED",
+        "style": {
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "tb026",
         "type": "TABLE",
         "x": 44,
-        "y": 267.2,
+        "y": 248.2,
         "width": 507,
         "height": 118,
         "columns": [
           {
-            "header": "Item code",
-            "key": "code"
+            "header": "Date",
+            "key": "date"
           },
           {
-            "header": "Description",
-            "key": "description"
+            "header": "Project / task",
+            "key": "task"
           },
           {
-            "header": "Qty",
-            "key": "qty"
-          },
-          {
-            "header": "Unit price",
-            "key": "rate"
-          },
-          {
-            "header": "Amount",
-            "key": "amount"
+            "header": "Hours",
+            "key": "hours"
           }
         ],
         "columnWidths": [
-          1,
-          2.8,
-          0.6,
-          1,
-          1.1
+          1.1,
+          3,
+          0.8
         ],
-        "dataKey": "line_items",
-        "tablePreviewBodyRows": 4,
+        "dataKey": "entries",
+        "tablePreviewBodyRows": 5,
         "tableRowBackgrounds": {
           "-1": "#f8fafc"
         },
@@ -500,64 +502,83 @@
         }
       },
       {
-        "id": "t026",
-        "type": "TEXT",
-        "x": 309,
-        "y": 403.2,
-        "width": 145,
-        "height": 14,
-        "content": "Subtotal",
-        "style": {
-          "fontSize": 9,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
-        }
-      },
-      {
         "id": "t027",
         "type": "TEXT",
-        "x": 446,
-        "y": 403.2,
-        "width": 97,
-        "height": 14,
-        "content": "{{totals.subtotal}}",
+        "x": 44,
+        "y": 386.2,
+        "width": 507,
+        "height": 12,
+        "content": "LEAVE AND ABSENCE",
         "style": {
-          "fontSize": 9.5,
-          "fontFamily": "JetBrains Mono",
-          "color": "#111827",
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
           "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
+          "bold": true
         }
       },
       {
-        "id": "t028",
-        "type": "TEXT",
-        "x": 309,
-        "y": 419.2,
-        "width": 145,
-        "height": 14,
-        "content": "Tax",
+        "id": "tb028",
+        "type": "TABLE",
+        "x": 44,
+        "y": 401.2,
+        "width": 507,
+        "height": 64,
+        "columns": [
+          {
+            "header": "Date",
+            "key": "date"
+          },
+          {
+            "header": "Type",
+            "key": "type"
+          },
+          {
+            "header": "Hours",
+            "key": "hours"
+          }
+        ],
+        "columnWidths": [
+          1.1,
+          3,
+          0.8
+        ],
+        "dataKey": "absence",
+        "tablePreviewBodyRows": 2,
+        "tableRowBackgrounds": {
+          "-1": "#f8fafc"
+        },
         "style": {
           "fontSize": 9,
           "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": false,
-          "align": "right"
+          "color": "#374151"
         }
       },
       {
         "id": "t029",
         "type": "TEXT",
-        "x": 446,
-        "y": 419.2,
-        "width": 97,
+        "x": 299,
+        "y": 485.2,
+        "width": 150.79999999999998,
         "height": 14,
-        "content": "{{totals.tax}}",
+        "content": "Hours worked",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t030",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 485.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.worked}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "JetBrains Mono",
@@ -568,12 +589,46 @@
         }
       },
       {
-        "id": "r032",
+        "id": "t031",
+        "type": "TEXT",
+        "x": 299,
+        "y": 501.2,
+        "width": 150.79999999999998,
+        "height": 14,
+        "content": "Leave and absence",
+        "style": {
+          "fontSize": 9,
+          "fontFamily": "Inter",
+          "color": "#6b7280",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "t032",
+        "type": "TEXT",
+        "x": 441.79999999999995,
+        "y": 501.2,
+        "width": 101.20000000000002,
+        "height": 14,
+        "content": "{{totals.absence}}",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "JetBrains Mono",
+          "color": "#111827",
+          "lineHeight": 1.45,
+          "bold": false,
+          "align": "right"
+        }
+      },
+      {
+        "id": "r035",
         "type": "POLYGON",
         "polygonKind": "rect",
-        "x": 301,
-        "y": 431.2,
-        "width": 250,
+        "x": 291,
+        "y": 513.2,
+        "width": 260,
         "height": 23.95,
         "style": {
           "backgroundColor": "#f8fafc",
@@ -581,13 +636,13 @@
         }
       },
       {
-        "id": "t030",
+        "id": "t033",
         "type": "TEXT",
-        "x": 309,
-        "y": 435.2,
-        "width": 145,
+        "x": 299,
+        "y": 517.2,
+        "width": 150.79999999999998,
         "height": 14.5,
-        "content": "Order total",
+        "content": "Total accounted",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -598,58 +653,27 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t034",
         "type": "TEXT",
-        "x": 446,
-        "y": 435.2,
-        "width": 97,
-        "height": 31.9,
-        "content": "{{totals.grand_total}}",
+        "x": 441.79999999999995,
+        "y": 517.2,
+        "width": 101.20000000000002,
+        "height": 15.95,
+        "content": "{{totals.net}}",
         "style": {
           "fontSize": 11,
           "fontFamily": "JetBrains Mono",
-          "color": "#4338ca",
+          "color": "#0f766e",
           "lineHeight": 1.45,
           "bold": true,
           "align": "right"
         }
       },
       {
-        "id": "t033",
-        "type": "TEXT",
-        "x": 44,
-        "y": 479.15,
-        "width": 250,
-        "height": 12,
-        "content": "CONDITIONS",
-        "style": {
-          "fontSize": 7.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "t034",
-        "type": "TEXT",
-        "x": 44,
-        "y": 492.15,
-        "width": 250,
-        "height": 58,
-        "content": "{{po.conditions}}",
-        "style": {
-          "fontSize": 8.5,
-          "fontFamily": "Inter",
-          "color": "#6b7280",
-          "lineHeight": 1.5
-        }
-      },
-      {
-        "id": "l035",
+        "id": "l036",
         "type": "LINE",
         "x": 311,
-        "y": 513.15,
+        "y": 692,
         "width": 240,
         "height": 0,
         "strokeWidth": 1,
@@ -658,10 +682,10 @@
         }
       },
       {
-        "id": "t036",
+        "id": "t037",
         "type": "TEXT",
         "x": 311,
-        "y": 519.15,
+        "y": 698,
         "width": 240,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -675,10 +699,10 @@
         }
       },
       {
-        "id": "t037",
+        "id": "t038",
         "type": "TEXT",
         "x": 311,
-        "y": 533.15,
+        "y": 712,
         "width": 240,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -691,7 +715,7 @@
         }
       },
       {
-        "id": "l038",
+        "id": "l039",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -703,13 +727,13 @@
         }
       },
       {
-        "id": "t039",
+        "id": "t040",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+        "content": "Submit by Monday 12pm. Approved timesheets feed the payroll run for that month.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -733,7 +757,7 @@
             "width": 3,
             "height": 34,
             "style": {
-              "backgroundColor": "#4338ca"
+              "backgroundColor": "#0f766e"
             }
           },
           {
@@ -774,11 +798,11 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "PURCHASE ORDER",
+            "content": "TIMESHEET",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
-              "color": "#4338ca",
+              "color": "#0f766e",
               "lineHeight": 1.45,
               "bold": true,
               "align": "right"
@@ -791,7 +815,7 @@
             "y": 72,
             "width": 82,
             "height": 12.33,
-            "content": "PO number",
+            "content": "Week ending",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -807,7 +831,7 @@
             "y": 72,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.number}}",
+            "content": "{{timesheet.week_ending}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -823,7 +847,7 @@
             "y": 85.33,
             "width": 82,
             "height": 12.33,
-            "content": "PO date",
+            "content": "Sheet no.",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -839,7 +863,7 @@
             "y": 85.33,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.date}}",
+            "content": "{{timesheet.number}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -855,7 +879,7 @@
             "y": 98.66,
             "width": 82,
             "height": 12.33,
-            "content": "Required by",
+            "content": "Status",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "Inter",
@@ -871,7 +895,7 @@
             "y": 98.66,
             "width": 146,
             "height": 12.33,
-            "content": "{{po.required_by}}",
+            "content": "{{timesheet.status}}",
             "style": {
               "fontSize": 8.5,
               "fontFamily": "JetBrains Mono",
@@ -893,33 +917,30 @@
             }
           },
           {
-            "id": "t012",
-            "type": "TEXT",
+            "id": "r012",
+            "type": "POLYGON",
+            "polygonKind": "rect",
             "x": 44,
             "y": 141.2,
-            "width": 230,
-            "height": 12,
-            "content": "VENDOR",
+            "width": 507,
+            "height": 74,
             "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#4338ca",
-              "lineHeight": 1.45,
-              "bold": true
+              "backgroundColor": "#f8fafc",
+              "borderRadius": 5
             }
           },
           {
             "id": "t013",
             "type": "TEXT",
-            "x": 44,
-            "y": 154.2,
-            "width": 230,
-            "height": 16,
-            "content": "{{vendor.name}}",
+            "x": 58,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "EMPLOYEE",
             "style": {
-              "fontSize": 11,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#111827",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -927,30 +948,31 @@
           {
             "id": "t014",
             "type": "TEXT",
-            "x": 44,
-            "y": 171.2,
-            "width": 230,
-            "height": 46,
-            "content": "{{vendor.address}}\nGSTIN {{vendor.gstin}}",
+            "x": 58,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.name}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t015",
             "type": "TEXT",
-            "x": 312,
-            "y": 141.2,
-            "width": 239,
+            "x": 217.66666666666666,
+            "y": 153.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVER TO",
+            "content": "EMPLOYEE ID",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#4338ca",
+              "color": "#6b7280",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -958,13 +980,13 @@
           {
             "id": "t016",
             "type": "TEXT",
-            "x": 312,
-            "y": 154.2,
-            "width": 239,
-            "height": 16,
-            "content": "{{delivery.name}}",
+            "x": 217.66666666666666,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.id}}",
             "style": {
-              "fontSize": 11,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -974,39 +996,43 @@
           {
             "id": "t017",
             "type": "TEXT",
-            "x": 312,
-            "y": 171.2,
-            "width": 239,
-            "height": 46,
-            "content": "{{delivery.address}}",
+            "x": 377.3333333333333,
+            "y": 153.2,
+            "width": 149.66666666666666,
+            "height": 12,
+            "content": "DEPARTMENT",
             "style": {
-              "fontSize": 9,
+              "fontSize": 7.5,
               "fontFamily": "Inter",
               "color": "#6b7280",
-              "lineHeight": 1.5
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "r018",
-            "type": "POLYGON",
-            "polygonKind": "rect",
-            "x": 44,
-            "y": 219.2,
-            "width": 507,
-            "height": 30,
+            "id": "t018",
+            "type": "TEXT",
+            "x": 377.3333333333333,
+            "y": 164.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{employee.department}}",
             "style": {
-              "backgroundColor": "#f8fafc",
-              "borderRadius": 4
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
             "id": "t019",
             "type": "TEXT",
-            "x": 54,
-            "y": 226.2,
-            "width": 157,
+            "x": 58,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "PAYMENT TERMS",
+            "content": "MANAGER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1018,13 +1044,13 @@
           {
             "id": "t020",
             "type": "TEXT",
-            "x": 54,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.payment_terms}}",
+            "x": 58,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{timesheet.manager}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1034,11 +1060,11 @@
           {
             "id": "t021",
             "type": "TEXT",
-            "x": 223,
-            "y": 226.2,
-            "width": 157,
+            "x": 217.66666666666666,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "DELIVERY TERMS",
+            "content": "CONTRACT HOURS",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1050,13 +1076,13 @@
           {
             "id": "t022",
             "type": "TEXT",
-            "x": 223,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.delivery_terms}}",
+            "x": 217.66666666666666,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{timesheet.contract_hours}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1066,11 +1092,11 @@
           {
             "id": "t023",
             "type": "TEXT",
-            "x": 392,
-            "y": 226.2,
-            "width": 157,
+            "x": 377.3333333333333,
+            "y": 183.2,
+            "width": 149.66666666666666,
             "height": 12,
-            "content": "BUYER CONTACT",
+            "content": "COST CENTRE",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1082,13 +1108,13 @@
           {
             "id": "t024",
             "type": "TEXT",
-            "x": 392,
-            "y": 236.2,
-            "width": 157,
-            "height": 13.05,
-            "content": "{{po.buyer}}",
+            "x": 377.3333333333333,
+            "y": 194.2,
+            "width": 149.66666666666666,
+            "height": 14,
+            "content": "{{timesheet.cost_centre}}",
             "style": {
-              "fontSize": 9,
+              "fontSize": 9.5,
               "fontFamily": "Inter",
               "color": "#111827",
               "lineHeight": 1.45,
@@ -1096,43 +1122,49 @@
             }
           },
           {
-            "id": "tb025",
+            "id": "t025",
+            "type": "TEXT",
+            "x": 44,
+            "y": 233.2,
+            "width": 507,
+            "height": 12,
+            "content": "HOURS WORKED",
+            "style": {
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "tb026",
             "type": "TABLE",
             "x": 44,
-            "y": 267.2,
+            "y": 248.2,
             "width": 507,
             "height": 118,
             "columns": [
               {
-                "header": "Item code",
-                "key": "code"
+                "header": "Date",
+                "key": "date"
               },
               {
-                "header": "Description",
-                "key": "description"
+                "header": "Project / task",
+                "key": "task"
               },
               {
-                "header": "Qty",
-                "key": "qty"
-              },
-              {
-                "header": "Unit price",
-                "key": "rate"
-              },
-              {
-                "header": "Amount",
-                "key": "amount"
+                "header": "Hours",
+                "key": "hours"
               }
             ],
             "columnWidths": [
-              1,
-              2.8,
-              0.6,
-              1,
-              1.1
+              1.1,
+              3,
+              0.8
             ],
-            "dataKey": "line_items",
-            "tablePreviewBodyRows": 4,
+            "dataKey": "entries",
+            "tablePreviewBodyRows": 5,
             "tableRowBackgrounds": {
               "-1": "#f8fafc"
             },
@@ -1143,64 +1175,83 @@
             }
           },
           {
-            "id": "t026",
-            "type": "TEXT",
-            "x": 309,
-            "y": 403.2,
-            "width": 145,
-            "height": 14,
-            "content": "Subtotal",
-            "style": {
-              "fontSize": 9,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
-            }
-          },
-          {
             "id": "t027",
             "type": "TEXT",
-            "x": 446,
-            "y": 403.2,
-            "width": 97,
-            "height": 14,
-            "content": "{{totals.subtotal}}",
+            "x": 44,
+            "y": 386.2,
+            "width": 507,
+            "height": 12,
+            "content": "LEAVE AND ABSENCE",
             "style": {
-              "fontSize": 9.5,
-              "fontFamily": "JetBrains Mono",
-              "color": "#111827",
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
               "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
+              "bold": true
             }
           },
           {
-            "id": "t028",
-            "type": "TEXT",
-            "x": 309,
-            "y": 419.2,
-            "width": 145,
-            "height": 14,
-            "content": "Tax",
+            "id": "tb028",
+            "type": "TABLE",
+            "x": 44,
+            "y": 401.2,
+            "width": 507,
+            "height": 64,
+            "columns": [
+              {
+                "header": "Date",
+                "key": "date"
+              },
+              {
+                "header": "Type",
+                "key": "type"
+              },
+              {
+                "header": "Hours",
+                "key": "hours"
+              }
+            ],
+            "columnWidths": [
+              1.1,
+              3,
+              0.8
+            ],
+            "dataKey": "absence",
+            "tablePreviewBodyRows": 2,
+            "tableRowBackgrounds": {
+              "-1": "#f8fafc"
+            },
             "style": {
               "fontSize": 9,
               "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": false,
-              "align": "right"
+              "color": "#374151"
             }
           },
           {
             "id": "t029",
             "type": "TEXT",
-            "x": 446,
-            "y": 419.2,
-            "width": 97,
+            "x": 299,
+            "y": 485.2,
+            "width": 150.79999999999998,
             "height": 14,
-            "content": "{{totals.tax}}",
+            "content": "Hours worked",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t030",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 485.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.worked}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "JetBrains Mono",
@@ -1211,12 +1262,46 @@
             }
           },
           {
-            "id": "r032",
+            "id": "t031",
+            "type": "TEXT",
+            "x": 299,
+            "y": 501.2,
+            "width": 150.79999999999998,
+            "height": 14,
+            "content": "Leave and absence",
+            "style": {
+              "fontSize": 9,
+              "fontFamily": "Inter",
+              "color": "#6b7280",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "t032",
+            "type": "TEXT",
+            "x": 441.79999999999995,
+            "y": 501.2,
+            "width": 101.20000000000002,
+            "height": 14,
+            "content": "{{totals.absence}}",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "JetBrains Mono",
+              "color": "#111827",
+              "lineHeight": 1.45,
+              "bold": false,
+              "align": "right"
+            }
+          },
+          {
+            "id": "r035",
             "type": "POLYGON",
             "polygonKind": "rect",
-            "x": 301,
-            "y": 431.2,
-            "width": 250,
+            "x": 291,
+            "y": 513.2,
+            "width": 260,
             "height": 23.95,
             "style": {
               "backgroundColor": "#f8fafc",
@@ -1224,13 +1309,13 @@
             }
           },
           {
-            "id": "t030",
+            "id": "t033",
             "type": "TEXT",
-            "x": 309,
-            "y": 435.2,
-            "width": 145,
+            "x": 299,
+            "y": 517.2,
+            "width": 150.79999999999998,
             "height": 14.5,
-            "content": "Order total",
+            "content": "Total accounted",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -1241,58 +1326,27 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t034",
             "type": "TEXT",
-            "x": 446,
-            "y": 435.2,
-            "width": 97,
-            "height": 31.9,
-            "content": "{{totals.grand_total}}",
+            "x": 441.79999999999995,
+            "y": 517.2,
+            "width": 101.20000000000002,
+            "height": 15.95,
+            "content": "{{totals.net}}",
             "style": {
               "fontSize": 11,
               "fontFamily": "JetBrains Mono",
-              "color": "#4338ca",
+              "color": "#0f766e",
               "lineHeight": 1.45,
               "bold": true,
               "align": "right"
             }
           },
           {
-            "id": "t033",
-            "type": "TEXT",
-            "x": 44,
-            "y": 479.15,
-            "width": 250,
-            "height": 12,
-            "content": "CONDITIONS",
-            "style": {
-              "fontSize": 7.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "t034",
-            "type": "TEXT",
-            "x": 44,
-            "y": 492.15,
-            "width": 250,
-            "height": 58,
-            "content": "{{po.conditions}}",
-            "style": {
-              "fontSize": 8.5,
-              "fontFamily": "Inter",
-              "color": "#6b7280",
-              "lineHeight": 1.5
-            }
-          },
-          {
-            "id": "l035",
+            "id": "l036",
             "type": "LINE",
             "x": 311,
-            "y": 513.15,
+            "y": 692,
             "width": 240,
             "height": 0,
             "strokeWidth": 1,
@@ -1301,10 +1355,10 @@
             }
           },
           {
-            "id": "t036",
+            "id": "t037",
             "type": "TEXT",
             "x": 311,
-            "y": 519.15,
+            "y": 698,
             "width": 240,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -1318,10 +1372,10 @@
             }
           },
           {
-            "id": "t037",
+            "id": "t038",
             "type": "TEXT",
             "x": 311,
-            "y": 533.15,
+            "y": 712,
             "width": 240,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -1334,7 +1388,7 @@
             }
           },
           {
-            "id": "l038",
+            "id": "l039",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1346,13 +1400,13 @@
             }
           },
           {
-            "id": "t039",
+            "id": "t040",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Quote the PO number on all invoices, delivery notes and correspondence.",
+            "content": "Submit by Monday 12pm. Approved timesheets feed the payroll run for that month.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1366,27 +1420,25 @@
     ]
   },
   "variableValues": {
-    "company.address": "4th Floor, Prestige Corner, MG Road\nBengaluru, Karnataka 560001",
-    "company.contact": "accounts@northwind.example  ·  +91 80 4123 7788",
+    "absence": "[{\"date\":\"Fri 14 Aug\",\"type\":\"Annual leave — approved\",\"hours\":\"8.0\"},{\"date\":\"—\",\"type\":\"Sick leave\",\"hours\":\"0.0\"}]",
+    "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
+    "company.contact": "payroll@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "delivery.address": "Survey 88, Hosur Road, Bengaluru 560068",
-    "delivery.name": "Northwind Traders — Central Warehouse",
-    "line_items": "[{\"code\":\"SC-4410\",\"description\":\"Precision bearing assembly 40mm\",\"qty\":\"200\",\"rate\":\"₹1,120.00\",\"amount\":\"₹2,24,000.00\"},{\"code\":\"SC-2280\",\"description\":\"Drive belt, reinforced\",\"qty\":\"120\",\"rate\":\"₹850.00\",\"amount\":\"₹1,02,000.00\"},{\"code\":\"SC-9013\",\"description\":\"Mounting bracket, powder coated\",\"qty\":\"300\",\"rate\":\"₹220.00\",\"amount\":\"₹66,000.00\"},{\"code\":\"SC-7702\",\"description\":\"Fastener kit (M8, 50 pcs)\",\"qty\":\"40\",\"rate\":\"₹500.00\",\"amount\":\"₹20,000.00\"}]",
-    "po.buyer": "R. Subramanian",
-    "po.conditions": "Goods must match the specification quoted.\nPartial delivery requires written approval.\nRejected material will be returned at vendor cost.",
-    "po.date": "16 Aug 2026",
-    "po.delivery_terms": "FOR destination",
-    "po.number": "PO-2026-1140",
-    "po.payment_terms": "Net 30",
-    "po.required_by": "05 Sep 2026",
-    "signatory.name": "R. Subramanian",
-    "signatory.title": "Procurement Manager",
-    "totals.grand_total": "₹4,86,160.00",
-    "totals.subtotal": "₹4,12,000.00",
-    "totals.tax": "₹74,160.00",
-    "vendor.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "vendor.gstin": "29AAECS8891M1Z4",
-    "vendor.name": "Sterling Components Pvt Ltd"
+    "employee.department": "Warehouse Operations",
+    "employee.id": "NW-2291",
+    "employee.name": "Rahul Sharma",
+    "entries": "[{\"date\":\"Mon 10 Aug\",\"task\":\"Inbound goods receipting\",\"hours\":\"8.0\"},{\"date\":\"Tue 11 Aug\",\"task\":\"Cycle count — aisles 3 to 7\",\"hours\":\"8.0\"},{\"date\":\"Wed 12 Aug\",\"task\":\"Dispatch — south region orders\",\"hours\":\"8.0\"},{\"date\":\"Thu 13 Aug\",\"task\":\"Stock reconciliation with finance\",\"hours\":\"8.0\"},{\"date\":\"Fri 14 Aug\",\"task\":\"Annual leave\",\"hours\":\"0.0\"}]",
+    "signatory.name": "Sneha Kulkarni",
+    "signatory.title": "Reporting Manager",
+    "timesheet.contract_hours": "40.0 per week",
+    "timesheet.cost_centre": "Operations — Bengaluru",
+    "timesheet.manager": "Sneha Kulkarni",
+    "timesheet.number": "TS-2026-W33-0412",
+    "timesheet.status": "Submitted, awaiting approval",
+    "timesheet.week_ending": "Sunday, 16 August 2026",
+    "totals.absence": "8.0 hrs",
+    "totals.net": "40.0 hrs",
+    "totals.worked": "32.0 hrs"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

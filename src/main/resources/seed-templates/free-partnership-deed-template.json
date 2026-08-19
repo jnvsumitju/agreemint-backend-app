@@ -1,7 +1,7 @@
 {
   "__agreemint_template__": true,
   "version": 2,
-  "category": "Business",
+  "category": "Legal",
   "layout": {
     "page": {
       "size": "A4",
@@ -17,19 +17,52 @@
     "layoutSchemaVersion": 2,
     "globalVariables": [
       {
-        "key": "agreement.confidentiality_period"
+        "key": "deed.banking"
       },
       {
-        "key": "agreement.effective_date"
+        "key": "deed.business"
       },
       {
-        "key": "agreement.governing_law"
+        "key": "deed.capital_one"
       },
       {
-        "key": "agreement.number"
+        "key": "deed.capital_two"
       },
       {
-        "key": "agreement.purpose"
+        "key": "deed.commencement"
+      },
+      {
+        "key": "deed.date"
+      },
+      {
+        "key": "deed.drawings"
+      },
+      {
+        "key": "deed.firm_name"
+      },
+      {
+        "key": "deed.goodwill"
+      },
+      {
+        "key": "deed.interest_on_capital"
+      },
+      {
+        "key": "deed.management"
+      },
+      {
+        "key": "deed.number"
+      },
+      {
+        "key": "deed.place"
+      },
+      {
+        "key": "deed.profit_share"
+      },
+      {
+        "key": "deed.retirement_notice"
+      },
+      {
+        "key": "deed.year_end"
       },
       {
         "key": "party_one.address"
@@ -66,7 +99,7 @@
         "width": 507,
         "height": 4,
         "style": {
-          "backgroundColor": "#1d4ed8"
+          "backgroundColor": "#7c3aed"
         }
       },
       {
@@ -76,7 +109,7 @@
         "y": 62,
         "width": 507,
         "height": 34.8,
-        "content": "Non-Disclosure Agreement",
+        "content": "Partnership Deed",
         "style": {
           "fontSize": 24,
           "fontFamily": "Inter",
@@ -92,7 +125,7 @@
         "y": 94,
         "width": 507,
         "height": 16,
-        "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+        "content": "The constitution of a partnership firm — capital, shares, roles and dissolution.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -120,7 +153,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "AGREEMENT NO.",
+        "content": "DEED NO.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -136,7 +169,7 @@
         "y": 152,
         "width": 109.75,
         "height": 16,
-        "content": "{{agreement.number}}",
+        "content": "{{deed.number}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -152,7 +185,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "EFFECTIVE DATE",
+        "content": "DATE OF DEED",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -167,8 +200,8 @@
         "x": 177.75,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.effective_date}}",
+        "height": 16,
+        "content": "{{deed.date}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -184,7 +217,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "CONFIDENTIALITY PERIOD",
+        "content": "FIRM NAME",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -200,7 +233,7 @@
         "y": 152,
         "width": 109.75,
         "height": 27.55,
-        "content": "{{agreement.confidentiality_period}}",
+        "content": "{{deed.firm_name}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -216,7 +249,7 @@
         "y": 140,
         "width": 109.75,
         "height": 12,
-        "content": "GOVERNING LAW",
+        "content": "COMMENCEMENT",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -231,8 +264,8 @@
         "x": 417.25,
         "y": 152,
         "width": 109.75,
-        "height": 27.55,
-        "content": "{{agreement.governing_law}}",
+        "height": 16,
+        "content": "{{deed.commencement}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Inter",
@@ -248,11 +281,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "DISCLOSING PARTY",
+        "content": "FIRST PARTNER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -295,11 +328,11 @@
         "y": 204,
         "width": 235,
         "height": 12,
-        "content": "RECEIVING PARTY",
+        "content": "SECOND PARTNER",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
@@ -341,8 +374,8 @@
         "x": 44,
         "y": 292,
         "width": 507,
-        "height": 48,
-        "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+        "height": 46,
+        "content": "The partners will carry on the business of {{deed.business}} under the name {{deed.firm_name}}, at {{deed.place}}.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -357,66 +390,32 @@
         "y": 350,
         "width": 507,
         "height": 16,
-        "content": "1. Confidential information",
+        "content": "1. Capital and profit sharing",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t021",
-        "type": "TEXT",
-        "x": 44,
-        "y": 370,
-        "width": 507,
-        "height": 46,
-        "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-        "style": {
-          "fontSize": 9.5,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
-        }
-      },
-      {
-        "id": "t022",
-        "type": "TEXT",
-        "x": 44,
-        "y": 428,
-        "width": 507,
-        "height": 16,
-        "content": "2. Obligations of the receiving party",
-        "style": {
-          "fontSize": 11,
-          "fontFamily": "Inter",
-          "color": "#1d4ed8",
-          "lineHeight": 1.45,
-          "bold": true
-        }
-      },
-      {
-        "id": "li023",
+        "id": "li021",
         "type": "LIST",
         "x": 50,
-        "y": 448,
+        "y": 370,
         "width": 495,
-        "height": 84,
+        "height": 63,
         "listStyle": "disc",
         "listItems": [
           {
-            "text": "Use the confidential information solely for the stated purpose."
+            "text": "Capital contributed — first partner: {{deed.capital_one}}."
           },
           {
-            "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+            "text": "Capital contributed — second partner: {{deed.capital_two}}."
           },
           {
-            "text": "Protect it with at least the same care used for its own confidential information."
-          },
-          {
-            "text": "Return or destroy it on written request or on termination of this agreement."
+            "text": "Profits and losses shared: {{deed.profit_share}}. Interest on capital: {{deed.interest_on_capital}}."
           }
         ],
         "listItemSpacing": 7,
@@ -429,29 +428,29 @@
         }
       },
       {
-        "id": "t024",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 546,
+        "y": 447,
         "width": 507,
         "height": 16,
-        "content": "3. Exclusions",
+        "content": "2. Management and duties",
         "style": {
           "fontSize": 11,
           "fontFamily": "Inter",
-          "color": "#1d4ed8",
+          "color": "#7c3aed",
           "lineHeight": 1.45,
           "bold": true
         }
       },
       {
-        "id": "t025",
+        "id": "t023",
         "type": "TEXT",
         "x": 44,
-        "y": 566,
+        "y": 467,
         "width": 507,
         "height": 46,
-        "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+        "content": "{{deed.management}}",
         "style": {
           "fontSize": 9.5,
           "fontFamily": "Source Serif 4",
@@ -460,7 +459,82 @@
         }
       },
       {
-        "id": "l026",
+        "id": "t024",
+        "type": "TEXT",
+        "x": 44,
+        "y": 525,
+        "width": 507,
+        "height": 16,
+        "content": "3. Banking and accounts",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "li025",
+        "type": "LIST",
+        "x": 50,
+        "y": 545,
+        "width": 495,
+        "height": 63,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Bank operations: {{deed.banking}}."
+          },
+          {
+            "text": "Books of account kept at the principal place of business, open to both partners."
+          },
+          {
+            "text": "Accounts closed on {{deed.year_end}} each year. Drawings limited to {{deed.drawings}} per partner per month."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t026",
+        "type": "TEXT",
+        "x": 44,
+        "y": 622,
+        "width": 507,
+        "height": 16,
+        "content": "4. Retirement and dissolution",
+        "style": {
+          "fontSize": 11,
+          "fontFamily": "Inter",
+          "color": "#7c3aed",
+          "lineHeight": 1.45,
+          "bold": true
+        }
+      },
+      {
+        "id": "t027",
+        "type": "TEXT",
+        "x": 44,
+        "y": 642,
+        "width": 507,
+        "height": 30.4,
+        "content": "A partner may retire on {{deed.retirement_notice}} written notice. Accounts are settled after liabilities, goodwill valued at {{deed.goodwill}}.",
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Source Serif 4",
+          "color": "#374151",
+          "lineHeight": 1.6
+        }
+      },
+      {
+        "id": "l028",
         "type": "LINE",
         "x": 44,
         "y": 672,
@@ -472,7 +546,7 @@
         }
       },
       {
-        "id": "l027",
+        "id": "l029",
         "type": "LINE",
         "x": 44,
         "y": 692,
@@ -484,7 +558,7 @@
         }
       },
       {
-        "id": "t028",
+        "id": "t030",
         "type": "TEXT",
         "x": 44,
         "y": 698,
@@ -501,7 +575,7 @@
         }
       },
       {
-        "id": "t029",
+        "id": "t031",
         "type": "TEXT",
         "x": 44,
         "y": 712,
@@ -517,7 +591,7 @@
         }
       },
       {
-        "id": "l030",
+        "id": "l032",
         "type": "LINE",
         "x": 341,
         "y": 692,
@@ -529,7 +603,7 @@
         }
       },
       {
-        "id": "t031",
+        "id": "t033",
         "type": "TEXT",
         "x": 341,
         "y": 698,
@@ -546,7 +620,7 @@
         }
       },
       {
-        "id": "t032",
+        "id": "t034",
         "type": "TEXT",
         "x": 341,
         "y": 712,
@@ -562,7 +636,7 @@
         }
       },
       {
-        "id": "l033",
+        "id": "l035",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -574,13 +648,13 @@
         }
       },
       {
-        "id": "t034",
+        "id": "t036",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+        "content": "Sample wording for layout purposes. Partnership deeds are usually stamped and may be registered.",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -604,7 +678,7 @@
             "width": 507,
             "height": 4,
             "style": {
-              "backgroundColor": "#1d4ed8"
+              "backgroundColor": "#7c3aed"
             }
           },
           {
@@ -614,7 +688,7 @@
             "y": 62,
             "width": 507,
             "height": 34.8,
-            "content": "Non-Disclosure Agreement",
+            "content": "Partnership Deed",
             "style": {
               "fontSize": 24,
               "fontFamily": "Inter",
@@ -630,7 +704,7 @@
             "y": 94,
             "width": 507,
             "height": 16,
-            "content": "A mutual agreement governing the exchange of confidential information between the parties.",
+            "content": "The constitution of a partnership firm — capital, shares, roles and dissolution.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -658,7 +732,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "AGREEMENT NO.",
+            "content": "DEED NO.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -674,7 +748,7 @@
             "y": 152,
             "width": 109.75,
             "height": 16,
-            "content": "{{agreement.number}}",
+            "content": "{{deed.number}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -690,7 +764,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "EFFECTIVE DATE",
+            "content": "DATE OF DEED",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -705,8 +779,8 @@
             "x": 177.75,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.effective_date}}",
+            "height": 16,
+            "content": "{{deed.date}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -722,7 +796,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "CONFIDENTIALITY PERIOD",
+            "content": "FIRM NAME",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -738,7 +812,7 @@
             "y": 152,
             "width": 109.75,
             "height": 27.55,
-            "content": "{{agreement.confidentiality_period}}",
+            "content": "{{deed.firm_name}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -754,7 +828,7 @@
             "y": 140,
             "width": 109.75,
             "height": 12,
-            "content": "GOVERNING LAW",
+            "content": "COMMENCEMENT",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -769,8 +843,8 @@
             "x": 417.25,
             "y": 152,
             "width": 109.75,
-            "height": 27.55,
-            "content": "{{agreement.governing_law}}",
+            "height": 16,
+            "content": "{{deed.commencement}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Inter",
@@ -786,11 +860,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "DISCLOSING PARTY",
+            "content": "FIRST PARTNER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -833,11 +907,11 @@
             "y": 204,
             "width": 235,
             "height": 12,
-            "content": "RECEIVING PARTY",
+            "content": "SECOND PARTNER",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
@@ -879,8 +953,8 @@
             "x": 44,
             "y": 292,
             "width": 507,
-            "height": 48,
-            "content": "The parties wish to explore {{agreement.purpose}} and, in doing so, may disclose confidential information to one another. This agreement sets out how that information must be handled.",
+            "height": 46,
+            "content": "The partners will carry on the business of {{deed.business}} under the name {{deed.firm_name}}, at {{deed.place}}.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -895,66 +969,32 @@
             "y": 350,
             "width": 507,
             "height": 16,
-            "content": "1. Confidential information",
+            "content": "1. Capital and profit sharing",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t021",
-            "type": "TEXT",
-            "x": 44,
-            "y": 370,
-            "width": 507,
-            "height": 46,
-            "content": "Confidential information means any non-public information disclosed by one party to the other, in any form, that is marked confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.",
-            "style": {
-              "fontSize": 9.5,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
-            }
-          },
-          {
-            "id": "t022",
-            "type": "TEXT",
-            "x": 44,
-            "y": 428,
-            "width": 507,
-            "height": 16,
-            "content": "2. Obligations of the receiving party",
-            "style": {
-              "fontSize": 11,
-              "fontFamily": "Inter",
-              "color": "#1d4ed8",
-              "lineHeight": 1.45,
-              "bold": true
-            }
-          },
-          {
-            "id": "li023",
+            "id": "li021",
             "type": "LIST",
             "x": 50,
-            "y": 448,
+            "y": 370,
             "width": 495,
-            "height": 84,
+            "height": 63,
             "listStyle": "disc",
             "listItems": [
               {
-                "text": "Use the confidential information solely for the stated purpose."
+                "text": "Capital contributed — first partner: {{deed.capital_one}}."
               },
               {
-                "text": "Disclose it only to personnel who need it and are bound by equivalent obligations."
+                "text": "Capital contributed — second partner: {{deed.capital_two}}."
               },
               {
-                "text": "Protect it with at least the same care used for its own confidential information."
-              },
-              {
-                "text": "Return or destroy it on written request or on termination of this agreement."
+                "text": "Profits and losses shared: {{deed.profit_share}}. Interest on capital: {{deed.interest_on_capital}}."
               }
             ],
             "listItemSpacing": 7,
@@ -967,29 +1007,29 @@
             }
           },
           {
-            "id": "t024",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 546,
+            "y": 447,
             "width": 507,
             "height": 16,
-            "content": "3. Exclusions",
+            "content": "2. Management and duties",
             "style": {
               "fontSize": 11,
               "fontFamily": "Inter",
-              "color": "#1d4ed8",
+              "color": "#7c3aed",
               "lineHeight": 1.45,
               "bold": true
             }
           },
           {
-            "id": "t025",
+            "id": "t023",
             "type": "TEXT",
             "x": 44,
-            "y": 566,
+            "y": 467,
             "width": 507,
             "height": 46,
-            "content": "These obligations do not apply to information that is or becomes public through no breach of this agreement, was already known to the receiving party without obligation, is independently developed without reference to the disclosure, or must be disclosed by law.",
+            "content": "{{deed.management}}",
             "style": {
               "fontSize": 9.5,
               "fontFamily": "Source Serif 4",
@@ -998,7 +1038,82 @@
             }
           },
           {
-            "id": "l026",
+            "id": "t024",
+            "type": "TEXT",
+            "x": 44,
+            "y": 525,
+            "width": 507,
+            "height": 16,
+            "content": "3. Banking and accounts",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "li025",
+            "type": "LIST",
+            "x": 50,
+            "y": 545,
+            "width": 495,
+            "height": 63,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Bank operations: {{deed.banking}}."
+              },
+              {
+                "text": "Books of account kept at the principal place of business, open to both partners."
+              },
+              {
+                "text": "Accounts closed on {{deed.year_end}} each year. Drawings limited to {{deed.drawings}} per partner per month."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t026",
+            "type": "TEXT",
+            "x": 44,
+            "y": 622,
+            "width": 507,
+            "height": 16,
+            "content": "4. Retirement and dissolution",
+            "style": {
+              "fontSize": 11,
+              "fontFamily": "Inter",
+              "color": "#7c3aed",
+              "lineHeight": 1.45,
+              "bold": true
+            }
+          },
+          {
+            "id": "t027",
+            "type": "TEXT",
+            "x": 44,
+            "y": 642,
+            "width": 507,
+            "height": 30.4,
+            "content": "A partner may retire on {{deed.retirement_notice}} written notice. Accounts are settled after liabilities, goodwill valued at {{deed.goodwill}}.",
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Source Serif 4",
+              "color": "#374151",
+              "lineHeight": 1.6
+            }
+          },
+          {
+            "id": "l028",
             "type": "LINE",
             "x": 44,
             "y": 672,
@@ -1010,7 +1125,7 @@
             }
           },
           {
-            "id": "l027",
+            "id": "l029",
             "type": "LINE",
             "x": 44,
             "y": 692,
@@ -1022,7 +1137,7 @@
             }
           },
           {
-            "id": "t028",
+            "id": "t030",
             "type": "TEXT",
             "x": 44,
             "y": 698,
@@ -1039,7 +1154,7 @@
             }
           },
           {
-            "id": "t029",
+            "id": "t031",
             "type": "TEXT",
             "x": 44,
             "y": 712,
@@ -1055,7 +1170,7 @@
             }
           },
           {
-            "id": "l030",
+            "id": "l032",
             "type": "LINE",
             "x": 341,
             "y": 692,
@@ -1067,7 +1182,7 @@
             }
           },
           {
-            "id": "t031",
+            "id": "t033",
             "type": "TEXT",
             "x": 341,
             "y": 698,
@@ -1084,7 +1199,7 @@
             }
           },
           {
-            "id": "t032",
+            "id": "t034",
             "type": "TEXT",
             "x": 341,
             "y": 712,
@@ -1100,7 +1215,7 @@
             }
           },
           {
-            "id": "l033",
+            "id": "l035",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -1112,13 +1227,13 @@
             }
           },
           {
-            "id": "t034",
+            "id": "t036",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "Nothing in this agreement grants any licence or ownership in the confidential information.",
+            "content": "Sample wording for layout purposes. Partnership deeds are usually stamped and may be registered.",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -1132,19 +1247,30 @@
     ]
   },
   "variableValues": {
-    "agreement.confidentiality_period": "3 years",
-    "agreement.effective_date": "16 August 2026",
-    "agreement.governing_law": "India",
-    "agreement.number": "NDA-2026-0219",
-    "agreement.purpose": "a potential logistics partnership",
-    "party_one.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
-    "party_one.name": "Northwind Traders Pvt Ltd",
-    "party_one.registration": "CIN U51909KA2016PTC091822",
-    "party_one.signatory": "Ananya Rao",
-    "party_two.address": "Plot 14, Peenya Industrial Area, Bengaluru 560058",
-    "party_two.name": "Sterling Components Pvt Ltd",
-    "party_two.registration": "CIN U29253KA2011PTC058117",
-    "party_two.signatory": "K. Balasubramanian"
+    "deed.banking": "Accounts operated jointly; cheques above ₹1,00,000 signed by both partners",
+    "deed.business": "industrial fit-out consultancy and project management",
+    "deed.capital_one": "₹15,00,000",
+    "deed.capital_two": "₹10,00,000",
+    "deed.commencement": "01 September 2026",
+    "deed.date": "17 August 2026",
+    "deed.drawings": "₹1,00,000",
+    "deed.firm_name": "Prabhu & Iyer Associates",
+    "deed.goodwill": "two years’ purchase of average net profit",
+    "deed.interest_on_capital": "6% per annum on the opening balance",
+    "deed.management": "The first partner is responsible for operations and delivery, the second for finance and client relationships. Expenditure above ₹2,00,000 needs both partners’ written consent.",
+    "deed.number": "PD-2026-0021",
+    "deed.place": "9 Palm Grove, Whitefield, Bengaluru 560066",
+    "deed.profit_share": "60% to the first partner and 40% to the second",
+    "deed.retirement_notice": "three months’",
+    "deed.year_end": "31 March",
+    "party_one.address": "9 Palm Grove, Whitefield, Bengaluru 560066",
+    "party_one.name": "Mr Suresh Prabhu",
+    "party_one.registration": "PAN ABCPP1234K",
+    "party_one.signatory": "Suresh Prabhu, Partner",
+    "party_two.address": "44 Jubilee Residency, HSR Layout, Bengaluru 560102",
+    "party_two.name": "Ms Meena Iyer",
+    "party_two.registration": "PAN JKLPI3456N",
+    "party_two.signatory": "Meena Iyer, Partner"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }

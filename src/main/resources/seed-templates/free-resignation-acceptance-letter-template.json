@@ -26,22 +26,10 @@
         "key": "company.name"
       },
       {
-        "key": "employment.conduct"
+        "key": "job.department"
       },
       {
-        "key": "employment.department"
-      },
-      {
-        "key": "employment.designation"
-      },
-      {
-        "key": "employment.from"
-      },
-      {
-        "key": "employment.responsibilities"
-      },
-      {
-        "key": "employment.to"
+        "key": "job.title"
       },
       {
         "key": "letter.date"
@@ -53,19 +41,25 @@
         "key": "recipient.address"
       },
       {
+        "key": "recipient.first_name"
+      },
+      {
         "key": "recipient.name"
       },
       {
-        "key": "recipient.pronoun_object"
+        "key": "resignation.handover_to"
       },
       {
-        "key": "recipient.pronoun_possessive"
+        "key": "resignation.last_working_day"
       },
       {
-        "key": "recipient.pronoun_subject"
+        "key": "resignation.received_date"
       },
       {
-        "key": "recipient.pronoun_subject_capitalised"
+        "key": "resignation.settlement_date"
+      },
+      {
+        "key": "resignation.tenure"
       },
       {
         "key": "signatory.name"
@@ -125,7 +119,7 @@
         "y": 42,
         "width": 230,
         "height": 31.9,
-        "content": "CERTIFICATE",
+        "content": "ACCEPTANCE",
         "style": {
           "fontSize": 22,
           "fontFamily": "Inter",
@@ -264,7 +258,7 @@
         "y": 225.2,
         "width": 507,
         "height": 16,
-        "content": "To whomsoever it may concern",
+        "content": "Subject: Acceptance of resignation",
         "style": {
           "fontSize": 10.5,
           "fontFamily": "Inter",
@@ -280,7 +274,7 @@
         "y": 249.2,
         "width": 507,
         "height": 16,
-        "content": "",
+        "content": "Dear {{recipient.first_name}},",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -294,8 +288,8 @@
         "x": 44,
         "y": 271.2,
         "width": 507,
-        "height": 62,
-        "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+        "height": 50,
+        "content": "We acknowledge receipt of your resignation letter dated {{resignation.received_date}} from the position of {{job.title}} in the {{job.department}} team. Your resignation is accepted.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -307,10 +301,10 @@
         "id": "t016",
         "type": "TEXT",
         "x": 44,
-        "y": 345.2,
+        "y": 333.2,
         "width": 507,
-        "height": 62,
-        "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+        "height": 58,
+        "content": "Your last working day will be {{resignation.last_working_day}}, on completion of your notice period. Please work with {{resignation.handover_to}} to complete the handover of your responsibilities before that date.",
         "style": {
           "fontSize": 10,
           "fontFamily": "Source Serif 4",
@@ -322,25 +316,57 @@
         "id": "t017",
         "type": "TEXT",
         "x": 44,
-        "y": 419.2,
+        "y": 403.2,
         "width": 507,
-        "height": 48,
-        "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+        "height": 12,
+        "content": "BEFORE YOUR LAST DAY",
         "style": {
-          "fontSize": 10,
-          "fontFamily": "Source Serif 4",
-          "color": "#374151",
-          "lineHeight": 1.6
+          "fontSize": 7.5,
+          "fontFamily": "Inter",
+          "color": "#0f766e",
+          "lineHeight": 1.45,
+          "bold": true
         }
       },
       {
-        "id": "t018",
+        "id": "li018",
+        "type": "LIST",
+        "x": 48,
+        "y": 418.2,
+        "width": 499,
+        "height": 88,
+        "listStyle": "disc",
+        "listItems": [
+          {
+            "text": "Complete the handover checklist and return all company property."
+          },
+          {
+            "text": "Full and final settlement will be processed by {{resignation.settlement_date}}."
+          },
+          {
+            "text": "Your experience and relieving letters will be issued on your last working day."
+          },
+          {
+            "text": "Confidentiality obligations under your appointment continue after employment ends."
+          }
+        ],
+        "listItemSpacing": 7,
+        "listIndent": 20,
+        "style": {
+          "fontSize": 9.5,
+          "fontFamily": "Inter",
+          "color": "#374151",
+          "lineHeight": 1.5
+        }
+      },
+      {
+        "id": "t019",
         "type": "TEXT",
         "x": 44,
-        "y": 479.2,
+        "y": 522.2,
         "width": 507,
-        "height": 16,
-        "content": "For {{company.name}},",
+        "height": 58,
+        "content": "Thank you for your contribution over the past {{resignation.tenure}}. We wish you well in your next role.\n\nYours sincerely,",
         "style": {
           "fontSize": 10,
           "fontFamily": "Inter",
@@ -349,10 +375,10 @@
         }
       },
       {
-        "id": "l019",
+        "id": "l020",
         "type": "LINE",
         "x": 44,
-        "y": 513.2,
+        "y": 598.2,
         "width": 200,
         "height": 0,
         "strokeWidth": 1,
@@ -361,10 +387,10 @@
         }
       },
       {
-        "id": "t020",
+        "id": "t021",
         "type": "TEXT",
         "x": 44,
-        "y": 519.2,
+        "y": 604.2,
         "width": 200,
         "height": 14.5,
         "content": "{{signatory.name}}",
@@ -378,10 +404,10 @@
         }
       },
       {
-        "id": "t021",
+        "id": "t022",
         "type": "TEXT",
         "x": 44,
-        "y": 533.2,
+        "y": 618.2,
         "width": 200,
         "height": 24,
         "content": "{{signatory.title}}",
@@ -394,7 +420,7 @@
         }
       },
       {
-        "id": "l022",
+        "id": "l023",
         "type": "LINE",
         "x": 44,
         "y": 768,
@@ -406,13 +432,13 @@
         }
       },
       {
-        "id": "t023",
+        "id": "t024",
         "type": "TEXT",
         "x": 44,
         "y": 776,
         "width": 507,
         "height": 22,
-        "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+        "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
         "style": {
           "fontSize": 7.5,
           "fontFamily": "Inter",
@@ -477,7 +503,7 @@
             "y": 42,
             "width": 230,
             "height": 31.9,
-            "content": "CERTIFICATE",
+            "content": "ACCEPTANCE",
             "style": {
               "fontSize": 22,
               "fontFamily": "Inter",
@@ -616,7 +642,7 @@
             "y": 225.2,
             "width": 507,
             "height": 16,
-            "content": "To whomsoever it may concern",
+            "content": "Subject: Acceptance of resignation",
             "style": {
               "fontSize": 10.5,
               "fontFamily": "Inter",
@@ -632,7 +658,7 @@
             "y": 249.2,
             "width": 507,
             "height": 16,
-            "content": "",
+            "content": "Dear {{recipient.first_name}},",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -646,8 +672,8 @@
             "x": 44,
             "y": 271.2,
             "width": 507,
-            "height": 62,
-            "content": "This is to certify that {{recipient.name}} was employed with {{company.name}} from {{employment.from}} to {{employment.to}}. At the time of leaving, {{recipient.pronoun_subject}} held the position of {{employment.designation}} in the {{employment.department}} department.",
+            "height": 50,
+            "content": "We acknowledge receipt of your resignation letter dated {{resignation.received_date}} from the position of {{job.title}} in the {{job.department}} team. Your resignation is accepted.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -659,10 +685,10 @@
             "id": "t016",
             "type": "TEXT",
             "x": 44,
-            "y": 345.2,
+            "y": 333.2,
             "width": 507,
-            "height": 62,
-            "content": "During {{recipient.pronoun_possessive}} tenure, {{recipient.pronoun_subject}} held responsibility for {{employment.responsibilities}}. We found {{recipient.pronoun_object}} to be {{employment.conduct}}, and {{recipient.pronoun_possessive}} contribution to the team was valued.",
+            "height": 58,
+            "content": "Your last working day will be {{resignation.last_working_day}}, on completion of your notice period. Please work with {{resignation.handover_to}} to complete the handover of your responsibilities before that date.",
             "style": {
               "fontSize": 10,
               "fontFamily": "Source Serif 4",
@@ -674,25 +700,57 @@
             "id": "t017",
             "type": "TEXT",
             "x": 44,
-            "y": 419.2,
+            "y": 403.2,
             "width": 507,
-            "height": 48,
-            "content": "{{recipient.pronoun_subject_capitalised}} left the organisation of {{recipient.pronoun_possessive}} own accord, and all dues were settled in full. We wish {{recipient.pronoun_object}} every success in {{recipient.pronoun_possessive}} future endeavours.",
+            "height": 12,
+            "content": "BEFORE YOUR LAST DAY",
             "style": {
-              "fontSize": 10,
-              "fontFamily": "Source Serif 4",
-              "color": "#374151",
-              "lineHeight": 1.6
+              "fontSize": 7.5,
+              "fontFamily": "Inter",
+              "color": "#0f766e",
+              "lineHeight": 1.45,
+              "bold": true
             }
           },
           {
-            "id": "t018",
+            "id": "li018",
+            "type": "LIST",
+            "x": 48,
+            "y": 418.2,
+            "width": 499,
+            "height": 88,
+            "listStyle": "disc",
+            "listItems": [
+              {
+                "text": "Complete the handover checklist and return all company property."
+              },
+              {
+                "text": "Full and final settlement will be processed by {{resignation.settlement_date}}."
+              },
+              {
+                "text": "Your experience and relieving letters will be issued on your last working day."
+              },
+              {
+                "text": "Confidentiality obligations under your appointment continue after employment ends."
+              }
+            ],
+            "listItemSpacing": 7,
+            "listIndent": 20,
+            "style": {
+              "fontSize": 9.5,
+              "fontFamily": "Inter",
+              "color": "#374151",
+              "lineHeight": 1.5
+            }
+          },
+          {
+            "id": "t019",
             "type": "TEXT",
             "x": 44,
-            "y": 479.2,
+            "y": 522.2,
             "width": 507,
-            "height": 16,
-            "content": "For {{company.name}},",
+            "height": 58,
+            "content": "Thank you for your contribution over the past {{resignation.tenure}}. We wish you well in your next role.\n\nYours sincerely,",
             "style": {
               "fontSize": 10,
               "fontFamily": "Inter",
@@ -701,10 +759,10 @@
             }
           },
           {
-            "id": "l019",
+            "id": "l020",
             "type": "LINE",
             "x": 44,
-            "y": 513.2,
+            "y": 598.2,
             "width": 200,
             "height": 0,
             "strokeWidth": 1,
@@ -713,10 +771,10 @@
             }
           },
           {
-            "id": "t020",
+            "id": "t021",
             "type": "TEXT",
             "x": 44,
-            "y": 519.2,
+            "y": 604.2,
             "width": 200,
             "height": 14.5,
             "content": "{{signatory.name}}",
@@ -730,10 +788,10 @@
             }
           },
           {
-            "id": "t021",
+            "id": "t022",
             "type": "TEXT",
             "x": 44,
-            "y": 533.2,
+            "y": 618.2,
             "width": 200,
             "height": 24,
             "content": "{{signatory.title}}",
@@ -746,7 +804,7 @@
             }
           },
           {
-            "id": "l022",
+            "id": "l023",
             "type": "LINE",
             "x": 44,
             "y": 768,
@@ -758,13 +816,13 @@
             }
           },
           {
-            "id": "t023",
+            "id": "t024",
             "type": "TEXT",
             "x": 44,
             "y": 776,
             "width": 507,
             "height": 22,
-            "content": "This certificate is issued on request and does not constitute a reference for any specific role.",
+            "content": "{{company.name}} · {{company.address}} · {{company.contact}}",
             "style": {
               "fontSize": 7.5,
               "fontFamily": "Inter",
@@ -781,22 +839,20 @@
     "company.address": "4th Floor, Prestige Corner, MG Road, Bengaluru 560001",
     "company.contact": "people@northwind.example · +91 80 4123 7788",
     "company.name": "Northwind Traders Pvt Ltd",
-    "employment.conduct": "diligent, dependable and professional in conduct",
-    "employment.department": "Supply Chain",
-    "employment.designation": "Logistics Coordinator",
-    "employment.from": "04 July 2022",
-    "employment.responsibilities": "inbound freight scheduling, vendor coordination and warehouse reporting",
-    "employment.to": "31 July 2026",
-    "letter.date": "16 August 2026",
-    "letter.reference": "NW/HR/EXP/2026/0088",
-    "recipient.address": "7 Brookefield Road, Bengaluru 560037",
-    "recipient.name": "Mr Arjun Desai",
-    "recipient.pronoun_object": "them",
-    "recipient.pronoun_possessive": "their",
-    "recipient.pronoun_subject": "they",
-    "recipient.pronoun_subject_capitalised": "They",
+    "job.department": "Supply Chain",
+    "job.title": "Logistics Coordinator",
+    "letter.date": "17 August 2026",
+    "letter.reference": "NW/HR/2026/0259",
+    "recipient.address": "32 Brigade Gardens, Koramangala\nBengaluru, Karnataka 560034",
+    "recipient.first_name": "Vikram",
+    "recipient.name": "Mr Vikram Iyer",
+    "resignation.handover_to": "Sneha Kulkarni",
+    "resignation.last_working_day": "11 October 2026",
+    "resignation.received_date": "12 August 2026",
+    "resignation.settlement_date": "10 November 2026",
+    "resignation.tenure": "four years",
     "signatory.name": "Devika Menon",
-    "signatory.title": "Head of People"
+    "signatory.title": "Head of People, Northwind Traders Pvt Ltd"
   },
   "exportedAt": "2026-08-16T00:00:00.000Z"
 }
