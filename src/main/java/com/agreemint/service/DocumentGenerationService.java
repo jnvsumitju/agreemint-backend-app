@@ -94,6 +94,38 @@ public class DocumentGenerationService {
         }
     }
 
+    /**
+     * Render for a signed-out visitor in the /try sandbox. Always watermarked.
+     *
+     * <p>A separate method rather than a flag on {@link #renderPreviewPdf}, and
+     * that is the whole point of it. {@code PlanGate.isFreeRestricted(null)}
+     * returns {@code false} on its first line, so an anonymous caller passing a
+     * null org through the ordinary preview path receives a CLEAN pdf — better
+     * than the watermarked one a real free-plan customer gets for signing up.
+     * Passing {@code true} literally here makes that impossible to get wrong by
+     * forgetting an argument.
+     *
+     * <p>Watermarked is also the honest product answer: the visitor gets a real
+     * document proving the thing works, and removing the mark is the reason to
+     * create an account. Giving away the clean artifact would leave no reason.
+     */
+    public byte[] renderAnonymousSandboxPdf(JsonNode layout, JsonNode data) {
+        if (layout == null || layout.isNull()) {
+            throw new com.agreemint.api.BadRequestException("layout is required");
+        }
+        templateVersionService.assertValidLayout(layout);
+        if (data == null || data.isNull()) {
+            data = JsonNodeFactory.instance.objectNode();
+        }
+        try {
+            return pdfRendererService.render(layout, data, true);
+        } catch (IOException e) {
+            log.error("Anonymous sandbox PDF generation failed (I/O)", e);
+            throw new com.agreemint.api.BadRequestException(
+                    "PDF generation failed: " + e.getMessage());
+        }
+    }
+
     /** Back-compat: unauthenticated callers / tests default to the UI path. */
     @Transactional
     public GenerateResponse generate(GenerateRequest request) {
