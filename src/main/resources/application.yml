@@ -165,6 +165,12 @@ agreemint:
   # REDIS_PASSWORD); no new connection envs are needed.
   ratelimit:
     org-daily-max: ${RATELIMIT_ORG_DAILY_MAX:10000}
+  # Anonymous /try sandbox: how many watermarked PDFs one client address may
+  # render per hour. Not one — Indian carrier-grade NAT puts whole offices
+  # behind a single address, and a cap of one would lock all of them out
+  # after the first colleague tried it. See SandboxPdfController.
+  sandbox:
+    pdf-per-ip-per-hour: ${SANDBOX_PDF_PER_IP_PER_HOUR:8}
   # Razorpay subscription billing. Amounts, currency and billing interval live
   # on the Razorpay Plan itself, so only the plan ids appear here — changing a
   # price is a dashboard action plus a new plan id, not a deploy.
@@ -192,11 +198,31 @@ agreemint:
   #
   # Leaving them undeclared lets the null defaults on PlanLimitsProperties
   # stand. To set one, use Spring's relaxed binding via the environment:
-  #   AGREEMINT_PLANS_FREE_API_DAILY_MAX=500
   #   AGREEMINT_PLANS_PRO_API_DAILY_MAX=10000
   #   AGREEMINT_PLANS_FREE_PDF_DAILY_MAX=100
   # Setting these throttles existing customers — decide the commercial limits
   # first.
+  #
+  # free-api-daily-max IS set, deliberately, and it is the only one.
+  #
+  # It is what makes "higher API rate limits on paid plans" a true statement:
+  # every other field here stays undeclared so it binds null and falls back to
+  # ratelimit.org-daily-max (10,000), which means free and paid resolved to the
+  # SAME ceiling and the pricing page was claiming a difference that did not
+  # exist. Free is now 500/day and paid is 10,000/day — a real 20x step.
+  #
+  # Note what this is NOT: it is not the free-plan watermark. That lives behind
+  # agreemint.free.restrictions-from, which is deliberately unset, because the
+  # /try sandbox funnel promises the watermark comes off when you sign up.
+  # Differentiating on throughput keeps that promise intact.
+  #
+  # UNLIKE free.restrictions-from, this does NOT grandfather anyone — there is
+  # no creation-date check in OrgEntitlementService.load, so it applies to every
+  # free workspace on the next request. The escape hatch is per-org: staff can
+  # set org_quotas.api_daily_cap, which takes precedence (firstNonNull), so a
+  # specific customer can be raised without moving this number.
+  plans:
+    free-api-daily-max: ${PLANS_FREE_API_DAILY_MAX:500}
 
   # Free-plan limits. DISABLED unless free.restrictions-from is set: these take
   # away capability free workspaces have had since launch, so switching them on

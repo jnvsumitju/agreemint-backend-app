@@ -117,6 +117,33 @@ public class RateLimitConfig {
         return BucketConfiguration.builder().addLimit(limit).build();
     }
 
+    /**
+     * Per-IP bucket for the anonymous sandbox PDF download.
+     *
+     * <p>Sized per HOUR, not per minute, and deliberately small. Unlike
+     * {@link #perIpVerify}, which guards a database lookup, this one guards an
+     * iText render: synchronous, CPU-bound, and running on the same request
+     * threads that serve paying customers. The limit is the real control here —
+     * the "one free download" the UI promises is a client-side count that
+     * incognito mode defeats in one keystroke, and it was never meant to be
+     * more than a courtesy.
+     *
+     * <p>Keyed on a best-effort client address, which in India routinely means
+     * a carrier-grade NAT shared by thousands of people. That is why the
+     * default is a handful per hour rather than one: a cap of one would lock
+     * out an entire office the moment a single colleague used it. Someone
+     * determined to harvest all fifty templates still can — they are free and
+     * public documents, so the only thing lost is CPU, which is exactly what
+     * this bounds.
+     */
+    public static BucketConfiguration perIpAnonymousPdf(int perHour) {
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(Math.max(1, perHour))
+                .refillGreedy(Math.max(1, perHour), Duration.ofHours(1))
+                .build();
+        return BucketConfiguration.builder().addLimit(limit).build();
+    }
+
     /** Per-day bucket for an entire org, at the system-wide default. */
     public BucketConfiguration perOrgDaily() {
         return perOrgDaily(null);
