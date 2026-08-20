@@ -239,12 +239,44 @@ public class TemplateController {
      * definitions, but not variable VALUES). Prevents a full PUT /draft from
      * racing the {@code CollabFlushJob}'s latest layout write.
      */
+    /**
+     * Accepts a patch, and still accepts a whole map.
+     *
+     * <p>A body shaped {@code {"set":{…},"remove":[…]}} is a patch; anything
+     * else is the legacy wholesale replace. Both are supported on purpose: an
+     * older tab left open across a deploy keeps sending the full map, and it
+     * must not start failing. The discriminator is the VALUE type, not just the
+     * key name — a variable literally called "set" holds a string, whereas a
+     * patch's {@code set} is an object — so a template with an awkwardly named
+     * variable cannot be misread as a patch.
+     */
     @PutMapping("/{id}/draft/variables")
     public ResponseEntity<Void> putDraftVariables(
             @PathVariable("id") UUID templateId,
-            @RequestBody com.fasterxml.jackson.databind.JsonNode variables) {
-        templateDraftService.upsertDraftVariables(templateId, variables);
+            @RequestBody com.fasterxml.jackson.databind.JsonNode body) {
+        if (isPatch(body)) {
+            templateDraftService.patchDraftVariables(
+                    templateId, body.get("set"), body.get("remove"));
+        } else {
+            templateDraftService.upsertDraftVariables(templateId, body);
+        }
         return ResponseEntity.noContent().build();
+    }
+
+    private static boolean isPatch(com.fasterxml.jackson.databind.JsonNode body) {
+        if (body == null || !body.isObject()) return false;
+        boolean setIsObject = body.has("set") && body.get("set").isObject();
+        boolean removeIsArray = body.has("remove") && body.get("remove").isArray();
+        if (!setIsObject && !removeIsArray) return false;
+        // Every other field would be silently dropped, so a body carrying
+        // anything besides set/remove is a variable map that happens to contain
+        // one of those names.
+        java.util.Iterator<String> names = body.fieldNames();
+        while (names.hasNext()) {
+            String n = names.next();
+            if (!"set".equals(n) && !"remove".equals(n)) return false;
+        }
+        return true;
     }
 
     @PostMapping("/{id}/draft/commit")

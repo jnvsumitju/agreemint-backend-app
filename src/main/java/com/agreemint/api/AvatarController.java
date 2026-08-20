@@ -38,9 +38,24 @@ public class AvatarController {
     private static final Set<String> ALLOWED = Set.of(
             "image/png", "image/jpeg", "image/webp");
 
-    /** Hard ceiling per upload (bytes). Matches the multipart limit in
-     *  application.yml; the explicit check gives a clean 400 instead of
-     *  Spring's MaxUploadSizeExceededException → 500. */
+    /**
+     * Hard ceiling per upload (bytes).
+     *
+     * <p>This used to claim the explicit check below "gives a clean 400 instead
+     * of Spring's MaxUploadSizeExceededException → 500". It did the opposite,
+     * and could not have done otherwise: the value is byte-identical to
+     * {@code spring.servlet.multipart.max-file-size}, and
+     * {@code max-request-size} is 3MB as well, so multipart framing overhead
+     * means the container rejects the request before this class is ever
+     * entered. The check was unreachable and the comment described a defence
+     * that did not exist.
+     *
+     * <p>{@code MaxUploadSizeExceededException} is now handled properly in
+     * {@link ApiExceptionHandler} and returns 413. The check stays as a cheap
+     * belt-and-braces guard for any future caller that reaches
+     * {@link #validate} without passing through the multipart resolver — it is
+     * simply no longer the thing standing between a large upload and a 500.
+     */
     private static final long MAX_BYTES = 3L * 1024 * 1024;
 
     private final R2StorageService r2;

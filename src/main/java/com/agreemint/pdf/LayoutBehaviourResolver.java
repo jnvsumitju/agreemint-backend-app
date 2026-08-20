@@ -28,7 +28,13 @@ import java.util.regex.Pattern;
 @Service
 public class LayoutBehaviourResolver {
 
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\{\\{\\s*([a-zA-Z0-9_.]+)\\s*}}");
+    /**
+     * Kept identical to {@code PdfRendererService.VAR_PATTERN} and the console's
+     * {@code VAR_PIPE_RE}. Three copies of one grammar is already one too many;
+     * they must at least agree. Group 1 is the key, group 2 the pipe chain.
+     */
+    private static final Pattern VAR_PATTERN =
+            Pattern.compile("\\{\\{\\s*([a-zA-Z0-9_.]+)((?:\\s*\\|\\s*[^}]+)?)\\s*}}");
 
     /**
      * Kind of literal each binding target expects — drives coercion in the unified path
@@ -384,7 +390,12 @@ public class LayoutBehaviourResolver {
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             String key = m.group(1);
-            String val = lookupText(key, globalData, rowContext);
+            // Behaviour expressions carry pipes too — a width expression or an
+            // image src can format a value the same way body text does.
+            VariablePipes.Parsed parsed =
+                    VariablePipes.parse(key + (m.group(2) == null ? "" : m.group(2)));
+            String val = VariablePipes.apply(
+                    lookupText(parsed.key(), globalData, rowContext), parsed.pipes());
             m.appendReplacement(sb, Matcher.quoteReplacement(val));
         }
         m.appendTail(sb);

@@ -98,7 +98,7 @@ public class MarketplaceController {
     @PostMapping
     public ResponseEntity<MarketplaceListingResponse> publish(
             @AuthenticationPrincipal UserPrincipal principal,
-            @RequestBody PublishRequest req
+            @jakarta.validation.Valid @RequestBody PublishRequest req
     ) {
         planGate.requireAtLeast(principal.orgId(), REQUIRED_PLAN, FEATURE);
 

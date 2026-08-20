@@ -36,7 +36,7 @@ public class OrgController {
     @PostMapping
     public ResponseEntity<OrgResponse> createOrg(
             @AuthenticationPrincipal UserPrincipal principal,
-            @RequestBody CreateOrgRequest req
+            @jakarta.validation.Valid @RequestBody CreateOrgRequest req
     ) {
         OrgResponse org = orgService.createOrg(principal.userId(), req.name());
         return ResponseEntity.status(HttpStatus.CREATED).body(org);
@@ -86,7 +86,7 @@ public class OrgController {
     public ResponseEntity<InviteMemberResponse> inviteMember(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID orgId,
-            @RequestBody InviteMemberRequest req
+            @jakarta.validation.Valid @RequestBody InviteMemberRequest req
     ) {
         OrgRole role = req.role() != null ? OrgRole.valueOf(req.role().toUpperCase()) : OrgRole.VIEWER;
         InviteMemberResponse result = orgService.inviteMember(principal.userId(), orgId, req.email(), role);
@@ -116,7 +116,7 @@ public class OrgController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID orgId,
             @PathVariable UUID membershipId,
-            @RequestBody ChangeRoleRequest req
+            @jakarta.validation.Valid @RequestBody ChangeRoleRequest req
     ) {
         OrgRole role = OrgRole.valueOf(req.role().toUpperCase());
         return orgService.changeRole(principal.userId(), orgId, membershipId, role);
