@@ -13,6 +13,7 @@ import com.agreemint.api.BadRequestException;
 import com.agreemint.domain.TemplateVersion;
 import com.agreemint.pdf.PdfRendererService;
 import com.agreemint.pdf.PdfSigningService;
+import com.agreemint.pdf.VariableDataTree;
 import com.agreemint.pdf.VerificationMark;
 import com.agreemint.security.HashUtils;
 import com.agreemint.repository.DocumentReceiptRepository;
@@ -30,6 +31,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -167,10 +169,37 @@ public class DocumentGenerationService {
                                 : " Set it to Active when it is ready."));
         }
 
-        JsonNode data = request.data();
-        if (data == null || data.isNull()) {
-            data = JsonNodeFactory.instance.objectNode();
+        // Declared out here for the same reason sha256 is: assigned inside the
+        // try, read by the response built after it.
+        List<String> warnings = List.of();
+        JsonNode rawData = request.data();
+        if (rawData == null || rawData.isNull()) {
+            rawData = JsonNodeFactory.instance.objectNode();
         }
+        // Accept dotted keys as well as nested objects.
+        //
+        // 451 of the variable names across the shipped templates contain a dot,
+        // and the console displays the placeholder verbatim — a developer reads
+        // {{company.name}} in the Variables panel and puts "company.name" in
+        // their JSON, which is the only reasonable guess. The renderer splits
+        // that path and walks it, finds no `company` object, and prints
+        // nothing: a valid PDF with every merged field blank, no exception and
+        // no log line. The value was in the payload the whole time.
+        //
+        // The console and the thumbnail renderer have always run their stored
+        // variables through this conversion; the public API was the one path
+        // that did not, so the same template filled from the UI and from the
+        // API produced different documents. This closes that.
+        //
+        // Nested payloads — the shape the docs show — are unaffected:
+        // setDeep merges into an existing object rather than replacing it, so
+        // {"company":{"name":"A"},"company.city":"B"} keeps both.
+        //
+        // `rawData` is kept as-is for the stored input record below: that column
+        // is the audit trail of what the caller actually sent, and rewriting it
+        // to our normalised form would erase the evidence needed to explain a
+        // support ticket about this very behaviour.
+        JsonNode data = VariableDataTree.build(version.getLayoutJson(), rawData);
 
         // Where the document is filed. Caller's org wins, as it always has.
         UUID effectiveOrgId = orgId != null ? orgId : version.getTemplate().getOrgId();
@@ -195,7 +224,7 @@ public class DocumentGenerationService {
         GeneratedDocument doc = new GeneratedDocument();
         doc.setTemplate(version.getTemplate());
         doc.setVersion(version);
-        doc.setInputData(data);
+        doc.setInputData(rawData);
         doc.setStatus(DocumentStatus.PENDING);
         doc.setSource(source == null ? DocumentSource.UI_GENERATED : source);
         // UI docs start DRAFT; API docs have no lifecycle — they're terminal.
@@ -230,9 +259,22 @@ public class DocumentGenerationService {
             // Free-plan documents carry a watermark. Anchored to the template's
             // org for the same reason the quota is — see governingOrgId above.
             boolean watermark = planGate.isFreeRestricted(governingOrgId);
-            byte[] rendered = pdfRendererService.render(
+            // renderWithWarnings, not render: identical bytes, plus the
+            // placeholders that found nothing to fill them. Collected during
+            // the render itself so the renderer's own control flow supplies
+            // the exclusions — see the note on that method.
+            PdfRendererService.RenderResult result = pdfRendererService.renderWithWarnings(
                     version.getLayoutJson(), data, watermark,
                     new VerificationMark(doc.getId(), verificationCode, visibleMark));
+            byte[] rendered = result.pdf();
+            warnings = result.warnings();
+            if (!warnings.isEmpty()) {
+                // INFO: a blank optional field is legitimate, so this is not a
+                // fault. It is logged because "the PDF came out empty" tickets
+                // are otherwise unanswerable after the fact.
+                log.info("Document {} generated with {} unresolved placeholder(s): {}",
+                        doc.getId(), warnings.size(), warnings);
+            }
 
             // Sign BEFORE hashing. A PAdES signature rewrites the file, so a
             // digest taken first would describe bytes that never left the
@@ -306,7 +348,7 @@ public class DocumentGenerationService {
             ));
         }
 
-        return new GenerateResponse(doc.getId(), doc.getFileUrl(), sha256);
+        return new GenerateResponse(doc.getId(), doc.getFileUrl(), sha256, warnings);
     }
 
     @Transactional(readOnly = true)

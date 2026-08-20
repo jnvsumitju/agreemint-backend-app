@@ -12,6 +12,7 @@ import com.agreemint.repository.TemplateDraftRepository;
 import com.agreemint.repository.TemplateRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -142,6 +143,64 @@ public class TemplateDraftService {
             return n;
         });
         d.setVariables(vars);
+        d.setUpdatedAt(Instant.now());
+        templateDraftRepository.save(d);
+    }
+
+    /**
+     * Apply one editor's variable changes without discarding anyone else's.
+     *
+     * <p>The whole-map PUT this replaces was last-writer-wins over every key at
+     * once: two people editing different variables in the same 800ms debounce
+     * window meant whichever request landed second silently erased the other's
+     * work. Nothing errored and nothing was logged — the value simply reverted
+     * under them a moment after they typed it.
+     *
+     * <p>A patch fixes that because each client only ever asserts the keys IT
+     * changed. Everything it did not touch is left exactly as the row holds it,
+     * so unrelated concurrent edits compose instead of racing.
+     *
+     * <p><b>Removals are explicit, and have to be.</b> An add-only merge looks
+     * simpler and is wrong here: the editor deletes keys for real — renaming a
+     * variable drops the old key, and {@code mergeVariableValues} prunes any key
+     * the layout no longer references. Without carrying removals, a rename
+     * would resurrect the old key on the next save from any other client.
+     *
+     * <p>Same-key concurrent edits are still last-writer-wins, deliberately.
+     * Merging two people's text for one field needs a CRDT, and variable values
+     * are plain state rather than Yjs — see the note in
+     * {@code src/collab/yDocProvider.ts}. This narrows the loss from "every
+     * variable in the template" to "the one field you were both typing in",
+     * which is the outcome a person can actually understand.
+     */
+    @Transactional
+    public void patchDraftVariables(UUID templateId, JsonNode set, JsonNode remove) {
+        if (!templateRepository.existsById(templateId)) {
+            throw new NotFoundException("Template not found");
+        }
+        TemplateDraft d = templateDraftRepository.findById(templateId).orElseGet(() -> {
+            TemplateDraft n = new TemplateDraft();
+            n.setTemplateId(templateId);
+            n.setLayoutJson(JsonNodeFactory.instance.objectNode());
+            n.setVariables(JsonNodeFactory.instance.objectNode());
+            return n;
+        });
+
+        JsonNode existing = d.getVariables();
+        ObjectNode merged = existing != null && existing.isObject()
+                ? existing.deepCopy()
+                : JsonNodeFactory.instance.objectNode();
+
+        if (set != null && set.isObject()) {
+            set.fields().forEachRemaining(e -> merged.set(e.getKey(), e.getValue()));
+        }
+        if (remove != null && remove.isArray()) {
+            for (JsonNode key : remove) {
+                if (key != null && key.isTextual()) merged.remove(key.asText());
+            }
+        }
+
+        d.setVariables(merged);
         d.setUpdatedAt(Instant.now());
         templateDraftRepository.save(d);
     }

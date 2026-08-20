@@ -57,6 +57,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -71,7 +72,16 @@ public class PdfRendererService {
 
     private static final Logger log = LoggerFactory.getLogger(PdfRendererService.class);
 
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\{\\{\\s*([a-zA-Z0-9_.]+)\\s*}}");
+    /**
+     * {@code {{key}}} or {@code {{key | pipe:"arg" | pipe2}}}.
+     *
+     * <p>Group 1 is the key, group 2 the optional pipe chain. Character-for-
+     * character the console's {@code VAR_PIPE_RE}; the two must agree or a
+     * placeholder is a variable on the canvas and literal text in the PDF,
+     * which is exactly what happened before the second group existed.
+     */
+    private static final Pattern VAR_PATTERN =
+            Pattern.compile("\\{\\{\\s*([a-zA-Z0-9_.]+)((?:\\s*\\|\\s*[^}]+)?)\\s*}}");
 
     /** Built-in merge keys; overlay per PDF page so headers/footers can show page x of y. */
     private static final String DATA_KEY_TOTAL_PAGES = "totalPages";
@@ -230,6 +240,69 @@ public class PdfRendererService {
      *             since a preview has no document row and must not carry a code
      *             that resolves to nothing.
      */
+    /**
+     * A render plus the placeholders that had nothing to fill them.
+     *
+     * @param pdf      the rendered bytes, identical to what {@code render} returns
+     * @param warnings distinct placeholder paths that resolved to nothing, in the
+     *                 order first encountered
+     */
+    public record RenderResult(byte[] pdf, List<String> warnings) {}
+
+    /**
+     * Placeholder misses for the render happening on THIS thread, or null when
+     * nobody asked for them.
+     *
+     * <p>A ThreadLocal rather than a parameter because {@link #lookup} sits five
+     * or six frames below {@code render} — through dispatch, addText,
+     * buildParagraphFromContent, substitute — and threading a collector through
+     * every one of them would be a large diff across the hottest class here for
+     * a diagnostic. An instance field is not an option: this is a singleton and
+     * two concurrent renders would report each other's misses.
+     *
+     * <p>Null when unset, which is the ordinary {@code render} path, so callers
+     * that do not want warnings pay one null check per placeholder and nothing
+     * else.
+     */
+    private static final ThreadLocal<Set<String>> MISSING_PLACEHOLDERS = new ThreadLocal<>();
+
+    /**
+     * Render, and report which placeholders found no value.
+     *
+     * <p>Exists because the failure it surfaces is invisible by construction:
+     * an unresolved placeholder renders as an empty string, so a typo'd key
+     * produces a structurally perfect PDF with a blank where a name should be,
+     * and the first person to notice is whoever receives the document.
+     *
+     * <p><b>Collected during the render rather than by scanning the layout
+     * first</b>, and that is the whole design. Doing it here means the
+     * renderer's own control flow supplies the exclusions: system keys are
+     * filled before any element draws so they can never be reported, elements
+     * and rows hidden by a behaviour rule never reach substitution, and
+     * behaviour-rule operands resolve through a different resolver entirely. A
+     * layout pre-scan would have to reimplement all three and would drift from
+     * the renderer the first time either changed.
+     *
+     * <p><b>What it does not catch.</b> A placeholder only counts if
+     * {@code VAR_PATTERN} matched it, so anything with a pipe
+     * ({@code {{total | currency}}}) or a hyphen is not a placeholder as far as
+     * this engine is concerned — it prints literally and is never reported.
+     * That is a real gap, and it is documented rather than papered over.
+     */
+    public RenderResult renderWithWarnings(JsonNode layoutJson, JsonNode data, boolean watermark,
+                                           VerificationMark mark) throws IOException {
+        Set<String> misses = new LinkedHashSet<>();
+        MISSING_PLACEHOLDERS.set(misses);
+        try {
+            byte[] pdf = render(layoutJson, data, watermark, mark);
+            return new RenderResult(pdf, List.copyOf(misses));
+        } finally {
+            // remove(), not set(null): a pooled request thread would otherwise
+            // hold this set alive until its next render.
+            MISSING_PLACEHOLDERS.remove();
+        }
+    }
+
     public byte[] render(JsonNode layoutJson, JsonNode data, boolean watermark, VerificationMark mark)
             throws IOException {
         long startNanos = System.nanoTime();
@@ -869,7 +942,13 @@ public class PdfRendererService {
             String textValue;
             if ("var".equals(type)) {
                 String name = run.path("name").asText("");
-                textValue = lookup(name, data, rowContext);
+                // A var run's name can carry a pipe chain just as inline
+                // text can; without parsing it here the whole expression is
+                // treated as a key, resolves to nothing, and renders blank.
+                VariablePipes.Parsed parsedRun = VariablePipes.parse(name);
+                textValue = VariablePipes.apply(
+                        lookup(parsedRun.key(), data, rowContext, !hasDefault(parsedRun.pipes())),
+                        parsedRun.pipes());
             } else {
                 textValue = substitute(run.path("text").asText(""), data, rowContext);
             }
@@ -2935,19 +3014,29 @@ public class PdfRendererService {
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             String key = m.group(1);
-            String val = lookup(key, globalData, rowContext);
-            m.appendReplacement(sb, Matcher.quoteReplacement(val));
+            List<VariablePipes.Pipe> pipes = VariablePipes.parse(key + orEmpty(m.group(2))).pipes();
+            // A `default` pipe is the author saying "this one may be absent",
+            // so the miss is expected and not worth reporting.
+            String val = lookup(key, globalData, rowContext, !hasDefault(pipes));
+            m.appendReplacement(sb, Matcher.quoteReplacement(VariablePipes.apply(val, pipes)));
         }
         m.appendTail(sb);
         return sb.toString();
     }
 
     private String lookup(String path, JsonNode globalData, JsonNode rowContext) {
+        return lookup(path, globalData, rowContext, true);
+    }
+
+    private String lookup(String path, JsonNode globalData, JsonNode rowContext, boolean report) {
         JsonNode n = resolveDataPath(globalData, path);
         if ((n == null || n.isMissingNode() || n.isNull()) && rowContext != null) {
             n = resolveDataPath(rowContext, path);
         }
         if (n == null || n.isMissingNode() || n.isNull()) {
+            // Absent after BOTH scopes have been tried — a cell placeholder
+            // that resolves only against its row is not a miss.
+            if (report) recordMissingPlaceholder(path);
             return "";
         }
         if (n.isTextual()) {
@@ -2961,6 +3050,44 @@ public class PdfRendererService {
         }
         return n.toString();
     }
+
+    /**
+     * Note a placeholder that found nothing. No-op unless a caller asked.
+     *
+     * <p>{@code "."} is skipped deliberately: {@code split("\\.")} on it yields
+     * an empty array, so {@link #resolveDataPath} returns the root node and it
+     * can never be a miss — reporting it would be noise, and it is the list
+     * loop's own self-reference rather than a data key.
+     *
+     * <p>A {@link LinkedHashSet} because header, footer and floating elements
+     * repeat on every page: without deduplication a two-line address missing
+     * from a ten-page document would produce twenty identical warnings.
+     */
+    private static String orEmpty(String s) {
+        return s == null ? "" : s;
+    }
+
+    private static boolean hasDefault(List<VariablePipes.Pipe> pipes) {
+        return pipes.stream().anyMatch(p -> "default".equals(p.name()));
+    }
+
+    private static void recordMissingPlaceholder(String path) {
+        Set<String> misses = MISSING_PLACEHOLDERS.get();
+        if (misses == null) return;
+        if (path == null || path.isBlank() || ".".equals(path)) return;
+        if (misses.size() >= MAX_REPORTED_PLACEHOLDERS) return;
+        misses.add(path);
+    }
+
+    /**
+     * Ceiling on reported placeholders.
+     *
+     * <p>A caller who sends no data at all misses every placeholder in the
+     * template, and a response carrying two hundred of them helps nobody and
+     * grows every payload. Twenty-five is comfortably more than a person will
+     * fix in one sitting, and the first few are always the informative ones.
+     */
+    private static final int MAX_REPORTED_PLACEHOLDERS = 25;
 
     private JsonNode resolveDataPath(JsonNode root, String path) {
         if (root == null || path == null || path.isEmpty()) {

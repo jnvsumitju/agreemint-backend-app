@@ -1,0 +1,187 @@
+[
+  {
+    "value": 2400,
+    "expr": "x | currency",
+    "expected": "$2,400.00"
+  },
+  {
+    "value": 2400,
+    "expr": "x | currency:\"INR\"",
+    "expected": "₹2,400.00"
+  },
+  {
+    "value": 2400.5,
+    "expr": "x | currency:\"EUR\"",
+    "expected": "€2,400.50"
+  },
+  {
+    "value": -5,
+    "expr": "x | currency",
+    "expected": "-$5.00"
+  },
+  {
+    "value": 0,
+    "expr": "x | currency",
+    "expected": "$0.00"
+  },
+  {
+    "value": "abc",
+    "expr": "x | currency",
+    "expected": "abc"
+  },
+  {
+    "value": 1234.5678,
+    "expr": "x | number",
+    "expected": "1234.57"
+  },
+  {
+    "value": 1234.5678,
+    "expr": "x | number:0",
+    "expected": "1235"
+  },
+  {
+    "value": 1234.5678,
+    "expr": "x | number:3",
+    "expected": "1234.568"
+  },
+  {
+    "value": "abc",
+    "expr": "x | number",
+    "expected": "abc"
+  },
+  {
+    "value": "hello world",
+    "expr": "x | uppercase",
+    "expected": "HELLO WORLD"
+  },
+  {
+    "value": "HELLO World",
+    "expr": "x | lowercase",
+    "expected": "hello world"
+  },
+  {
+    "value": "hello world again",
+    "expr": "x | capitalize",
+    "expected": "Hello World Again"
+  },
+  {
+    "value": "o'brien mc-do",
+    "expr": "x | capitalize",
+    "expected": "O'Brien Mc-Do"
+  },
+  {
+    "value": "abcdefghij",
+    "expr": "x | truncate:5",
+    "expected": "abcde…"
+  },
+  {
+    "value": "abc",
+    "expr": "x | truncate:5",
+    "expected": "abc"
+  },
+  {
+    "value": "",
+    "expr": "x | default:\"n/a\"",
+    "expected": "n/a"
+  },
+  {
+    "value": "   ",
+    "expr": "x | default:\"n/a\"",
+    "expected": "n/a"
+  },
+  {
+    "value": "set",
+    "expr": "x | default:\"n/a\"",
+    "expected": "set"
+  },
+  {
+    "value": null,
+    "expr": "x | default:\"n/a\"",
+    "expected": "n/a"
+  },
+  {
+    "value": "2026-08-20",
+    "expr": "x | date",
+    "expected": "2026-08-20"
+  },
+  {
+    "value": "2026-08-20",
+    "expr": "x | date:\"DD MMM YYYY\"",
+    "expected": "20 08M 2026"
+  },
+  {
+    "value": "2026-01-05",
+    "expr": "x | date:\"MM/DD/YYYY\"",
+    "expected": "01/05/2026"
+  },
+  {
+    "value": "not a date",
+    "expr": "x | date",
+    "expected": "not a date"
+  },
+  {
+    "value": 2400,
+    "expr": "x | number:2 | default:\"n/a\"",
+    "expected": "2400.00"
+  },
+  {
+    "value": "hi",
+    "expr": "x | uppercase | truncate:1",
+    "expected": "H…"
+  },
+  {
+    "value": "hi",
+    "expr": "x | nosuchpipe",
+    "expected": "hi"
+  },
+  {
+    "value": 1234567,
+    "expr": "x | currency:\"INR\"",
+    "expected": "₹1,234,567.00"
+  },
+  {
+    "value": 1234567.89,
+    "expr": "x | currency",
+    "expected": "$1,234,567.89"
+  },
+  {
+    "value": 1234567,
+    "expr": "x | number:0",
+    "expected": "1234567"
+  },
+  {
+    "value": 2.5,
+    "expr": "x | number:0",
+    "expected": "3"
+  },
+  {
+    "value": 3.5,
+    "expr": "x | number:0",
+    "expected": "4"
+  },
+  {
+    "value": -2.5,
+    "expr": "x | number:0",
+    "expected": "-3"
+  },
+  {
+    "value": 0.125,
+    "expr": "x | number:2",
+    "expected": "0.13"
+  },
+  {
+    "value": 1.005,
+    "expr": "x | number:2",
+    "expected": "1.00"
+  },
+  {
+    "value": 2.675,
+    "expr": "x | number:2",
+    "expected": "2.67"
+  },
+  {
+    "value": 2400,
+    "expr": "x | currency:\"JPY\"",
+    "expected": "¥2,400"
+  }
+]

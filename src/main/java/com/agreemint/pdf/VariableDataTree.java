@@ -136,14 +136,50 @@ public final class VariableDataTree {
      */
     private static JsonNode tableRows(JsonNode stored, List<String> columns) {
         JsonNode parsed = stored != null && stored.isTextual() ? tryParse(stored.asText()) : stored;
-        if (parsed == null || !parsed.isArray()) return JsonNodeFactory.instance.arrayNode();
+        if (parsed == null) return JsonNodeFactory.instance.arrayNode();
+
+        // TWO shapes reach here, and only one of them used to.
+        //
+        //  legacy      [{"date":"03 Jul","amount":"45000"}, …]
+        //  structured  {"data":[["date","amount"],["03 Jul","45000"], …],
+        //               "cellStyle":…, "borderStyle":…}
+        //
+        // Structured is what the console writes — PropertiesPanel's Loop toggle
+        // calls serializeTableVariableData, and every canvas edit re-serialises
+        // it. The old guard was `!parsed.isArray() -> empty`, so an object fell
+        // straight through it and EVERY data-bound table a customer built
+        // rendered with its header and no rows. Nothing threw; the document was
+        // simply wrong.
+        //
+        // Legacy is still what the 50 shipped bundles carry, and what an API
+        // caller sends, so both must work.
+        List<JsonNode> body = new ArrayList<>();
+        boolean positional = false;
+        if (parsed.isArray()) {
+            parsed.forEach(body::add);
+        } else if (parsed.isObject() && parsed.path("data").isArray()) {
+            JsonNode grid = parsed.get("data");
+            // Row 0 is the header row. Body cells are addressed by POSITION
+            // against the layout's declared columns, mirroring the console's
+            // own structuredToLegacyRows.
+            for (int r = 1; r < grid.size(); r++) body.add(grid.get(r));
+            positional = true;
+        } else {
+            return JsonNodeFactory.instance.arrayNode();
+        }
 
         ArrayNode out = JsonNodeFactory.instance.arrayNode();
-        for (JsonNode item : parsed) {
+        for (JsonNode item : body) {
             ObjectNode row = JsonNodeFactory.instance.objectNode();
             boolean anyContent = false;
-            for (String col : columns) {
-                JsonNode cell = item != null && item.isObject() ? item.get(col) : null;
+            for (int i = 0; i < columns.size(); i++) {
+                String col = columns.get(i);
+                JsonNode cell;
+                if (positional) {
+                    cell = item != null && item.isArray() && i < item.size() ? item.get(i) : null;
+                } else {
+                    cell = item != null && item.isObject() ? item.get(col) : null;
+                }
                 String text = cell == null || cell.isNull() ? ""
                         : cell.isTextual() ? cell.asText() : cell.toString();
                 row.put(col, text);
@@ -169,23 +205,58 @@ public final class VariableDataTree {
         Map<String, List<String>> out = new HashMap<>();
         if (layoutJson == null || !layoutJson.isObject()) return out;
 
-        for (JsonNode page : layoutJson.path("pages")) {
-            for (JsonNode el : page.path("elements")) {
-                if (!"TABLE".equalsIgnoreCase(el.path("type").asText(""))) continue;
-                String dataKey = el.path("dataKey").asText("").trim();
-                if (dataKey.isEmpty()) continue;
-
-                List<String> keys = new ArrayList<>();
-                for (JsonNode col : el.path("columns")) {
-                    String k = col.path("key").asText("");
-                    if (!k.isEmpty()) keys.add(k);
-                }
-                // Matches getTableColumnsForDataKey's fallback for a table that
-                // declares no columns.
-                out.putIfAbsent(dataKey, keys.isEmpty() ? List.of("value") : keys);
-            }
+        // Walks exactly what the renderer walks. It used to iterate `pages`
+        // only, with no fallback and no band recursion, while
+        // PdfRendererService.pageElementArraysFromLayout falls back to a
+        // top-level `elements` array and re-dispatches band children.
+        //
+        // The consequence was quiet rather than loud: a layout stored with
+        // top-level elements — which assertValidLayout explicitly permits —
+        // rendered correctly but got no column projection, so its blank rows
+        // were never filtered and printed as empty lines in the finished
+        // document. A TABLE inside a header or footer band had the same problem
+        // even when the layout did use pages.
+        for (JsonNode elements : elementArrays(layoutJson)) {
+            collectTables(elements, out);
         }
         return out;
+    }
+
+    /** `pages[].elements` when there are pages, else the root `elements`. */
+    private static List<JsonNode> elementArrays(JsonNode layoutJson) {
+        List<JsonNode> out = new ArrayList<>();
+        JsonNode pages = layoutJson.path("pages");
+        if (pages.isArray() && !pages.isEmpty()) {
+            for (JsonNode page : pages) {
+                JsonNode els = page.path("elements");
+                if (els.isArray()) out.add(els);
+            }
+            return out;
+        }
+        JsonNode root = layoutJson.path("elements");
+        if (root.isArray()) out.add(root);
+        return out;
+    }
+
+    /** Collect TABLE columns, descending into header/footer bands. */
+    private static void collectTables(JsonNode elements, Map<String, List<String>> out) {
+        for (JsonNode el : elements) {
+            JsonNode band = el.path("bandElements");
+            if (band.isArray()) collectTables(band, out);
+
+            if (!"TABLE".equalsIgnoreCase(el.path("type").asText(""))) continue;
+            String dataKey = el.path("dataKey").asText("").trim();
+            if (dataKey.isEmpty()) continue;
+
+            List<String> keys = new ArrayList<>();
+            for (JsonNode col : el.path("columns")) {
+                String k = col.path("key").asText("");
+                if (!k.isEmpty()) keys.add(k);
+            }
+            // Matches getTableColumnsForDataKey's fallback for a table that
+            // declares no columns.
+            out.putIfAbsent(dataKey, keys.isEmpty() ? List.of("value") : keys);
+        }
     }
 
     /**

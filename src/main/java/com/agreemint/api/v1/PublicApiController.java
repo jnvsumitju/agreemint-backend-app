@@ -118,7 +118,11 @@ public class PublicApiController {
         // record can prove the file is unaltered later without calling us.
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new GenerateResponse(
-                        res.documentId(), toPublicFileUrl(res.fileUrl()), res.sha256()));
+                        res.documentId(), toPublicFileUrl(res.fileUrl()), res.sha256(),
+                        // Passed through unchanged. Only fileUrl is rewritten for
+                        // the public surface; a warning names a placeholder in the
+                        // caller's own template and means the same thing here.
+                        res.warnings()));
     }
 
     // ── Documents ────────────────────────────────────────────────────────────
